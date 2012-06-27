@@ -3,15 +3,16 @@ var url = require("url");
 var qs = require("querystring");
 var router = require("./router");
 
-//Uncaught exceptinons handler to make the server stay running forever.
+//Uncaught exceptions handler to make the server stay running forever.
 process.on("uncaughtException", function(err){
 	
 	console.log( err);
+	
 });
 
 
 /*
- * Funcion generica con la logica de negocio del servidor http
+ * Process incoming request: parse url and route request  based on pathname. 
  */
 function onRequest(request, response){
 	
@@ -31,10 +32,9 @@ function onRequest(request, response){
 			});
 			
 	    }else{
-		
-			console.log("No request handler for Content-Type not app/json");
-			response.writeHead(404, {"Content-Type":"text/html"});
-			response.write("404 Not Found: No content for Content-Type:" + request.headers["content-type"]);
+					
+			response.writeHead(400, {"Content-Type":"text/html"});
+			response.write("400 Bad request.");
 			response.end();
 	    }
 	}else{
@@ -45,7 +45,7 @@ function onRequest(request, response){
 }
 
 /*
- * Arrancamos el servidor de comandos
+ * Start commnand server
  */	
 exports.startComServer = function(  port ){
 								
@@ -55,7 +55,7 @@ exports.startComServer = function(  port ){
 
 
 /*
- * Arrancamos el servidor de eventos
+ * Start event server.
  */
 exports.startEvServer = function( port ){		
 	
