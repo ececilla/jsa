@@ -1,6 +1,6 @@
 /*
- * Funciones del api que son llamadas desde rpc.js. EL mensaje JSON-RPC indica la funcion
- * a llamar, si esta no existe, se devuelve un codigo de error.
+ * RPC-API to manipulate json documents on the server. These documents
+ * are stored in a mongodb database.
  */
 
 var db = require("./db");
@@ -18,7 +18,6 @@ exports.remote = {};
 /*
  * Register listeners to the rpc-api events using a delegation pattern for EventEmitter.
  * 
- * TODO: exponer una interfaz que no publique la funcion on.
  */
 exports.on = function( ev_type, ret_handler ){
 	
@@ -96,7 +95,7 @@ exports.remote.join = function( params, ret_handler ){
 }
 
 /*
- * Add a field to the document
+ * Add a field to the document.
  */
 exports.remote.add = function(params, ret_handler){
 
@@ -325,7 +324,7 @@ exports.remote.push = function(params, ret_handler){
 
 
 /*
- * pops the last value of the array field in the document.
+ * Pops the last value of the array field in the document.
  */
 exports.remote.pop = function(params, ret_handler){
 	
@@ -367,7 +366,7 @@ exports.remote.pop = function(params, ret_handler){
 
 
 /*
- * pulls the first value of the array field in the document.
+ * Pulls the first value of the array field in the document.
  */
 exports.remote.pull = function(params, ret_handler){
 	
@@ -405,21 +404,6 @@ exports.remote.pull = function(params, ret_handler){
 			ret_handler(err,null);
 		
 	});			
-}
-
-
-/*
- * Funcion para validar la llegada de mensajes a partir de un tstamp concreto.
- */
-exports.remote.ack = function( params, ret_handler ){
-	
-	if( !( params.uid && params.tstamp ) ){
-		
-		var err = {code:-2, message:"Missing parameters:(uid)"};
-		ret_handler(err,null);
-		return;
-	}
-	emitter.emit( "ev_ack", params );
 }
 
 
