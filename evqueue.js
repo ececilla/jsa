@@ -3,6 +3,8 @@ var api = require("./api");
 var util = require("util");
 
 
+exports.initrcpts = null;
+
 /*
  * default handler for all events.
  */
@@ -24,6 +26,9 @@ function default_handler(msg){
 
 api.on("ev_create", function( msg ){
 			
+	
+			
+	
 	
 });
 

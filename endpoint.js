@@ -7,50 +7,43 @@ var api = require("./api");
 var eq = require("./evqueue");
 
 /*
- * Function handler for endpoint /rpc
+ * Process json request string and return json response object through the return handler.
+ * 
  */
-exports.rpc = function( http_resp, data ){
-    
-    var jsonrpc_req, jsonrpc_res =  {jsonrpc:"2.0"};
-    
-    //Check whether posted string is json-parseable or not.
+function process(jsonrpc_req_str, ret_handler){
+	
+	var jsonrpc_req, jsonrpc_res = {jsonrpc:"2.0"};
+
+	//Check whether request string is json-parseable or not.
     try{    
-    	jsonrpc_req = JSON.parse(data);
-    }catch(err){
-    	http_resp.writeHead(200,{"Content-Type":"application/json"});
+    	jsonrpc_req = JSON.parse(jsonrpc_req_str);
+    }catch(err){    	
     	
     	jsonrpc_res.err = {code:-32700, message:"Parse error."};
     	jsonrpc_res.id = null;
-    	http_resp.end( JSON.stringify( jsonrpc_res ) + "\n" );    			
-		return;
-    }        
-    
-    //If theres no id we can close the response socket.
-    if( !jsonrpc_req.id )		
-		http_resp.end();	
-    
-    //Check protocol version.
-    if( jsonrpc_req.jsonrpc != "2.0" ){
-	
-		http_resp.writeHead(500,{"Content-Type":"application/json"});
-		jsonrpc_res.err = {code:-32604, message:"Version not supported."}
-		http_resp.end( JSON.stringify( jsonrpc_res ) + "\n" );		
+    	ret_handler(jsonrpc_res);    			
 		return;
     }
-
+    	
+	//Check protocol version.
+    if( jsonrpc_req.jsonrpc != "2.0" ){
+			
+		jsonrpc_res.err = {code:-32604, message:"Version not supported."}
+		jsonrpc_res.id = null;
+		ret_handler(jsonrpc_res);		
+		return;
+    }
+    
     //Check we can call the procedure
     if( !api.remote[jsonrpc_req.method] ){
-	
-	
-		http_resp.writeHead(500,{"Content-Type:":"application/json"});
-		jsonrpc_res.err = {code:-32600, message:"Invalid request."};
+				
+		jsonrpc_res.err = {code:-32600, message:"Method not found."};
 		jsonrpc_res.id = jsonrpc_req.id;
-		http_resp.end(JSON.stringify( jsonrpc_res ) + "\n");		
+		ret_handler(jsonrpc_res);		
 		return;
     }
-    	   	  
-      
-    //Invoke procedure and write output to response socket as a json string.
+    
+    //Invoke procedure and return response
     api.remote[jsonrpc_req.method]( jsonrpc_req.params, function( err,result ){
 	
 		if( jsonrpc_req.id ){
@@ -59,13 +52,37 @@ exports.rpc = function( http_resp, data ){
 				jsonrpc_res.result = result;	    	      
 		    else
 				jsonrpc_res.error = err;
-	
-		    http_resp.writeHead(200,{"Content-Type":"application/json"});	
+			    	
 		    jsonrpc_res.id = jsonrpc_req.id;    
-		    http_resp.end(JSON.stringify( jsonrpc_res ) + "\n");		    
-		}	
-    });
-               
+			ret_handler(jsonrpc_res);    		    
+		}else
+			ret_handler(null);	
+    });	
+}
+
+
+/*
+ * Processing handler for /rpc endpoint.
+ */
+exports.rpc = function( http_resp, data ){
+	
+	//Check if current request is indeed a batch request
+	
+	
+	//Process request and send http response.    
+	process(data, function( jsonrpc_res ){
+		
+		if(jsonrpc_res){
+			
+			if(jsonrpc_res.err && jsonrpc_res.err.code < -32000)				
+				http_resp.writeHead(400,{"Content-Type":"application/json"});				
+			else
+				http_resp.writeHead(200,{"Content-Type":"application/json"});
+			
+			http_resp.end( JSON.stringify( jsonrpc_res ) + "\n" );
+		}
+	});   	    
+	               
 }
 
 
@@ -78,8 +95,8 @@ exports.events = function( http_resp, data ){
 	var jsonrpc_req = JSON.parse(data);
 	if( jsonrpc_req.method == "subscribe" ){
 		
-		if(!jsonrpc_req.params.uid){
-	
+		if(!jsonrpc_req.params.uid){			
+			
 			http_resp.end();
 			return;
 		}

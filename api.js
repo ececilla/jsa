@@ -4,6 +4,7 @@
  */
 
 var db = require("./db");
+var async = require("async");
 
 var EventEmitter = require("events").EventEmitter,
 	emitter = new EventEmitter();
@@ -12,8 +13,20 @@ var EventEmitter = require("events").EventEmitter,
  * Namespace for public functions: all functions in this namespace
  * will be accessible as a rpc procedure.
  */
-exports.remote = {};	
-			
+exports.remote = {};
+
+/*
+ * Setup the initial list of rcpts for a document. This logic must be provided  outside
+ * the api and will be invoked inside the create procedure. If not function is provided the 
+ * initial list of rcpts is set to a single recipient: the owner of the document.
+ * Ex:
+ * 
+ * var api = require("./api");
+ * api.initrcpts = function(doc, ret_handler){ret_handler([620793111]);};
+ * 
+ * 
+ */	
+exports.initrcpts = null;			
 
 /*
  * Register listeners to the rpc-api events using a delegation pattern for EventEmitter.
@@ -43,16 +56,38 @@ exports.remote.create = function( params, ret_handler ){
 		return;		
 	}
 	
-	params.doc.rcpts = [ params.uid ];
-	db.save("docs", params.doc, function(err, val){
+	params.doc.uid = params.uid;
+	params.doc.rcpts = [params.uid];
+	async.series([
+		function(next){
+			 
+			if(exports.initrcpts){
+				
+				exports.initrcpts( params.doc, function(rcpts){
+					
+					var idx = rcpts.indexOf(params.uid);
+					if( idx != -1 )
+						rcpts.splice(idx,1);
+					params.doc.rcpts = params.doc.rcpts.concat(rcpts); 
+					next();						
+				});								
+			}							
+		},
+		function(next){
+					
+			db.save("docs", params.doc, function(err, val){
+				
+				if(!err){			
+								
+					ret_handler(null, {wid:""+val._id});			
+					emitter.emit( "ev_create", params);			
+				}else
+					ret_handler(err,null);				
+			});
+			next();
+		}			
+	]);
 		
-		if(!err){			
-						
-			ret_handler(null, {wid:""+val._id});			
-			emitter.emit( "ev_create", params);			
-		}else
-			ret_handler(err,null);				
-	});		
 }
 
 

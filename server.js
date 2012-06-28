@@ -45,7 +45,7 @@ function onRequest(request, response){
 }
 
 /*
- * Start commnand server
+ * Start command server
  */	
 exports.startComServer = function(  port ){
 								
