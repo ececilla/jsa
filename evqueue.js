@@ -8,7 +8,7 @@ exports.initrcpts = null;
 /*
  * default handler for all events.
  */
-function default_handler(msg){
+function default_ev_handler(msg){
 	
 	var rcpts = msg.ev_data.doc.rcpts,
 		idx = rcpts.indexOf(msg.ev_data.uid);
@@ -24,12 +24,20 @@ function default_handler(msg){
 	
 }
 
+
 api.on("ev_create", function( msg ){
 			
+	var rcpts = msg.ev_data.doc.rcpts,
+		idx = rcpts.indexOf(msg.ev_data.uid);
+	if( idx != -1)
+		rcpts.splice(idx,1);
+		
+	delete msg.ev_data.doc.rcpts;
 	
-			
-	
-	
+	for(i in rcpts){//TODO: save event to db
+		
+		push( rcpts[i], msg );
+	}	
 });
 
 
@@ -38,7 +46,7 @@ api.on("ev_create", function( msg ){
  */
 api.on("ev_join", function( msg ){
 			
-	default_handler( msg );
+	default_ev_handler( msg );
 });
 
 
@@ -47,7 +55,7 @@ api.on("ev_join", function( msg ){
  */
 api.on("ev_add", function( msg ){
 			
-	default_handler( msg );
+	default_ev_handler( msg );
 });
 
 /*
@@ -55,7 +63,7 @@ api.on("ev_add", function( msg ){
  */
 api.on("ev_rem", function( msg ){
 			
-	default_handler( msg );
+	default_ev_handler( msg );
 });
 
 
@@ -65,7 +73,7 @@ api.on("ev_rem", function( msg ){
  */
 api.on("ev_set",function( msg ){
 	
-	default_handler(msg);
+	default_ev_handler(msg);
 });
 
 /*
@@ -73,7 +81,7 @@ api.on("ev_set",function( msg ){
  */
 api.on("ev_incr",function( msg ){
 	
-	default_handler(msg);
+	default_ev_handler(msg);
 });
 
 /*
@@ -81,7 +89,7 @@ api.on("ev_incr",function( msg ){
  */
 api.on("ev_decr",function( msg ){
 	
-	default_handler(msg);
+	default_ev_handler(msg);
 });
 
 /*
@@ -89,7 +97,7 @@ api.on("ev_decr",function( msg ){
  */
 api.on("ev_push",function( msg ){
 	
-	default_handler(msg);
+	default_ev_handler(msg);
 });
 
 /*
@@ -97,7 +105,7 @@ api.on("ev_push",function( msg ){
  */
 api.on("ev_pop",function( msg ){
 	
-	default_handler(msg);
+	default_ev_handler(msg);
 });
 
 /*
@@ -105,10 +113,8 @@ api.on("ev_pop",function( msg ){
  */
 api.on("ev_pull",function( msg ){
 	
-	default_handler(msg);
+	default_ev_handler(msg);
 });
-
-
 
 
 api.on("ev_ping", function( msg ){

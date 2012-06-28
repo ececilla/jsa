@@ -4,6 +4,7 @@
  */
 
 var api = require("./api");
+api.initrcpts = function(doc,ret_handler){ ret_handler([620793117]) };
 var eq = require("./evqueue");
 
 /*
