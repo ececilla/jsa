@@ -7,7 +7,7 @@ var user = process.env.OPENSHIFT_NOSQL_DB_USERNAME,
 
 
  
-if( user && password ){
+if( user && pass ){
 	console.log("authentication connection...")
 	db.authenticate(user,pass,function(){
 		//TODO: some code?	
