@@ -1,65 +1,36 @@
-#!/usr/bin/env node-dev
+#!/bin/env node
+//  OpenShift sample Node application
 
-	var server = require("./server");		
-	//var cluster = require("cluster");
-	//worker = null;
-	
-	//Arrancamos el servidor de comandos y el servidor de eventos.
-	server.startComServer( 8888 );
-	server.startEvServer( 8889 );
-	
-/*	
-	if(cluster.isMaster){//worker.send({msg:"test"});worker.on("message",callback)
-		
-		//Servidor comandos		
-		worker = cluster.fork();
-		worker.on('message',function(msg){
-				
-				console.log("message from worker:" + JSON.stringify(msg));
-		});
-		
-		var cport = 8888;	
-		server.startComServer( router.route, handle, cport );
-	}else{//process.send;process.on
-		
-		//servidor eventos
-		var eport = 8889;	
-		process.on("message", function(msg){
-			
-			//Hacer un emit del evento para el objeto en este proceso que le interese.
-			console.log("message from master:" + JSON.stringify(msg));
-		});
-		server.startEvServer( router.route, handle, eport );		
-	}
-*/
+var server = require("./server");		
 
-/*
- Tener una conexion a la base de datos.
-	
 
-My solution:
+//  Get the environment variables we need.
+var ipaddr  = process.env.OPENSHIFT_INTERNAL_IP;
+var port    = process.env.OPENSHIFT_INTERNAL_PORT || 8080;
 
-getClient = function(cb) {
-    if(typeof client !== "undefined") {
-        return cb(null, client);
-    } else {
-        db.open(function(err, cli) {
-            client = cli;
-            getClient(cb);
-        });
-    }
+if (typeof ipaddr === "undefined") {
+   console.warn('No OPENSHIFT_INTERNAL_IP environment variable');
 }
 
-Now, instead of
+//  terminator === the termination handler.
+function terminator(sig) {
+   if (typeof sig === "string") {
+      console.log('%s: Received %s - terminating Node server ...',
+                  Date(Date.now()), sig);
+      process.exit(1);
+   }
+   console.log('%s: Node server stopped.', Date(Date.now()) );
+}
 
-db.open(function(err, client) {
-    ...stuff...
+//  Process on exit and signals.
+process.on('exit', function() { terminator(); });
+
+['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT', 'SIGBUS',
+ 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGPIPE', 'SIGTERM'
+].forEach(function(element, index, array) {
+    process.on(element, function() { terminator(element); });
 });
 
-Do:
 
-getClient(function(err, client) {
-    ...stuff...
-});
-*/
-
+server.startComServer( port, ipaddr );
+server.startEvServer( port, ipaddr );

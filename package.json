@@ -1,0 +1,21 @@
+{
+  "name": "jsa",
+  "version": "0.0.1",
+  "description": "json synchronization service",  
+  "author": {
+    "name": "Enric Cecilla",
+    "email": "ececilla@gmail.com",
+    "url":  "http://jsa-waver.rhcloud.com/"
+  },
+  "homepage": "http://jsa-waver.rhcloud.com/",
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
+  "dependencies": {
+  	"async":">=0.1.22",
+  	"mongodb":"1.0.0"
+  },
+  "private": true,
+  "main": "index.js"
+}

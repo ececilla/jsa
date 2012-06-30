@@ -1,9 +1,5 @@
 var db = require("./db");
 var api = require("./api");
-var util = require("util");
-
-
-exports.initrcpts = null;
 
 /*
  * default handler for all events.
@@ -20,8 +16,7 @@ function default_ev_handler(msg){
 	for(i in rcpts){//TODO: save event to db
 		
 		push( rcpts[i], msg );
-	}
-	
+	}	
 }
 
 

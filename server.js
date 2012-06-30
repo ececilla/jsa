@@ -47,21 +47,20 @@ function onRequest(request, response){
 /*
  * Start command server
  */	
-exports.startComServer = function(  port ){
+exports.startComServer = function(  port, ipaddr ){
 								
-	http.createServer(onRequest).listen(port,"192.168.1.2");
-	console.log("Proceso " + process.pid + " escuchando en puerto " + port);             
+	http.createServer(onRequest).listen(port,ipaddr);
+	console.log('%s: Node started on %s:%d with pid:%d ...', Date(Date.now()), ipaddr, port, process.pid);	            
 }
 
 
 /*
  * Start event server.
  */
-exports.startEvServer = function( port ){		
+exports.startEvServer = function( port, ipaddr ){		
 	
-	http.createServer(onRequest).listen(port,"192.168.1.2");	
-	console.log("Proceso " + process.pid + " escuchando en puerto " + port); 
+	http.createServer(onRequest).listen(port,ipaddr);	
+	console.log('%s: Node started on %s:%d with pid:%d ...', Date(Date.now()), ipaddr, port, process.pid); 
 }
 
-	
 
