@@ -5,10 +5,10 @@ var user = process.env.OPENSHIFT_NOSQL_DB_USERNAME,
 	port = process.env.OPENSHIFT_NOSQL_DB_PORT || 27017,
 	db = new mongo.Db("jsa", new mongo.Server("127.0.0.1",27017,{auto_reconnect:true, socketOptions:{timeout:2000}}),{strict:true}); //,poolSize:5,socketOptions:{timeout:1}
 
-
+console.log('%s: MongoDb connection string [%s:%s@%s:%d]', Date(Date.now()), user,pass,host,port);
  
-if( user && pass ){
-	console.log("authentication connection...")
+if( typeof user !== "undefined" && typeof pass !== "undefined" ){
+	
 	db.authenticate(user,pass,function(){
 		//TODO: some code?	
 	});	
