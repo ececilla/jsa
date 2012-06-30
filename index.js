@@ -32,5 +32,5 @@ process.on('exit', function() { terminator(); });
 });
 
 
-server.startComServer( port, ipaddr );
-server.startEvServer( port, ipaddr );
+server.startComServer( 15000, ipaddr );
+server.startEvServer( 15001, ipaddr );
