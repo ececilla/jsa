@@ -15,7 +15,7 @@
   "dependencies": {
   	"async":">=0.1.22",
   	"mongodb":"1.0.0"
-  },
-  "private": true,
-  "main": "./index.js"
+  },  
+  "scripts":{"start":"node index.js"},
+  "main": "index.js"
 }
