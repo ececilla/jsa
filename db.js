@@ -1,25 +1,33 @@
 var mongo = require("mongodb");
+
 var user = process.env.OPENSHIFT_NOSQL_DB_USERNAME,
 	pass = process.env.OPENSHIFT_NOSQL_DB_PASSWORD,
 	host = process.env.OPENSHIFT_NOSQL_DB_HOST || "127.0.0.1",
 	port = process.env.OPENSHIFT_NOSQL_DB_PORT || 27017,
+	
 	db = new mongo.Db("jsa", new mongo.Server("127.0.0.1",27017,{auto_reconnect:true, socketOptions:{timeout:2000}}),{strict:true}); //,poolSize:5,socketOptions:{timeout:1}
 
 console.log('%s: MongoDb connection string [%s:%s@%s:%d]', Date(Date.now()), user,pass,host,port);
  
-if( typeof user !== "undefined" && typeof pass !== "undefined" ){
-	
-	db.authenticate(user,pass,function(){
-		//TODO: some code?	
-	});	
-}
 db.open( function(err, client){
     	
-		if(err){
+		if(client){			
+			if( typeof user !== "undefined" && typeof pass !== "undefined" ){
+			
+				db.authenticate(user,pass,function(err,client){
+					
+					if(client)
+						console.log('%s: MongoDb driver auth-connected ...', Date(Date.now()));
+					else
+						console.log(err);	
+				});	
+			}else
+				console.log('%s: MongoDb driver connected ...', Date(Date.now()));												
+		}else{
 			db.close();
-			console.log(err);										
-		}else
-			console.log('%s: MongoDb driver connected ...', Date(Date.now()));			
+			console.log(err);	
+		}
+					
 });
 
 
