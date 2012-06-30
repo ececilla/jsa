@@ -5,7 +5,7 @@ var user = process.env.OPENSHIFT_NOSQL_DB_USERNAME,
 	host = process.env.OPENSHIFT_NOSQL_DB_HOST || "127.0.0.1",
 	port = process.env.OPENSHIFT_NOSQL_DB_PORT || 27017,
 	
-	db = new mongo.Db("jsa", new mongo.Server("127.0.0.1",27017,{auto_reconnect:true, socketOptions:{timeout:2000}}),{strict:true}); //,poolSize:5,socketOptions:{timeout:1}
+	db = new mongo.Db("jsa", new mongo.Server(host,port,{auto_reconnect:true, socketOptions:{timeout:2000}}),{strict:true}); //,poolSize:5,socketOptions:{timeout:1}
 
 console.log('%s: MongoDb connection string [%s:%s@%s:%d]', Date(Date.now()), user,pass,host,port);
  
