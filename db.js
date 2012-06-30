@@ -3,7 +3,7 @@ var mongo = require("mongodb");
 var user = process.env.OPENSHIFT_NOSQL_DB_USERNAME,
 	pass = process.env.OPENSHIFT_NOSQL_DB_PASSWORD,
 	host = process.env.OPENSHIFT_NOSQL_DB_HOST || "127.0.0.1",
-	port = process.env.OPENSHIFT_NOSQL_DB_PORT || 27017,
+	port = parseInt(process.env.OPENSHIFT_NOSQL_DB_PORT) || 27017,
 	
 	db = new mongo.Db("jsa", new mongo.Server(host,port,{auto_reconnect:true, socketOptions:{timeout:2000}}),{strict:true}); //,poolSize:5,socketOptions:{timeout:1}
 
