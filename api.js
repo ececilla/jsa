@@ -102,27 +102,32 @@ exports.remote.join = function( params, ret_handler ){
 		return;		
 	}	
 	
-	db.select("docs",params.wid, function(err,obj){
+	db.select("docs",params.wid, function(err,doc){
 		
 		if(!err){
 			
-			if( obj.rcpts.indexOf(params.uid) == -1 )
-				obj.rcpts.push(params.uid);
-			else{
-				ret_handler(null,{reach:obj.rcpts.length});
-				return;
-			}	
-			
-			params.doc = obj;
-			db.save("docs", obj, function(err, val){
+			if( doc.rcpts.indexOf(params.uid) == -1 ){
 				
-				if(!err){			
+				
+				params.doc = doc;												
+				emitter.emit( "ev_join", params );
+																			
+				doc.rcpts.push(params.uid);
+				db.save("docs", doc, function(err, val){
 										
-					ret_handler(null, {reach:obj.rcpts.length});			
-					emitter.emit( "ev_join", params);			
-				}else
-					ret_handler(err,null);				
-			});	
+					if(!err){
+						delete doc.rcpts;									
+						doc.wid = doc._id;
+						delete doc._id;				
+						ret_handler(null, {doc:doc});												
+					}else
+						ret_handler(err,null);				
+				});	
+			}else{	
+							
+				ret_handler(null,{reach:doc.rcpts.length}); //TODO: error already joined.
+				return;
+			}										
 		}else
 			ret_handler(err,null);
 	});

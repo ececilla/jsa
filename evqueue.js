@@ -4,10 +4,14 @@ var api = require("./api");
 /*
  * default handler for all events.
  */
-function default_ev_handler(msg){
+function default_ev_handler(msg, rcpts){
+		
+	if( typeof rcpts === "undefined" ){
+		var rcpts = msg.ev_data.doc.rcpts;
+	}
 	
-	var rcpts = msg.ev_data.doc.rcpts,
-		idx = rcpts.indexOf(msg.ev_data.uid);
+	var	idx = rcpts.indexOf(msg.ev_data.uid);
+	
 	if( idx != -1)
 		rcpts.splice(idx,1);
 		
@@ -20,14 +24,18 @@ function default_ev_handler(msg){
 }
 
 
-api.on("ev_create", function( msg ){
-			
-	var rcpts = msg.ev_data.doc.rcpts,
-		idx = rcpts.indexOf(msg.ev_data.uid);
+api.on("ev_create", function( msg){
+	
+	
+	var rcpts = msg.ev_data.doc.rcpts,					
+		idx = rcpts.indexOf(msg.ev_data.doc.uid);
+		
 	if( idx != -1)
 		rcpts.splice(idx,1);
 		
 	delete msg.ev_data.doc.rcpts;
+	msg.ev_data.doc.wid = msg.ev_data.doc._id;
+	delete msg.ev_data.doc._id;
 	
 	for(i in rcpts){//TODO: save event to db
 		
@@ -39,9 +47,9 @@ api.on("ev_create", function( msg ){
 /*
  * handler for ev_join event type.
  */
-api.on("ev_join", function( msg ){
+api.on("ev_join", function( msg, rcpts ){
 			
-	default_ev_handler( msg );
+	default_ev_handler( msg, rcpts );
 });
 
 
