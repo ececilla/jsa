@@ -1,12 +1,13 @@
 #!/bin/env node
-//  OpenShift sample Node application
+
+//OpenShift jsa node application
 
 var server = require("./server");		
 
 
-//  Get the environment variables we need.
-var ipaddr  = process.env.OPENSHIFT_INTERNAL_IP;
-var port    = process.env.OPENSHIFT_INTERNAL_PORT || 8080;
+//Get the environment variables we need.
+var ipaddr  = process.env.OPENSHIFT_INTERNAL_IP || "192.168.1.2";
+var port    = process.env.OPENSHIFT_INTERNAL_PORT || 8888;
 
 if (typeof ipaddr === "undefined") {
    console.warn('No OPENSHIFT_INTERNAL_IP environment variable');
@@ -22,7 +23,7 @@ function terminator(sig) {
    console.log('%s: Node server stopped.', Date(Date.now()) );
 }
 
-//  Process on exit and signals.
+//Process on exit and signals.
 process.on('exit', function() { terminator(); });
 
 ['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT', 'SIGBUS',
@@ -31,9 +32,5 @@ process.on('exit', function() { terminator(); });
     process.on(element, function() { terminator(element); });
 });
 
+server.startserver( port, ipaddr );
 
-//server.startComServer( port, ipaddr );
-//server.startEvServer( port, ipaddr );
-
-server.startComServer( 8888, "192.168.1.2" );
-server.startEvServer( 8889, "192.168.1.2" );

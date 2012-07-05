@@ -47,7 +47,7 @@ function onRequest(request, response){
 /*
  * Start command server
  */	
-exports.startComServer = function(  port, ipaddr ){
+exports.startserver = function(  port, ipaddr ){
 								
 	http.createServer(onRequest).listen(port,ipaddr);
 	console.log('%s: Node started on %s:%d with pid:%d ...', Date(Date.now()), ipaddr, port, process.pid);	            
