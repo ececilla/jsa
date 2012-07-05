@@ -46,22 +46,12 @@ function onRequest(request, response){
 }
 
 /*
- * Start command server
+ * Start server
  */	
 exports.startserver = function(  port, ipaddr ){
 								
 	http.createServer(onRequest).listen(port,ipaddr);
-	console.log('%s: Node started on %s:%d with pid %d ...', Date(Date.now()), ipaddr, port, process.pid);	            
-}
-
-
-/*
- * Start event server.
- */
-exports.startEvServer = function( port, ipaddr ){		
-	
-	http.createServer(onRequest).listen(port,ipaddr);	
-	console.log('%s: Node started on %s:%d with pid:%d ...', Date(Date.now()), ipaddr, port, process.pid); 
+	console.log('%s: Node started on %s:%d with pid %d', Date(Date.now()), ipaddr, port, process.pid);	            
 }
 
 
