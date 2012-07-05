@@ -188,9 +188,8 @@ exports.subscribe = function( http_resp, params ){
 				
 	http_resp.on("close", function(){ 
 		
-		console.log("client " + params.uid + " closed");		
-		_rem(params.uid);	
-		console.log( http_resp.socket.address() );			
+		console.log('%s: Client closed: [%d]', Date(Date.now()), params.uid);				
+		_rem(params.uid);						
 	});		
 	
 	

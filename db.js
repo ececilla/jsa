@@ -17,12 +17,12 @@ db.open( function(err, client){
 				db.authenticate(user,pass,function(err,client){
 					
 					if(client)
-						console.log('%s: MongoDb driver auth-connected ...', Date(Date.now()));
+						console.log('%s: MongoDb driver auth-connected', Date(Date.now()));
 					else
 						console.log(err);	
 				});	
 			}else
-				console.log('%s: MongoDb driver connected ...', Date(Date.now()));												
+				console.log('%s: MongoDb driver connected', Date(Date.now()));												
 		}else{
 			db.close();
 			console.log(err);	

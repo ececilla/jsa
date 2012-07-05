@@ -33,4 +33,5 @@ process.on('exit', function() { terminator(); });
 });
 
 server.startserver( port, ipaddr );
+//server.startserver( 8889, "192.168.1.2" );
 
