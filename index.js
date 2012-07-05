@@ -7,7 +7,7 @@ var server = require("./server");
 
 //Get the environment variables we need.
 var ipaddr  = process.env.OPENSHIFT_INTERNAL_IP || "192.168.1.2";
-var port    = process.env.OPENSHIFT_INTERNAL_PORT || 8888;
+var port    = process.env.OPENSHIFT_INTERNAL_PORT || 80;
 
 if (typeof ipaddr === "undefined") {
    console.warn('No OPENSHIFT_INTERNAL_IP environment variable');

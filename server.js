@@ -28,6 +28,7 @@ function onRequest(request, response){
 			});
 			request.on("end", function(){
 			    
+			    console.log('%s: Received data: [%s]', Date(Date.now()), data);
 			    router.route( pathname, response, data );
 			});
 			
@@ -50,7 +51,7 @@ function onRequest(request, response){
 exports.startserver = function(  port, ipaddr ){
 								
 	http.createServer(onRequest).listen(port,ipaddr);
-	console.log('%s: Node started on %s:%d with pid:%d ...', Date(Date.now()), ipaddr, port, process.pid);	            
+	console.log('%s: Node started on %s:%d with pid %d ...', Date(Date.now()), ipaddr, port, process.pid);	            
 }
 
 
