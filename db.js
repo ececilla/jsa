@@ -1,34 +1,71 @@
 var mongo = require("mongodb");
 
+/*
 var user = process.env.OPENSHIFT_NOSQL_DB_USERNAME,
 	pass = process.env.OPENSHIFT_NOSQL_DB_PASSWORD,
 	host = process.env.OPENSHIFT_NOSQL_DB_HOST || "127.0.0.1",
 	port = parseInt(process.env.OPENSHIFT_NOSQL_DB_PORT) || 27017,
-	
-	db = new mongo.Db("jsa", new mongo.Server(host,port,{auto_reconnect:true, socketOptions:{timeout:2000}}),{strict:true}); //,poolSize:5,socketOptions:{timeout:1}
+*/	
 
-console.log('%s: MongoDb connection string [%s:%s@%s:%d]', Date(Date.now()), user,pass,host,port);
- 
-db.open( function(err, client){
+var db = null;
+
+/*
+ * Connect to db before any other db operation.
+ */
+exports.connect = function( params, ret_handler ){
+			
+	if( db ){
+		
+		db.close();
+	}
+	
+	db = new mongo.Db("jsa", new mongo.Server(params.dbhost,params.dbport,{auto_reconnect:true, socketOptions:{timeout:5000}}),{strict:true}); //,poolSize:5,socketOptions:{timeout:1}
+	
+	db.open( function(err, client){
     	
 		if(client){			
-			if( typeof user !== "undefined" && typeof pass !== "undefined" ){
+			if( typeof params.dbuser !== "undefined" && typeof params.dbpass !== "undefined" ){
 			
-				db.authenticate(user,pass,function(err,client){
+				db.authenticate(params.dbuser,params.dbpass,function(err,client){
 					
-					if(client)
-						console.log('%s: MongoDb driver auth-connected', Date(Date.now()));
-					else
-						console.log(err);	
+					if(client){
+						console.log('MongoDb driver auth-connected');
+						if(ret_handler)
+							ret_handler(null,1);
+					}else{
+						
+						db = null; 
+						console.log(err);
+						if(ret_handler)
+							ret_handler(err,0);
+					}	
 				});	
-			}else
-				console.log('%s: MongoDb driver connected', Date(Date.now()));												
+			}else{
+				console.log('MongoDb driver connected');
+				if(ret_handler)
+					ret_handler(null,1);
+			}												
 		}else{
-			db.close();
-			console.log(err);	
+			
+			db = null;		
+			console.log(err);
+			if(ret_handler)
+				ret_handler(err,0);	
 		}
 					
-});
+	});
+		
+}
+
+
+/*
+ * Check db availability before any db operation.
+ */
+function checkdb(){
+	
+	if( !db )
+		throw new Error("Driver not connected, should call connect first.");
+}
 
 
 /*
@@ -36,7 +73,8 @@ db.open( function(err, client){
  *
  */
 exports.save = function( col_name, obj, ret_handler ){
-        
+    
+    checkdb();    
     			
 	db.collection(col_name, function(err, collection){
 	    
@@ -58,6 +96,7 @@ exports.save = function( col_name, obj, ret_handler ){
  */
 exports.select = function( col_name, id_str, ret_handler ){
 
+    checkdb(); 
        
 	db.collection( col_name, function(err, collection){
 
@@ -80,6 +119,8 @@ exports.select = function( col_name, id_str, ret_handler ){
  */
 exports.remove = function( col_name, id_str, ret_handler){
 	
+	checkdb();
+	
 	db.collection( col_name, function(err, collection){
 	    	
 	    var ObjectID = require('mongodb').ObjectID;	  
@@ -94,3 +135,7 @@ exports.remove = function( col_name, id_str, ret_handler){
 	});		
 	
 }
+
+
+
+

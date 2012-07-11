@@ -1,18 +1,95 @@
+var m = require("moment");
+
+/*
+ * Change default behaviour of console.log to print timestamp before any message
+ */
+var f = console.log;
+console.log = function(){
+	
+	var args = Array.prototype.slice.call(arguments);
+	args[0] = "[%s] " + args[0];
+	args.splice(1,0,m().format("DD/MM/YYYY H:mm:ss"));
+	f.apply(this, args);	
+
+}
+
+var system = {pid:process.pid, uid:process.getuid(), cwd:process.cwd(), version:process.version };
+console.log("System settings: %s", JSON.stringify(system) );
+
 var http = require("http");
 var url = require("url");
 var qs = require("querystring");
 var router = require("./router");
+var db = require("./db");
+
+
+/*
+ *  termination handler.
+ */
+function termination_handler(sig) {
+	
+   if (typeof sig === "string") {
+      console.log("Received %s - terminating Node server.", sig);
+      process.exit(1);
+   }
+   console.log("Node server stopped.");
+}
+
 
 //Uncaught exceptions handler to make the server stay running forever.
 process.on("uncaughtException", function(err){
 	
-	console.log( err);
+	console.warn( err );
 	
 });
 
 
+//Process on exit and signals.
+process.on('exit', function() { termination_handler(); });
+
+[
+ 'SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT', 'SIGBUS',
+ 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGPIPE', 'SIGTERM'
+].forEach(function(element, index, array) {
+    process.on(element, function() { termination_handler(element); });
+});
+
+
 /*
- * Process incoming request: parse url and route request  based on pathname. 
+ * If sconfig is undefined then settings are loaded from file settings.json, otherwise the function
+ * prints and/or overwrites these default settings (sconfig) with program settings (econfig). 
+ * 
+ */
+var sconfig;
+var settings = function( econfig ){
+	
+	if( typeof sconfig == "undefined" ){
+		
+		try{
+			console.log("Reading config file 'settings.json'");
+			delete require.cache[ process.cwd() + "/settings.json" ];
+			sconfig = require("./settings.json");								
+			
+		}catch(err){
+			
+			sconfig = {};
+			console.log("Cannot read 'settings.json'");
+		}
+	}	
+			
+	if( typeof econfig == "object" ){
+		for(key in econfig)
+			sconfig[key] = econfig[key];				
+	}
+	console.log( "Settings: " + JSON.stringify(sconfig) );
+	
+}
+exports.settings = settings;
+settings();
+
+
+/*
+ * private function to process incoming request: parse url and route request  based on pathname. 
  */
 function onRequest(request, response){
 	
@@ -28,7 +105,7 @@ function onRequest(request, response){
 			});
 			request.on("end", function(){
 			    
-			    console.log('%s: Received data: [%s]', Date(Date.now()), data);
+			    console.log('Received data: [%s]', data);
 			    router.route( pathname, response, data );
 			});
 			
@@ -45,13 +122,40 @@ function onRequest(request, response){
 	}
 }
 
+
 /*
- * Start server
- */	
-exports.startserver = function(  port, ipaddr ){
-								
-	http.createServer(onRequest).listen(port,ipaddr);
-	console.log('%s: Node started on %s:%d with pid %d', Date(Date.now()), ipaddr, port, process.pid);	            
+ * start http server and connect driver to db.
+ * 
+ * sconfig properties:
+ * 
+ * sconfig.port : http port to listen
+ * sconfig.ipaddr : addr to bind the service
+ * sconfig.dbhost: db host ip address
+ * sconfig.dbport : db  port
+ * sconfig.dbuser : db connection user.
+ * sconfig.dbpass : db connection password
+ */
+var httpsrv = http.createServer(onRequest);
+exports.start = function( econfig ){
+	
+	if(httpsrv._handle)
+		stopserver();
+	
+	if(typeof econfig == "object")	
+		settings( econfig );						
+	
+	db.connect( sconfig );						
+	httpsrv.listen( sconfig.port, sconfig.ipaddr );
+	console.log("Httpd listening on %s:%d", sconfig.ipaddr, sconfig.port);
+			
 }
 
+var stop = function(){
+	
+	if( httpsrv )
+		httpsrv.close();
+	console.log("Httpd stopped.");		
+		
+}
+exports.stopserver = stopserver;
 
