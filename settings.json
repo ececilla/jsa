@@ -1,6 +1,6 @@
 {
  "dbhost":"localhost",
  "dbport":27017,
- "ipaddr":"localhost",
- "port":8080
+ "httpaddr":"localhost",
+ "httpport":8080
 }

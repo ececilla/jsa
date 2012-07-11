@@ -136,19 +136,20 @@ function onRequest(request, response){
  * sconfig.dbpass : db connection password
  */
 var httpsrv = http.createServer(onRequest);
-exports.start = function( econfig ){
+var start = function( econfig ){
 	
 	if(httpsrv._handle)
-		stopserver();
+		stop();
 	
 	if(typeof econfig == "object")	
 		settings( econfig );						
 	
 	db.connect( sconfig );						
-	httpsrv.listen( sconfig.port, sconfig.ipaddr );
-	console.log("Httpd listening on %s:%d", sconfig.ipaddr, sconfig.port);
+	httpsrv.listen( sconfig.httpport, sconfig.httpaddr );
+	console.log("Httpd listening on %s:%d", sconfig.httpaddr, sconfig.httpport);
 			
 }
+exports.start = start;
 
 var stop = function(){
 	
@@ -157,5 +158,5 @@ var stop = function(){
 	console.log("Httpd stopped.");		
 		
 }
-exports.stopserver = stopserver;
+exports.stop = stop;
 
