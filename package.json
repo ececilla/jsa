@@ -14,7 +14,8 @@
   },
   "dependencies": {
   	"async":">=0.1.22",
-  	"mongodb":"1.0.0"
+  	"mongodb":"1.0.0",
+	"moment":"1.6.2"
   },  
   "scripts":{"start":"node index.js"},
   "main": "server.js"
