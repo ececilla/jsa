@@ -20,6 +20,5 @@
   "devDependencies":{
  	"nodeunit":"0.7.x"	
   },  
-  "scripts":{"start":"node index.js"},
   "main": "lib/server.js"
 }
