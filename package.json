@@ -13,10 +13,13 @@
     "npm": ">= 1.0.0"
   },
   "dependencies": {
-  	"async":">=0.1.22",
-  	"mongodb":"1.0.0",
-	"moment":"1.6.2"
+  	"async":"0.1.x",
+  	"mongodb":"1.x.x",
+	"moment":"1.6.x"
+  },
+  "devDependencies":{
+ 	"nodeunit":"0.7.x"	
   },  
   "scripts":{"start":"node index.js"},
-  "main": "server.js"
+  "main": "lib/server.js"
 }
