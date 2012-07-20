@@ -1,7 +1,7 @@
 {
  "dbhost":"127.0.0.1",
  "dbport":27017,
- "dbname":"jsa";
+ "dbname":"jsa",
  "httpaddr":"127.0.0.1",
  "httpport":8080
 }
