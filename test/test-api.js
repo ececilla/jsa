@@ -234,7 +234,7 @@ exports["api.remote.add: invalid params"] = function(test){
 	var api = require("../lib/api");
 	
 	//wid missing	
-	var params = {miss_wid:"12345", uid:620793114, fname:"b"};
+	var params = {miss_wid:"12345", uid:620793114, fname:"b", value:[]};
 	
 	api.remote.add(params, function(err,val){
 		
@@ -243,7 +243,7 @@ exports["api.remote.add: invalid params"] = function(test){
 	});
 	
 	//uid missing
-	params = {wid:"12345", miss_uid:620793114, fname:"b"};
+	params = {wid:"12345", miss_uid:620793114, fname:"b", value:[]};
 	api.remote.add(params, function(err,val){
 		
 		test.equal(err.code,-2);
@@ -251,12 +251,20 @@ exports["api.remote.add: invalid params"] = function(test){
 	});
 	
 	//fname missing
-	params = {wid:"12345", uid:620793114, miss_fname:"b"};
+	params = {wid:"12345", uid:620793114, miss_fname:"b", value:[]};
 	api.remote.add(params, function(err,val){
 		
 		test.equal(err.code,-2);
 		test.equal(val,null);
 	});
+	
+	//dvalue missing
+	params = {wid:"12345", uid:620793114, fname:"b", miss_value:[]};
+	api.remote.add(params, function(err,val){
+		
+		test.equal(err.code,-2);
+		test.equal(val,null);
+	});	
 	
 	test.done();
 	
@@ -264,7 +272,7 @@ exports["api.remote.add: invalid params"] = function(test){
 
 exports["api.remote.add: valid params, non existing field"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b"};
+	var params = {wid:"1234", uid:620793114, fname:"b", value:[]};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -286,9 +294,9 @@ exports["api.remote.add: valid params, non existing field"] = function(test){
 								
 								test.equal(col_str,"docs");
 								
-								//field fname added
+								//field params.fname added with default value params.value
 								test.notEqual(doc[params.fname], undefined);
-								test.deepEqual( doc[params.fname], {} );
+								test.deepEqual( doc[params.fname], params.value );
 																								
 								ret_handler(null,doc);	
 							}
@@ -307,7 +315,7 @@ exports["api.remote.add: valid params, non existing field"] = function(test){
 
 exports["api.remote.add: valid params, existing field"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b"};
+	var params = {wid:"1234", uid:620793114, fname:"b", value:[]};
 	var dbdocs = {};
 		
 		//document WITH b field.
@@ -332,7 +340,7 @@ exports["api.remote.add: valid params, existing field"] = function(test){
 		
 		test.equal(val,null);
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' already exists @1234"})
+		test.deepEqual(err,{code:-3, message:"Field 'b' already exists @1234"});
 		
 	});
 			
