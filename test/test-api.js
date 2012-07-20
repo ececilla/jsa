@@ -84,10 +84,10 @@ exports["api.reomte.create: valid params, non initrcpts, explicit catalog"] = fu
 		requires:{"./db":{
 							save:function(col_str,doc,ret_handler){
 								
-								test.equal(col_str, params.catalog);								
+								test.equal(col_str, "dummy");								
 								test.deepEqual( doc.test, params.doc.test )
 								test.equal( doc.uid, params.uid );
-								test.deepEqual( doc.rcpts, [params.uid]);
+								test.equal( doc.rcpts, undefined);
 								
 								//save doc to db...returns with _id:12345
 								ret_handler(null,{_id:12345, test:"test"});	
@@ -96,6 +96,13 @@ exports["api.reomte.create: valid params, non initrcpts, explicit catalog"] = fu
 	});
 		
 	
+	api.initrcpts = function(doc,ret_handler){ret_handler(ircpts)};
+	var flag = 1;
+	api.on("ev_create", function(msg){
+				
+		flag = 0;
+	});
+	
 	api.remote.create(params, function(err,val){
 		
 		test.equal(err,null);
@@ -103,13 +110,14 @@ exports["api.reomte.create: valid params, non initrcpts, explicit catalog"] = fu
 	});
 	
 	test.done();
+	test.ok(flag);
 	
 }
 
 
 exports["api.remote.create: valid params, initrcpts, ev_create"] = function(test){
 	
-	var params = {uid:620793114, doc:{test:"test"}},
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"docs"},
 	    ircpts = [620793115];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for create procedure
@@ -143,6 +151,95 @@ exports["api.remote.create: valid params, initrcpts, ev_create"] = function(test
 	});
 	test.done();
 }
+
+
+exports["api.remote.create: valid params, initrcpts,added catalog to eventize, ev_create"] = function(test){
+	
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
+	    ircpts = [620793115];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for create procedure
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");								
+								test.equal( doc.test, params.doc.test );
+								test.equal( doc.uid, params.uid );
+								test.deepEqual( doc.rcpts, [620793114, 620793115]);
+								
+								//save doc to db...returns with _id:12345
+								ret_handler(null,{_id:12345});	
+							}
+		}}
+	});
+	
+	
+	api.initrcpts = function(doc,ret_handler){ret_handler(ircpts)};
+	api.init.addeventizehandler(function(params){
+		
+		return params.catalog == "dummy";
+	});
+	var flag = 0;
+	api.on("ev_create", function(msg){
+		
+		flag = 1;
+		
+	});
+	
+	api.remote.create(params, function(err,val){
+		
+		test.equal(err,null);
+		test.deepEqual(val,{wid:"12345"});		
+	});
+	
+	test.ok(flag);
+	test.done();
+}
+
+
+exports["api.remote.create: valid params, initrcpts, added wrong catalog to eventize, ev_create"] = function(test){
+	
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
+	    ircpts = [620793115];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for create procedure
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");								
+								test.equal( doc.test, params.doc.test );
+								test.equal( doc.uid, params.uid );
+								test.equal( doc.rcpts, undefined);
+								
+								//save doc to db...returns with _id:12345
+								ret_handler(null,{_id:12345});	
+							}
+		}}
+	});
+	
+	
+	api.initrcpts = function(doc,ret_handler){ret_handler(ircpts)};
+	api.init.addeventizehandler(function(params){ 
+			return params.catalog == "dummy-wrong"; 
+	});
+	
+	var flag = 1;
+	api.on("ev_create", function(msg){
+		
+		flag = 0; //shouldnt get here
+		
+	});
+	
+	api.remote.create(params, function(err,val){
+		
+		test.equal(err,null);
+		test.deepEqual(val,{wid:"12345"});		
+	});
+	
+	test.ok(flag);
+	test.done();
+}
+
+
+
 
 exports["api.remote.join: invalid params"] = function(test){
 	
