@@ -47,7 +47,7 @@ exports["api.remote.create: invalid params"] = function(test){
 	
 }
 
-exports["api.remote.create: valid params, non initrcpts"] = function(test){
+exports["api.remote.create: valid params, non initrcpts, default catalog"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}};	    
 	var api = sandbox.require("../lib/api",{
@@ -73,6 +73,37 @@ exports["api.remote.create: valid params, non initrcpts"] = function(test){
 	});
 	
 	test.done();
+}
+
+
+exports["api.reomte.create: valid params, non initrcpts, explicit catalog"] = function(test){
+	
+
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str, params.catalog);								
+								test.deepEqual( doc.test, params.doc.test )
+								test.equal( doc.uid, params.uid );
+								test.deepEqual( doc.rcpts, [params.uid]);
+								
+								//save doc to db...returns with _id:12345
+								ret_handler(null,{_id:12345, test:"test"});	
+							}
+		}}
+	});
+		
+	
+	api.remote.create(params, function(err,val){
+		
+		test.equal(err,null);
+		test.deepEqual(val,{wid:"12345"});		
+	});
+	
+	test.done();
+	
 }
 
 
