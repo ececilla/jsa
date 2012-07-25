@@ -18,7 +18,7 @@ exports["module exported objects"] = function(test){
 	test.notEqual(api.remote.pull,undefined);
 	
 	test.notEqual(api.on,undefined);
-	test.equal(api.initrcpts, null);
+	test.equal(api.rcpts, null);
 	test.done();
 }
 
@@ -163,13 +163,18 @@ exports["api.remote.create: valid params, init.rcpts sync, docs catalog"] = func
 	});
 	
 	
-	api.init.rcpts = function(doc,ret_handler){ret_handler(ircpts)};
+	api.rcpts = function(doc,db,ret_handler){
+		
+		test.notEqual(doc,undefined);
+		test.notEqual(db,undefined);
+		ret_handler(ircpts);
+	};
 	
 	api.remote.create(params, function(err,val){
 		
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});
-		test.expect(6);
+		test.expect(8);
 		test.done();		
 	});
 	
@@ -195,8 +200,12 @@ exports["api.remote.create: valid params, init.rcpts sync, added wrong catalog"]
 		}}
 	});
 	
-	
-	api.init.rcpts = function(doc,ret_handler){ret_handler(ircpts)};
+	var flag = 1;
+	api.rcpts = function(doc,db,ret_handler){
+		
+		flag = 0;	
+		ret_handler(ircpts);
+	};
 	api.init.addcreatehandler(function(params){ 
 			return params.catalog == "dummy-wrong"; 
 	});
@@ -206,7 +215,8 @@ exports["api.remote.create: valid params, init.rcpts sync, added wrong catalog"]
 		
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});	
-		test.expect(6);
+		test.ok(flag);
+		test.expect(7);
 		test.done();
 			
 	});
@@ -234,8 +244,10 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_cr
 	});
 	
 	
-	api.init.rcpts = function(doc,ret_handler){
+	api.rcpts = function(doc,db,ret_handler){
 			
+			test.notEqual(doc,undefined);
+			test.notEqual(db,undefined);
 			setTimeout(function(){ret_handler(ircpts)},500);
 			
 	};
@@ -260,7 +272,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_cr
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});		
 		test.ok(flag);
-		test.expect(10);
+		test.expect(12);
 		test.done();
 	});
 		
@@ -462,6 +474,30 @@ exports["api.remote.join: valid params, uid not in rcpts, default catalog, wid n
 		
 }
 
+exports["api.remote.unjoin: invalid params"] = function(test){
+	
+	var api = require("../lib/api");	
+	
+	//wid missing
+	var params = {miss_wid:"12345", uid:620793114};
+	api.remote.unjoin(params, function(err,val){
+		
+		test.equal(err.code,-2);
+		test.equal(val,null);
+	});
+	
+	//uid missing
+	params = {wid:"12345", miss_uid:620793114};
+	api.remote.unjoin(params, function(err,val){
+		
+		test.equal(err.code,-2);
+		test.equal(val,null);
+	});
+	
+	test.done();
+	
+}
+
 exports["api.remote.add: invalid params"] = function(test){
 	
 	var api = require("../lib/api");
@@ -503,7 +539,7 @@ exports["api.remote.add: invalid params"] = function(test){
 	
 }
 
-exports["api.remote.add: valid params, non existing field, explicit catalog"] = function(test){
+exports["api.remote.add: valid params, non existing field, explicit catalog, db async"] = function(test){
 	
 	var params = {wid:"1234", uid:620793114, fname:"b", value:[], catalog:"dummy"}; //initialize field 'b' to an empty array.
 	var dbdocs = {};
@@ -520,7 +556,10 @@ exports["api.remote.add: valid params, non existing field, explicit catalog"] = 
 								test.notEqual(dbdocs[id_str], undefined);								
 								test.equal(dbdocs[id_str][params.fname], undefined);
 								
-								ret_handler(null,dbdocs[id_str]);
+								setTimeout(function(){ //db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
 								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -530,8 +569,11 @@ exports["api.remote.add: valid params, non existing field, explicit catalog"] = 
 								//field params.fname added with default value params.value
 								test.notEqual(doc[params.fname], undefined);
 								test.deepEqual( doc[params.fname], params.value );
-																								
-								ret_handler(null,doc);	
+								
+								setTimeout(function(){ //db 500ms delay saving document																
+									
+									ret_handler(null,doc);
+								},500);	
 							}
 		}}
 	});
@@ -663,7 +705,7 @@ exports["api.remote.remove: invalid params"] = function(test){
 }
 
 
-exports["api.remote.remove: valid params, existing field, explicit catalog"] = function(test){
+exports["api.remote.remove: valid params, existing field, explicit catalog, db async"] = function(test){
 	
 var params = {wid:"1234", uid:620793114, fname:"b"};
 	var dbdocs = {};
@@ -680,7 +722,10 @@ var params = {wid:"1234", uid:620793114, fname:"b"};
 								test.notEqual(dbdocs[id_str], undefined);								
 								test.notEqual(dbdocs[id_str][params.fname], undefined);
 								
-								ret_handler(null,dbdocs[id_str]);
+								setTimeout(function(){ //db 500ms delay retrieving document
+								
+									ret_handler(null,dbdocs[id_str]);
+								},500);
 								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -689,8 +734,11 @@ var params = {wid:"1234", uid:620793114, fname:"b"};
 								
 								//field fname removed
 								test.equal(doc[params.fname], undefined);								
-																								
-								ret_handler(null,doc);	
+								
+								setTimeout(function(){//db 500ms delay saving document
+																									
+									ret_handler(null,doc);
+								},500);	
 							}
 		}}
 	});
@@ -830,7 +878,7 @@ exports["api.remote.set: invalid params"] = function(test){
 
 
 
-exports["api.remote.set: valid params, existing field, explicit catalog"] = function(test){
+exports["api.remote.set: valid params, existing field, explicit catalog, db async"] = function(test){
 	
 var params = {wid:"1234", uid:620793114, fname:"b", value:3, catalog:"dummy"};
 	var dbdocs = {};
@@ -848,7 +896,10 @@ var params = {wid:"1234", uid:620793114, fname:"b", value:3, catalog:"dummy"};
 								test.notEqual(dbdocs[id_str][params.fname], undefined);
 								test.equal(dbdocs[id_str][params.fname], 2); //b:2
 								
-								ret_handler(null,dbdocs[id_str]);
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
 								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -858,7 +909,10 @@ var params = {wid:"1234", uid:620793114, fname:"b", value:3, catalog:"dummy"};
 								//field fname set
 								test.equal(doc[params.fname], params.value);								
 																								
-								ret_handler(null,doc);	
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
 							}
 		}}
 	});
@@ -991,7 +1045,7 @@ exports["api.remote.incr: invalid params"] = function(test){
 }
 
 
-exports["api.remote.incr: valid params, existing field, explicit catalog"] = function(test){
+exports["api.remote.incr: valid params, existing field, explicit catalog, db async"] = function(test){
 	
 var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 	var dbdocs = {};
@@ -1009,7 +1063,10 @@ var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 								test.notEqual(dbdocs[id_str][params.fname], undefined);
 								test.equal(dbdocs[id_str][params.fname], 2); //b:2
 								
-								ret_handler(null,dbdocs[id_str]);
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
 								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -1018,8 +1075,11 @@ var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 								
 								//field fname to increment
 								test.equal(doc[params.fname], 3);								
-																								
-								ret_handler(null,doc);	
+								
+								setTimeout(function(){//db 500ms delay saving document
+																									
+									ret_handler(null,doc);
+								},500);	
 							}
 		}}
 	});
@@ -1152,7 +1212,7 @@ exports["api.remote.decr: invalid params"] = function(test){
 	
 }
 
-exports["api.remote.decr: valid params, existing field, explicit catalog"] = function(test){
+exports["api.remote.decr: valid params, existing field, explicit catalog, db async"] = function(test){
 
 var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 	var dbdocs = {};
@@ -1170,7 +1230,10 @@ var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 								test.notEqual(dbdocs[id_str][params.fname], undefined);
 								test.equal(dbdocs[id_str][params.fname], 2); //b:2
 								
-								ret_handler(null,dbdocs[id_str]);
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
 								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -1180,7 +1243,10 @@ var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 								//field fname to decrement
 								test.equal(doc[params.fname], 1);								
 																								
-								ret_handler(null,doc);	
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
 							}
 		}}
 	});
@@ -1321,7 +1387,7 @@ var api = require("../lib/api");
 	
 }
 
-exports["api.remote.push: valid params, existing field as array, explicit catalog"] = function(test){
+exports["api.remote.push: valid params, existing field as array, explicit catalog, db async"] = function(test){
 	
 
 	var params = {wid:"1234", uid:620793114, fname:"b", value:5, catalog:"dummy"};
@@ -1340,7 +1406,10 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 								test.notEqual(dbdocs[id_str][params.fname], undefined);
 								test.deepEqual(dbdocs[id_str][params.fname], [1,2,3,4]); //b:[1,2,3,4]
 								
-								ret_handler(null,dbdocs[id_str]);
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
 								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -1350,7 +1419,10 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 								//field fname to decrement
 								test.deepEqual(doc[params.fname], [1,2,3,4,5]);								
 																								
-								ret_handler(null,doc);	
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
 							}
 		}}
 	});
@@ -1520,7 +1592,7 @@ var api = require("../lib/api");
 	
 }
 
-exports["api.remote.pop: valid params, existing field as array, explicit catalog"] = function(test){
+exports["api.remote.pop: valid params, existing field as array, explicit catalog, db async"] = function(test){
 	
 
 	var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
@@ -1539,7 +1611,10 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 								test.notEqual(dbdocs[id_str][params.fname], undefined);
 								test.deepEqual(dbdocs[id_str][params.fname], [1,2,3,4]); //b:[1,2,3,4]
 								
-								ret_handler(null,dbdocs[id_str]);
+								setTimeout(function(){//db 500ms retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
 								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -1549,7 +1624,11 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 								//field fname to pop
 								test.deepEqual(doc[params.fname], [1,2,3]);								
 																								
-								ret_handler(null,doc);	
+								setTimeout(function(){//db 500ms saving document
+									
+									ret_handler(null,doc);
+								},500);
+									
 							}
 		}}
 	});
@@ -1726,7 +1805,7 @@ var api = require("../lib/api");
 	
 }
 
-exports["api.remote.pull: valid params, existing field as array, explicit catalog"] = function(test){
+exports["api.remote.pull: valid params, existing field as array, explicit catalog, db async"] = function(test){
 	
 	var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 	var dbdocs = {};
@@ -1744,7 +1823,10 @@ exports["api.remote.pull: valid params, existing field as array, explicit catalo
 								test.notEqual(dbdocs[id_str][params.fname], undefined);
 								test.deepEqual(dbdocs[id_str][params.fname], [1,2,3,4]); //b:[1,2,3,4]
 								
-								ret_handler(null,dbdocs[id_str]);
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
 								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -1754,7 +1836,10 @@ exports["api.remote.pull: valid params, existing field as array, explicit catalo
 								//field fname to pull
 								test.deepEqual(doc[params.fname], [2,3,4]);								
 																								
-								ret_handler(null,doc);	
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
 							}
 		}}
 	});
