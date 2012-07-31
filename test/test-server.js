@@ -5,7 +5,7 @@ exports["module exported functions"] = function(test){
 	var flags = [0,0];	
 	var server = sandbox.require("../lib/server",
 		{
-			requires:{"./api":{	//db mock module for pull procedure
+			requires:{"./api":{	//db mock module
 								remote:{
 									remote_func: function(){
 														
