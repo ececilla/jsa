@@ -208,6 +208,90 @@ exports["server.api.docs.create: internal events, explicit&added catalog"] = fun
 }
 
 
+exports["server.api.docs.create: internal events, explicit&added catalog, ro db"] = function(test){
+	
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
+	var dbdocs = {};//documents at db	
+		dbdocs["1234"] = {_id:"1234",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
+		    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							save:function(col_str, doc ,ret_handler){
+																
+								test.equal(col_str,"dummy");								
+								test.equal( doc.test, params.doc.test );
+								test.equal( doc.uid, params.uid );
+								test.deepEqual( doc.rcpts, [620793114,620793115]);
+								
+								//save doc to db...returns with _id:12345
+								ret_handler(null,{_id:"56ff8"});	
+							},
+							
+							select:function(col_str, id_str, ret_handler){
+																															
+								setTimeout(function(){//50ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},50);	
+							}
+							
+		}}
+	}),			
+	
+	server = sandbox.require("../lib/server",{
+		requires:{"./api":api}
+		
+	});
+	
+	server.api.init.addcreatehandler(function(params){
+			
+		return params.doc.test == "test";	
+	});
+	
+	
+	server.api.init.rcpts(function(doc,db,ret_handler){
+	
+		
+		test.notEqual(doc,undefined);
+		test.notEqual(db,undefined);
+		test.notEqual(db.select, undefined);
+		test.equal(db.save, undefined);
+		test.equal(db.remove, undefined);
+		test.equal(db.connect, undefined);
+		
+		db.select("dummy","5678",function(err,val){
+			
+			test.equal(val.a,2);			
+			ret_handler([val.uid]);
+		});		
+		
+	});
+					
+	server.api.events.on("ev_create", function(msg){
+		
+		test.equal(msg.ev_type,"ev_create");
+		test.equal(msg.ev_data.uid, params.uid);
+		test.equal(msg.ev_data.catalog, "dummy");
+		test.equal(msg.ev_data.doc.uid, params.uid);
+		test.notEqual(msg.ev_data.doc.rcpts, undefined);
+				
+	});
+	
+	server.api.docs.create(params, function(err,val){
+		
+		test.equal(err,undefined);
+		test.notEqual(val,undefined);
+		test.deepEqual(val,{wid:"56ff8"});					
+				
+		test.expect(19);		
+		test.done();
+	});
+					
+	
+}
+
+
 
 exports["server.api.docs.join: internal events, default catalog"] = function(test){
 	
