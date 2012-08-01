@@ -22,7 +22,7 @@ exports["module exported functions"] = function(test){
 	test.done();
 }
 
-exports["api.remote.create: invalid params"] = function(test){
+exports["api.remote.create: missing params"] = function(test){
 		
 	var api = require("../lib/api");
 		
@@ -45,6 +45,40 @@ exports["api.remote.create: invalid params"] = function(test){
 	}); 		
 	
 }
+
+
+exports["api.remote.create: invalid params: catalog=='events'"] = function(test){
+	
+	var api = require("../lib/api");		
+	var params = {uid:620793114, doc:{test:"test doc"}, catalog:"events"};
+	
+	api.remote.create(params, function(err,val){
+		
+		test.notEqual(err,undefined);		
+		test.deepEqual(err,{code:-2, message:"Cannot write to events catalog"});
+		test.equal(val,null);
+		test.expect(3);
+		test.done();
+	});		
+				
+}
+
+exports["api.remote.create: invalid params: doc!=object"] = function(test){
+	
+	var api = require("../lib/api");			
+	var params = {uid:620793114, doc:5};
+	
+	api.remote.create(params, function(err,val){
+		
+		test.notEqual(err,undefined);		
+		test.deepEqual(err,{code:-2, message:"Wrong parameter type doc: must be an object"});
+		test.equal(val,null);
+		test.expect(3);
+		test.done();
+	});		
+				
+}
+
 
 exports["api.remote.create: valid params, non init.rcpts, default catalog"] = function(test){
 	
@@ -105,6 +139,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 	});
 				
 }
+
 
 exports["api.remote.create: valid params, non init.rcpts, explicit&added catalog"] = function(test){
 	
@@ -279,7 +314,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_cr
 }
 
 
-exports["api.remote.join: invalid params"] = function(test){
+exports["api.remote.join: missing params"] = function(test){
 	
 	var api = require("../lib/api");
 	
@@ -480,7 +515,7 @@ exports["api.remote.join: valid params, uid not in rcpts, default catalog, wid n
 		
 }
 
-exports["api.remote.unjoin: invalid params"] = function(test){
+exports["api.remote.unjoin: missing params"] = function(test){
 	
 	var api = require("../lib/api");	
 	
@@ -671,7 +706,7 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 }
 
 
-exports["api.remote.add: invalid params"] = function(test){
+exports["api.remote.add: missing params"] = function(test){
 	
 	var api = require("../lib/api");
 	
@@ -845,7 +880,7 @@ exports["api.remote.add: valid params, existing field"] = function(test){
 				
 }
 
-exports["api.remote.remove: invalid params"] = function(test){
+exports["api.remote.remove: missing params"] = function(test){
 	
 	var api = require("../lib/api");
 	
@@ -1010,7 +1045,7 @@ exports["api.remote.remove: valid params, nonexisting field"] = function(test){
 }
 
 
-exports["api.remote.set: invalid params"] = function(test){
+exports["api.remote.set: missing params"] = function(test){
 	
 	var api = require("../lib/api");
 	
@@ -1184,7 +1219,7 @@ exports["api.remote.set: valid params, non existing field"] = function(test){
 }
 
 
-exports["api.remote.incr: invalid params"] = function(test){
+exports["api.remote.incr: missing params"] = function(test){
 	
 	var api = require("../lib/api");
 	
@@ -1351,7 +1386,7 @@ exports["api.remote.incr: valid params, non existing field"] = function(test){
 	
 }
 
-exports["api.remote.decr: invalid params"] = function(test){
+exports["api.remote.decr: missing params"] = function(test){
 	
 	var api = require("../lib/api");
 	
@@ -1519,7 +1554,7 @@ exports["api.remote.decr: valid params, non existing field"] = function(test){
 }
 
 
-exports["api.remote.push: invalid params"] = function(test){
+exports["api.remote.push: missing params"] = function(test){
 	
 var api = require("../lib/api");
 	
@@ -1730,7 +1765,7 @@ exports["api.remote.push: valid params, non existing field"] = function(test){
 }
 
 
-exports["api.remote.pop: invalid params"] = function(test){
+exports["api.remote.pop: missing params"] = function(test){
 	
 var api = require("../lib/api");
 	
@@ -1944,7 +1979,7 @@ exports["api.remote.pop: valid params, non existing field"] = function(test){
 	
 }
 
-exports["api.remote.pull: invalid params"] = function(test){
+exports["api.remote.pull: missing params"] = function(test){
 	
 var api = require("../lib/api");
 	
