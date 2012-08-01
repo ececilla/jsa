@@ -316,31 +316,22 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_cr
 
 exports["api.remote.join: missing params"] = function(test){
 	
-	var api = require("../lib/api");
-	
-	//both missing
-	var params = {miss_wid:"12345", miss_uid:620793114};
-	
-	api.remote.join(params, function(err,val){
-		
-		test.equal(err.code,-2);
-		test.equal(val,null);
-	});
+	var api = require("../lib/api");	
 	
 	//wid missing
 	params = {miss_wid:"12345", uid:620793114};
 	api.remote.join(params, function(err,val){
-		
-		test.equal(err.code,-2);
+				
 		test.equal(val,null);
+		test.deepEqual(err,{code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
 	});
 	
 	//uid missing
 	params = {wid:"12345", miss_uid:620793114};
 	api.remote.join(params, function(err,val){
-		
-		test.equal(err.code,-2);
+				
 		test.equal(val,null);
+		test.deepEqual(err,{code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
 	});
 	
 	test.done();
@@ -348,11 +339,45 @@ exports["api.remote.join: missing params"] = function(test){
 }
 
 
+exports["api.remote.join: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	params = {wid:"wrongwid", uid:620793114};
+	api.remote.join(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.join: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	params = {wid:"50187f71556efcbb2500000", uid:620793114};
+	api.remote.join(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
 exports["api.remote.join: valid params, uid not in rcpts, default catalog, db async"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
-		dbdocs["1234"] = {_id:"1234",a:1,b:"test1234", rcpts:[620793115]},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115]},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
 	
 	var api = sandbox.require("../lib/api",{
@@ -388,7 +413,7 @@ exports["api.remote.join: valid params, uid not in rcpts, default catalog, db as
 		test.notEqual(val.doc, undefined);
 		test.equal(val.doc.rcpts, undefined);
 		test.equal(val.doc._id, undefined);		
-		test.equal(val.doc.wid, "1234");
+		test.equal(val.doc.wid, "50187f71556efcbb25000001");
 		test.equal(val.doc.a,1);
 		test.equal(val.doc.b,"test1234");		
 		test.expect(11);
@@ -401,9 +426,9 @@ exports["api.remote.join: valid params, uid not in rcpts, default catalog, db as
 
 exports["api.remote.join: valid params, uid in rcpts, default catalog"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
-		dbdocs["1234"] = {_id:"1234",a:1,b:"test1234", rcpts:[620793115, 620793114]},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115, 620793114]},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
 	
 	var flag = 1;
@@ -440,9 +465,9 @@ exports["api.remote.join: valid params, uid in rcpts, default catalog"] = functi
 
 exports["api.remote.join: valid params, uid in rcpts, explicit catalog"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"dummy"};
 	var dbdocs = {};//documents at db
-		dbdocs["1234"] = {_id:"1234",a:1,b:"test1234", rcpts:[620793115, 620793114]},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115, 620793114]},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
 	
 	var flag = 1;
@@ -478,7 +503,7 @@ exports["api.remote.join: valid params, uid in rcpts, explicit catalog"] = funct
 
 exports["api.remote.join: valid params, uid not in rcpts, default catalog, wid not found"] = function(test){
 	
-	var params = {wid:"789", uid:620793114};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
 		dbdocs["123"] = {_id:"1234",a:1,b:"test1234", rcpts:[620793115]},
 		dbdocs["456"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
@@ -505,7 +530,7 @@ exports["api.remote.join: valid params, uid not in rcpts, default catalog, wid n
 		
 		test.equal(val,null);
 		test.notEqual(err,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:789" });		
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });		
 		test.ok(flag);
 				
 		test.expect(6);
@@ -540,11 +565,45 @@ exports["api.remote.unjoin: missing params"] = function(test){
 }
 
 
+exports["api.remote.unjoin: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	params = {wid:"wrongwid", uid:620793114};
+	api.remote.unjoin(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.unjoin: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	params = {wid:"50187f71556efcbb2500000", uid:620793114};
+	api.remote.unjoin(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
 exports["api.remote.unjoin: valid params, uid in rcpts, explicit catalog, db async"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"dummy"};
 	var dbdocs = {};//documents at db
-		dbdocs["1234"] = {_id:"1234", a:1, b:"test1234", rcpts:[620793115,620793116,620793114]},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115,620793116,620793114]},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115]};
 	
 	var api = sandbox.require("../lib/api",{
@@ -589,9 +648,9 @@ exports["api.remote.unjoin: valid params, uid in rcpts, explicit catalog, db asy
 
 exports["api.remote.unjoin: valid params, uid not in rcpts, explicit catalog"] = function(test){
 	
-	var params = {wid:"1234", uid:620793118, catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793118, catalog:"dummy"};
 	var dbdocs = {};//documents at db
-		dbdocs["1234"] = {_id:"1234", a:1, b:"test1234", rcpts:[620793115,620793116,620793114]},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115,620793116,620793114]},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115]};
 	
 	var flag = 1;
@@ -617,7 +676,7 @@ exports["api.remote.unjoin: valid params, uid not in rcpts, explicit catalog"] =
 		
 		test.notEqual(err,undefined);
 		test.equal(val,null);
-		test.deepEqual(err,{code:-9, message:"uid 620793118 not found: @dummy:1234.rcpts"});
+		test.deepEqual(err,{code:-9, message:"uid 620793118 not found: @dummy:50187f71556efcbb25000001.rcpts"});
 		test.ok(flag);	
 		test.expect(6);
 		test.done();
@@ -630,9 +689,9 @@ exports["api.remote.unjoin: valid params, uid not in rcpts, explicit catalog"] =
 
 exports["api.remote.unjoin: valid params, not rcpts, default catalog"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
-		dbdocs["1234"] = {_id:"1234", a:1, b:"test1234"},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234"},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115]};
 	
 	var flag = 1;
@@ -656,7 +715,7 @@ exports["api.remote.unjoin: valid params, not rcpts, default catalog"] = functio
 	api.remote.unjoin(params, function(err,val){//endpoint.js interface
 		
 		test.notEqual(err,null);
-		test.deepEqual(err,{code:-8,message:"Document @docs:1234 has no rcpts"});
+		test.deepEqual(err,{code:-8,message:"Document @docs:50187f71556efcbb25000001 has no rcpts"});
 		test.equal(val,null);
 		test.ok(flag);
 			
@@ -670,7 +729,7 @@ exports["api.remote.unjoin: valid params, not rcpts, default catalog"] = functio
 
 exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db.			
 		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115]};	
 	
@@ -697,7 +756,7 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -747,13 +806,47 @@ exports["api.remote.add: missing params"] = function(test){
 	
 }
 
+
+exports["api.remote.add: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
+	api.remote.add(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.add: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
+	api.remote.add(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
 exports["api.remote.add: valid params, non existing field, explicit catalog, db async"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b", value:[], catalog:"dummy"}; //initialize field 'b' to an empty array.
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:[], catalog:"dummy"}; //initialize field 'b' to an empty array.
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for add procedure
@@ -800,7 +893,7 @@ exports["api.remote.add: valid params, non existing field, explicit catalog, db 
 
 exports["api.remote.add: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114, fname:"b", value:[]}; //initialize field 'b' to an empty array.
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:[]}; //initialize field 'b' to an empty array.
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -829,7 +922,7 @@ exports["api.remote.add: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -841,11 +934,11 @@ exports["api.remote.add: valid params, wid not found"] = function(test){
 
 exports["api.remote.add: valid params, existing field"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b", value:[]};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:[]};
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["1234"] = {_id:"1234", a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:2, rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -871,7 +964,7 @@ exports["api.remote.add: valid params, existing field"] = function(test){
 		
 		test.equal(val,null);
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' already exists @docs:1234"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' already exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(8);
 		test.done();
@@ -913,13 +1006,47 @@ exports["api.remote.remove: missing params"] = function(test){
 }
 
 
+exports["api.remote.remove: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
+	api.remote.remove(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.remove: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
+	api.remote.remove(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
 exports["api.remote.remove: valid params, existing field, explicit catalog, db async"] = function(test){
 	
-var params = {wid:"1234", uid:620793114, fname:"b"};
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for remove procedure
@@ -965,7 +1092,7 @@ var params = {wid:"1234", uid:620793114, fname:"b"};
 
 exports["api.remote.remove: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114, fname:"b"}; 
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"}; 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -994,7 +1121,7 @@ exports["api.remote.remove: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1006,11 +1133,11 @@ exports["api.remote.remove: valid params, wid not found"] = function(test){
 
 exports["api.remote.remove: valid params, nonexisting field"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1035,7 +1162,7 @@ exports["api.remote.remove: valid params, nonexisting field"] = function(test){
 	api.remote.remove(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @1234"})
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"})
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1085,14 +1212,48 @@ exports["api.remote.set: missing params"] = function(test){
 }
 
 
+exports["api.remote.set: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
+	api.remote.set(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.set: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
+	api.remote.set(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
 
 exports["api.remote.set: valid params, existing field, explicit catalog, db async"] = function(test){
 	
-var params = {wid:"1234", uid:620793114, fname:"b", value:3, catalog:"dummy"};
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:3, catalog:"dummy"};
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for set procedure
@@ -1139,7 +1300,7 @@ var params = {wid:"1234", uid:620793114, fname:"b", value:3, catalog:"dummy"};
 
 exports["api.remote.set: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114, fname:"a", value:4}; 
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -1168,7 +1329,7 @@ exports["api.remote.set: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1180,11 +1341,11 @@ exports["api.remote.set: valid params, wid not found"] = function(test){
 
 exports["api.remote.set: valid params, non existing field"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b", value:3};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:3};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1209,7 +1370,7 @@ exports["api.remote.set: valid params, non existing field"] = function(test){
 	api.remote.set(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @1234"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1253,13 +1414,48 @@ exports["api.remote.incr: missing params"] = function(test){
 }
 
 
+
+exports["api.remote.incr: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
+	api.remote.incr(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.incr: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
+	api.remote.incr(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
 exports["api.remote.incr: valid params, existing field, explicit catalog, db async"] = function(test){
 	
-var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:"dummy"};
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for incr procedure
@@ -1306,7 +1502,7 @@ var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 
 exports["api.remote.incr: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114, fname:"a", value:4}; 
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -1335,7 +1531,7 @@ exports["api.remote.incr: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1347,11 +1543,11 @@ exports["api.remote.incr: valid params, wid not found"] = function(test){
 
 exports["api.remote.incr: valid params, non existing field"] = function(test){
 
-	var params = {wid:"1234", uid:620793114, fname:"b", value:3};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:3};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1376,7 +1572,7 @@ exports["api.remote.incr: valid params, non existing field"] = function(test){
 	api.remote.incr(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @1234"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1420,13 +1616,47 @@ exports["api.remote.decr: missing params"] = function(test){
 	
 }
 
+
+exports["api.remote.decr: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
+	api.remote.decr(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.decr: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
+	api.remote.decr(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
 exports["api.remote.decr: valid params, existing field, explicit catalog, db async"] = function(test){
 
-var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:"dummy"};
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for decr procedure
@@ -1473,7 +1703,7 @@ var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
 
 exports["api.remote.decr: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114, fname:"a", value:4}; 
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -1502,7 +1732,7 @@ exports["api.remote.decr: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1514,11 +1744,11 @@ exports["api.remote.decr: valid params, wid not found"] = function(test){
 
 exports["api.remote.decr: valid params, non existing field"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1543,7 +1773,7 @@ exports["api.remote.decr: valid params, non existing field"] = function(test){
 	api.remote.decr(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @1234"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
 		test.ok(flag)
 		test.expect(7);
 		test.done();
@@ -1595,14 +1825,50 @@ var api = require("../lib/api");
 	
 }
 
+
+exports["api.remote.push: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
+	api.remote.push(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.push: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
+	api.remote.push(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
+
 exports["api.remote.push: valid params, existing field as array, explicit catalog, db async"] = function(test){
 	
 
-	var params = {wid:"1234", uid:620793114, fname:"b", value:5, catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:5, catalog:"dummy"};
 	var dbdocs = {};
 		
 		//document WITH b array field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:[1,2,3,4], rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for push procedure
@@ -1650,11 +1916,11 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 
 exports["api.remote.push: valid params, existing field as nonarray"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b", value:5};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:5};
 	var dbdocs = {};
 		
 		//document WITH b non-array field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:"this is not an array", rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for push procedure
@@ -1686,7 +1952,7 @@ exports["api.remote.push: valid params, existing field as nonarray"] = function(
 
 exports["api.remote.push: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114, fname:"a", value:4}; 
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -1715,7 +1981,7 @@ exports["api.remote.push: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1727,11 +1993,11 @@ exports["api.remote.push: valid params, wid not found"] = function(test){
 
 exports["api.remote.push: valid params, non existing field"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b", value:5};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:5};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1756,7 +2022,7 @@ exports["api.remote.push: valid params, non existing field"] = function(test){
 	api.remote.push(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @1234"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1800,14 +2066,50 @@ var api = require("../lib/api");
 	
 }
 
+
+exports["api.remote.pop: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
+	api.remote.pop(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.pop: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
+	api.remote.pop(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
+
 exports["api.remote.pop: valid params, existing field as array, explicit catalog, db async"] = function(test){
 	
 
-	var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:"dummy"};
 	var dbdocs = {};
 		
 		//document WITH b array field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:[1,2,3,4], rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for pop procedure
@@ -1855,11 +2157,11 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 
 exports["api.remote.pop: valid params, existing field as nonarray"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITH b non-array field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:"this is not an array", rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1898,7 +2200,7 @@ exports["api.remote.pop: valid params, existing field as nonarray"] = function(t
 
 exports["api.remote.pop: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114, fname:"a", value:4}; 
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -1927,7 +2229,7 @@ exports["api.remote.pop: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1940,11 +2242,11 @@ exports["api.remote.pop: valid params, wid not found"] = function(test){
 exports["api.remote.pop: valid params, non existing field"] = function(test){
 	
 
-	var params = {wid:"1234", uid:620793114, fname:"b"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1969,7 +2271,7 @@ exports["api.remote.pop: valid params, non existing field"] = function(test){
 	api.remote.pop(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @1234"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -2014,13 +2316,47 @@ var api = require("../lib/api");
 }
 
 
+exports["api.remote.pull: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
+	api.remote.pull(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+
+exports["api.remote.pull: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
+	api.remote.pull(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
 exports["api.remote.pull: valid params, existing field as array, explicit catalog, db async"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b", catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:"dummy"};
 	var dbdocs = {};
 		
 		//document WITH b array field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:[1,2,3,4], rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115]};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for pop procedure
@@ -2067,11 +2403,11 @@ exports["api.remote.pull: valid params, existing field as array, explicit catalo
 
 exports["api.remote.pull: valid params, existing field as nonarray"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114, fname:"b"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITH b non-array field.
-		dbdocs["1234"] = {_id:"1234",a:1, b:"this is not an array", rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -2110,7 +2446,7 @@ exports["api.remote.pull: valid params, existing field as nonarray"] = function(
 
 exports["api.remote.pop: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"5678", uid:620793114, fname:"a", value:4}; 
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -2139,7 +2475,7 @@ exports["api.remote.pop: valid params, wid not found"] = function(test){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:5678" });
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -2151,11 +2487,11 @@ exports["api.remote.pop: valid params, wid not found"] = function(test){
 
 exports["api.remote.pull: valid params, non existing field"] = function(test){
 	
-var params = {wid:"1234", uid:620793114, fname:"b"};
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -2180,7 +2516,7 @@ var params = {wid:"1234", uid:620793114, fname:"b"};
 	api.remote.pull(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @1234"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();

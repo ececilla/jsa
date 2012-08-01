@@ -295,10 +295,10 @@ exports["server.api.docs.create: internal events, explicit&added catalog, ro db"
 
 exports["server.api.docs.join: internal events, default catalog"] = function(test){
 	
-	var params = {wid:"1234", uid:620793114};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234",a:1, b:"test1234", rcpts:[620793115], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -338,7 +338,7 @@ exports["server.api.docs.join: internal events, default catalog"] = function(tes
 		test.equal(msg.ev_type,"ev_join");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "docs");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115]);							
 	});
@@ -347,7 +347,7 @@ exports["server.api.docs.join: internal events, default catalog"] = function(tes
 	server.api.docs.join(params, function(err,val){
 		
 		test.equal(err,undefined);
-		test.deepEqual(val,{doc:{a:1, b:"test1234", uid:620793115, wid:"1234"}});						
+		test.deepEqual(val,{doc:{a:1, b:"test1234", uid:620793115, wid:"50187f71556efcbb25000001"}});						
 				
 		test.expect(12);		
 		test.done();
@@ -358,10 +358,10 @@ exports["server.api.docs.join: internal events, default catalog"] = function(tes
 
 exports["server.api.docs.unjoin: internal events, default catalog"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -401,7 +401,7 @@ exports["server.api.docs.unjoin: internal events, default catalog"] = function(t
 		test.equal(msg.ev_type,"ev_unjoin");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "docs");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
 	});
@@ -421,10 +421,10 @@ exports["server.api.docs.unjoin: internal events, default catalog"] = function(t
 
 exports["server.api.docs.add: internal events, default catalog, wrong ev handler"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116, fname:"c", value:[]};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"c", value:[]};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -464,7 +464,7 @@ exports["server.api.docs.add: internal events, default catalog, wrong ev handler
 		test.equal(msg.ev_type,"ev_add");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "docs");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
 	}).on("ev_unjoin",function(msg){
@@ -487,10 +487,10 @@ exports["server.api.docs.add: internal events, default catalog, wrong ev handler
 
 exports["server.api.docs.remove: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116, fname:"b", catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"b", catalog:"dummy"};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -530,7 +530,7 @@ exports["server.api.docs.remove: internal events, explicit catalog, wrong ev han
 		test.equal(msg.ev_type,"ev_rem");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
 	}).on("ev_create",function(msg){
@@ -555,10 +555,10 @@ exports["server.api.docs.remove: internal events, explicit catalog, wrong ev han
 
 exports["server.api.docs.set: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116, fname:"a", value:5, catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", value:5, catalog:"dummy"};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -599,7 +599,7 @@ exports["server.api.docs.set: internal events, explicit catalog, wrong ev handle
 		test.equal(msg.ev_type,"ev_set");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
 	}).on("ev_create",function(msg){
@@ -621,10 +621,10 @@ exports["server.api.docs.set: internal events, explicit catalog, wrong ev handle
 
 exports["server.api.docs.incr: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116, fname:"a", catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -665,7 +665,7 @@ exports["server.api.docs.incr: internal events, explicit catalog, wrong ev handl
 		test.equal(msg.ev_type,"ev_incr");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
@@ -687,10 +687,10 @@ exports["server.api.docs.incr: internal events, explicit catalog, wrong ev handl
 
 exports["server.api.docs.decr: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116, fname:"a", catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234", a:8, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:8, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -731,7 +731,7 @@ exports["server.api.docs.decr: internal events, explicit catalog, wrong ev handl
 		test.equal(msg.ev_type,"ev_decr");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
@@ -754,10 +754,10 @@ exports["server.api.docs.decr: internal events, explicit catalog, wrong ev handl
 
 exports["server.api.docs.push: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116, fname:"a", value:9, catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", value:9, catalog:"dummy"};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234", a:[4,6], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:[4,6], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -798,7 +798,7 @@ exports["server.api.docs.push: internal events, explicit catalog, wrong ev handl
 		test.equal(msg.ev_type,"ev_push");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
@@ -820,10 +820,10 @@ exports["server.api.docs.push: internal events, explicit catalog, wrong ev handl
 
 exports["server.api.docs.pop: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116, fname:"a", catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234", a:[-4,"foo",3], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:[-4,"foo",3], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -864,7 +864,7 @@ exports["server.api.docs.pop: internal events, explicit catalog, wrong ev handle
 		test.equal(msg.ev_type,"ev_pop");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
@@ -887,10 +887,10 @@ exports["server.api.docs.pop: internal events, explicit catalog, wrong ev handle
 
 exports["server.api.docs.pull: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
-	var params = {wid:"1234", uid:620793116, fname:"a", catalog:"dummy"};
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
 	var dbdocs = {};//documents at db
 	
-		dbdocs["1234"] = {_id:"1234", a:[-4,"foo",3], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:[-4,"foo",3], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	    
 	var api = sandbox.require("../lib/api",{
@@ -931,7 +931,7 @@ exports["server.api.docs.pull: internal events, explicit catalog, wrong ev handl
 		test.equal(msg.ev_type,"ev_pull");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "1234");					
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
