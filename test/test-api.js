@@ -1,7 +1,7 @@
 var sandbox = require("sandboxed-module");
 	
 
-exports["module exported objects"] = function(test){
+exports["module exported functions"] = function(test){
 		
 	var api = require("../lib/api");
 		

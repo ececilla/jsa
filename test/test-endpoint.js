@@ -1,7 +1,17 @@
 var sandbox = require("sandboxed-module");
 
+exports["module exported functions"] = function(test){
+	
+	var endpoint = require("../lib/endpoint");
+	
+	test.notEqual(endpoint.rpc,undefined);
+	test.notEqual(endpoint.events, undefined);
+	test.done();
+	
+}
 
-exports["rpc: incorrect jsonstring"] = function(test){
+
+exports["endpoint.rpc: incorrect jsonstring"] = function(test){
 	
 	var endpoint = require("../lib/endpoint");
 	var req_str = '{"jsonrpc":"2.1""method":"test","id":123'; //missing ending }
@@ -23,7 +33,7 @@ exports["rpc: incorrect jsonstring"] = function(test){
 }
 
 
-exports["rpc: incorrect json-rpc version"] = function(test){
+exports["endpoint.rpc: incorrect json-rpc version"] = function(test){
 	
 	var endpoint = require("../lib/endpoint");
 	var req_str = '{"jsonrpc":"2.1","method":"test","id":123}';
@@ -45,7 +55,7 @@ exports["rpc: incorrect json-rpc version"] = function(test){
 }
 
 
-exports["rpc: method not found"] = function(test){
+exports["endpoint.rpc: method not found"] = function(test){
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{"./api":{	remote:{
@@ -78,7 +88,7 @@ exports["rpc: method not found"] = function(test){
 }
 
 
-exports["rpc: method invocation: with result, no params"] = function(test){
+exports["endpoint.rpc: method invocation: with result, no params"] = function(test){
 	
 	var ret_value = {test:1};
 	var endpoint = sandbox.require("../lib/endpoint",{
@@ -110,7 +120,7 @@ exports["rpc: method invocation: with result, no params"] = function(test){
 }
 
 
-exports["rpc: method invocation: with result, params"] = function(test){
+exports["endpoint.rpc: method invocation: with result, params"] = function(test){
 	
 	var req = { "jsonrpc":"2.0",
 				"method":"test",
@@ -148,7 +158,7 @@ exports["rpc: method invocation: with result, params"] = function(test){
 }
 
 
-exports["rpc: method invocation: with error"] = function(test){
+exports["endpoint.rpc: method invocation: with error"] = function(test){
 
 	var err_value = {test:1};
 	var endpoint = sandbox.require("../lib/endpoint",{
@@ -179,7 +189,7 @@ exports["rpc: method invocation: with error"] = function(test){
 	
 }
 
-exports["rpc: method invocation without id"] = function(test){
+exports["endpoint.rpc: method invocation without id"] = function(test){
 	
 	var flags = [0, 1, 1, 1];	
 	var endpoint = sandbox.require("../lib/endpoint",{

@@ -1,6 +1,6 @@
 var db = require("../lib/db");
 
-exports["module exported objects"] = function(test){
+exports["module exported functions"] = function(test){
 		
 	test.notEqual(db.connect, undefined);
 	test.notEqual(db.save, undefined);
