@@ -846,7 +846,7 @@ exports["api.remote.add: valid params, non existing field, explicit catalog, db 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for add procedure
@@ -897,7 +897,7 @@ exports["api.remote.add: valid params, wid not found"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115]};	
+		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -932,13 +932,53 @@ exports["api.remote.add: valid params, wid not found"] = function(test){
 }
 
 
+exports["api.remote.add: valid params, uid not joined"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"b", value:[]}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+				
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because uid not joined
+							}
+		}}
+	});
+	
+	api.remote.add(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);		
+		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+		
+}
+
+
 exports["api.remote.add: valid params, existing field"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:[]};
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:2, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1046,7 +1086,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for remove procedure
@@ -1096,7 +1136,7 @@ exports["api.remote.remove: valid params, wid not found"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115]};	
+		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1130,6 +1170,45 @@ exports["api.remote.remove: valid params, wid not found"] = function(test){
 		
 }
 
+exports["api.remote.remove: valid params, uid not joined"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:[]}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+				
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because uid not joined
+							}
+		}}
+	});
+	
+	api.remote.remove(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);		
+		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+		
+}
+
 
 exports["api.remote.remove: valid params, nonexisting field"] = function(test){
 	
@@ -1137,7 +1216,7 @@ exports["api.remote.remove: valid params, nonexisting field"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1253,7 +1332,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:3,
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for set procedure
@@ -1304,7 +1383,7 @@ exports["api.remote.set: valid params, wid not found"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115]};	
+		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1338,6 +1417,45 @@ exports["api.remote.set: valid params, wid not found"] = function(test){
 		
 }
 
+exports["api.remote.set: valid params, uid not joined"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:[]}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+				
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because uid not joined
+							}
+		}}
+	});
+	
+	api.remote.set(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);		
+		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+		
+}
+
 
 exports["api.remote.set: valid params, non existing field"] = function(test){
 	
@@ -1345,7 +1463,7 @@ exports["api.remote.set: valid params, non existing field"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1455,7 +1573,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for incr procedure
@@ -1506,7 +1624,7 @@ exports["api.remote.incr: valid params, wid not found"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115]};	
+		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1540,6 +1658,45 @@ exports["api.remote.incr: valid params, wid not found"] = function(test){
 		
 }
 
+exports["api.remote.incr: valid params, uid not joined"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:[]}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+				
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because uid not joined
+							}
+		}}
+	});
+	
+	api.remote.incr(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);		
+		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+		
+}
+
 
 exports["api.remote.incr: valid params, non existing field"] = function(test){
 
@@ -1547,7 +1704,7 @@ exports["api.remote.incr: valid params, non existing field"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1656,7 +1813,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:
 	var dbdocs = {};
 		
 		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for decr procedure
@@ -1707,7 +1864,7 @@ exports["api.remote.decr: valid params, wid not found"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115]};	
+		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1741,6 +1898,45 @@ exports["api.remote.decr: valid params, wid not found"] = function(test){
 		
 }
 
+exports["api.remote.decr: valid params, uid not joined"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:[]}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+				
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because uid not joined
+							}
+		}}
+	});
+	
+	api.remote.decr(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);		
+		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+		
+}
+
 
 exports["api.remote.decr: valid params, non existing field"] = function(test){
 	
@@ -1748,7 +1944,7 @@ exports["api.remote.decr: valid params, non existing field"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1868,7 +2064,7 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 	var dbdocs = {};
 		
 		//document WITH b array field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for push procedure
@@ -1920,7 +2116,7 @@ exports["api.remote.push: valid params, existing field as nonarray"] = function(
 	var dbdocs = {};
 		
 		//document WITH b non-array field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for push procedure
@@ -1956,7 +2152,7 @@ exports["api.remote.push: valid params, wid not found"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:[1], rcpts:[620793115]};	
+		dbdocs["1234"] = {_id:"1234",a:[1], rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -1990,6 +2186,45 @@ exports["api.remote.push: valid params, wid not found"] = function(test){
 		
 }
 
+exports["api.remote.push: valid params, uid not joined"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:0}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+				
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because uid not joined
+							}
+		}}
+	});
+	
+	api.remote.push(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);		
+		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+		
+}
+
 
 exports["api.remote.push: valid params, non existing field"] = function(test){
 	
@@ -1997,7 +2232,7 @@ exports["api.remote.push: valid params, non existing field"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -2109,7 +2344,7 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 	var dbdocs = {};
 		
 		//document WITH b array field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for pop procedure
@@ -2161,7 +2396,7 @@ exports["api.remote.pop: valid params, existing field as nonarray"] = function(t
 	var dbdocs = {};
 		
 		//document WITH b non-array field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -2204,7 +2439,7 @@ exports["api.remote.pop: valid params, wid not found"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:[1], rcpts:[620793115]};	
+		dbdocs["1234"] = {_id:"1234",a:[1], rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -2238,6 +2473,45 @@ exports["api.remote.pop: valid params, wid not found"] = function(test){
 		
 }
 
+exports["api.remote.pop: valid params, uid not joined"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:0}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+				
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because uid not joined
+							}
+		}}
+	});
+	
+	api.remote.pop(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);		
+		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+		
+}
+
 
 exports["api.remote.pop: valid params, non existing field"] = function(test){
 	
@@ -2246,7 +2520,7 @@ exports["api.remote.pop: valid params, non existing field"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -2356,7 +2630,7 @@ exports["api.remote.pull: valid params, existing field as array, explicit catalo
 	var dbdocs = {};
 		
 		//document WITH b array field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:[1,2,3,4], rcpts:[620793115], uid:620793114};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for pop procedure
@@ -2407,7 +2681,7 @@ exports["api.remote.pull: valid params, existing field as nonarray"] = function(
 	var dbdocs = {};
 		
 		//document WITH b non-array field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"this is not an array", rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -2450,7 +2724,7 @@ exports["api.remote.pop: valid params, wid not found"] = function(test){
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:[1], rcpts:[620793115]};	
+		dbdocs["1234"] = {_id:"1234",a:[1], rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
@@ -2484,6 +2758,45 @@ exports["api.remote.pop: valid params, wid not found"] = function(test){
 		
 }
 
+exports["api.remote.pull: valid params, uid not joined"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:0}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+				
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:[1], rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because uid not joined
+							}
+		}}
+	});
+	
+	api.remote.pull(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);		
+		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+		
+}
+
 
 exports["api.remote.pull: valid params, non existing field"] = function(test){
 	
@@ -2491,7 +2804,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115]};	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, rcpts:[620793115], uid:620793114};	
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
