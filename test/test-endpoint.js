@@ -205,19 +205,19 @@ exports["endpoint.rpc: method invocation without id"] = function(test){
 	
 	var req_str = '{"jsonrpc":"2.0","method":"test"}';
 	
-		endpoint.rpc( {writeHead: function(status, header_data){
-						
-						flags[1] = 0; //writeHead() does not get executed (flag not changed).								
-			 		 },
-			 		write: function( out_str ){
-			 			flags[2] = 0; //write does not get executed (flag not changed).
-			 		},
-			 		end: function( out_str ){
-			 			
-			 			flags[3] = 0; //end() does not get executed (flag not changed).			 				 
-					}		
-			} , req_str );
-			
+	endpoint.rpc( {writeHead: function(status, header_data){
+					
+					flags[1] = 0; //writeHead() does not get executed (flag not changed).								
+		 		 },
+		 		write: function( out_str ){
+		 			flags[2] = 0; //write does not get executed (flag not changed).
+		 		},
+		 		end: function( out_str ){
+		 			
+		 			flags[3] = 0; //end() does not get executed (flag not changed).			 				 
+				}		
+		} , req_str );
+		
 	test.ok( flags[0] );		
 	test.ok( flags[1] );
 	test.ok( flags[2] );
@@ -225,5 +225,48 @@ exports["endpoint.rpc: method invocation without id"] = function(test){
 	test.done();	
 	
 }
+
+
+exports["endpoint.events: subscribe invocation"] = function(test){
+	
+		
+	var endpoint = sandbox.require("../lib/endpoint",{
+		requires:{"./evqueue":{	remote:{
+								subscribe: function( http_resp, params ){
+																	
+									test.notEqual( http_resp, undefined);
+									test.ok( http_resp.myhttp );
+									test.deepEqual(params,{uid:620793114});																						
+								}
+							}
+		}}
+	});
+	
+	//json request sent to subscribe to the events channel for uid 620793114
+	var req_str = '{"jsonrpc":"2.0","method":"subscribe", "params":{"uid":620793114}}';
+	var http_resp = {	myhttp:true,
+						writeHead: function(status, header_data){
+						
+							test.equal(status,200);
+							test.deepEqual(header_data,{"Content-Type":"application/json"});								
+			 			},				 						 		
+						connection:{
+							setTimeout:function(timeout){
+								
+								test.equal(timeout,0);
+							},
+							setNoDelay:function(flag){
+								
+								test.ok(flag);
+							}
+						}		
+					};
+	
+	endpoint.events( http_resp , req_str );
+	
+	test.expect(7);		
+	test.done();	
+}
+
 
 
