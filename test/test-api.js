@@ -540,6 +540,45 @@ exports["api.remote.join: valid params, uid not in rcpts, default catalog, wid n
 		
 }
 
+exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793115, catalog:"dummy"};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234",uid:620793114},
+		dbdocs["456"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0; //should not be reached because doc has no rcpts field.
+							}
+		}}
+	});
+	
+	api.remote.join(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,null);
+		test.deepEqual(err,{ code: -7, message: "Not reportable document: @dummy:50187f71556efcbb25000001" });		
+		test.ok(flag);
+				
+		test.expect(6);
+		test.done();
+		
+	});
+		
+}
+
 exports["api.remote.unjoin: missing params"] = function(test){
 	
 	var api = require("../lib/api");	
@@ -840,6 +879,54 @@ exports["api.remote.add: invalid params, wid.length != 24"] = function(test){
 	
 }
 
+
+exports["api.remote.add: invalid params, reserved word: _id"] = function(test){
+	 
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"_id", value:[]};
+	api.remote.add(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: _id"});
+		test.done();				
+	});					
+	
+}
+
+exports["api.remote.add: invalid params, reserved word: rcpts"] = function(test){
+	
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"rcpts", value:[]};
+	api.remote.add(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: rcpts"});
+		test.done();				
+	});					
+	
+}
+
+
+exports["api.remote.add: invalid params, reserved word: uid"] = function(test){
+	
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"uid", value:[]};
+	api.remote.add(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: uid"});
+		test.done();				
+	});					
+	
+}
+
+
 exports["api.remote.add: valid params, non existing field, explicit catalog, db async"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:[], catalog:"dummy"}; //initialize field 'b' to an empty array.
@@ -1080,6 +1167,54 @@ exports["api.remote.remove: invalid params, wid.length != 24"] = function(test){
 }
 
 
+exports["api.remote.remove: invalid params, reserved word: _id"] = function(test){
+	 
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"_id", value:[]};
+	api.remote.remove(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: _id"});
+		test.done();				
+	});					
+	
+}
+
+
+exports["api.remote.remove: invalid params, reserved word: rcpts"] = function(test){
+	
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"rcpts", value:[]};
+	api.remote.remove(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: rcpts"});
+		test.done();				
+	});					
+	
+}
+
+
+exports["api.remote.remove: invalid params, reserved word: uid"] = function(test){
+	
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"uid", value:[]};
+	api.remote.remove(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: uid"});
+		test.done();				
+	});					
+	
+}
+
+
 exports["api.remote.remove: valid params, existing field, explicit catalog, db async"] = function(test){
 	
 var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
@@ -1241,7 +1376,7 @@ exports["api.remote.remove: valid params, nonexisting field"] = function(test){
 	api.remote.remove(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"})
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"})
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1324,6 +1459,52 @@ exports["api.remote.set: invalid params, wid.length != 24"] = function(test){
 	
 }
 
+
+exports["api.remote.set: invalid params, reserved word: _id"] = function(test){
+	 
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"_id", value:[]};
+	api.remote.set(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: _id"});
+		test.done();				
+	});					
+	
+}
+
+exports["api.remote.set: invalid params, reserved word: rcpts"] = function(test){
+	
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"rcpts", value:[]};
+	api.remote.set(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: rcpts"});
+		test.done();				
+	});					
+	
+}
+
+
+exports["api.remote.set: invalid params, reserved word: uid"] = function(test){
+	
+	var api = require("../lib/api");		
+		
+	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"uid", value:[]};
+	api.remote.set(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Reserved word for field name: uid"});
+		test.done();				
+	});					
+	
+}
 
 
 exports["api.remote.set: valid params, existing field, explicit catalog, db async"] = function(test){
@@ -1488,7 +1669,7 @@ exports["api.remote.set: valid params, non existing field"] = function(test){
 	api.remote.set(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1729,7 +1910,7 @@ exports["api.remote.incr: valid params, non existing field"] = function(test){
 	api.remote.incr(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -1969,7 +2150,7 @@ exports["api.remote.decr: valid params, non existing field"] = function(test){
 	api.remote.decr(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag)
 		test.expect(7);
 		test.done();
@@ -2257,7 +2438,7 @@ exports["api.remote.push: valid params, non existing field"] = function(test){
 	api.remote.push(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -2545,7 +2726,7 @@ exports["api.remote.pop: valid params, non existing field"] = function(test){
 	api.remote.pop(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -2829,7 +3010,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	api.remote.pull(params,function(err,val){
 		
 		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @50187f71556efcbb25000001"});
+		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
