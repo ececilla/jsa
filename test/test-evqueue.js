@@ -61,7 +61,7 @@ exports["evqueue.remote.subscribe: invocation"] = function(test){
 	
 	var flags = [0,0];
 	var params = {uid:620793114};
-	var http_resp = {   foo:1,
+	var http_resp = {   
 						on:function(){ flags[0] = 1;},
 						connection:{
 							on:function(){ flags[1] = 1; }
@@ -78,7 +78,7 @@ exports["evqueue.remote.subscribe: invocation"] = function(test){
 }
 
 
-exports["evqueue.events: ev_create with rcpt subscribed"] = function(test){
+exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpts"] = function(test){
 		
 	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
 	    ircpts = [620793115, 620793119];
@@ -94,6 +94,9 @@ exports["evqueue.events: ev_create with rcpt subscribed"] = function(test){
 								//save doc to db...returns doc with _id		
 								doc._id = "50187f71556efcbb25000001";						
 								ret_handler(null,doc);	
+							},
+							select: function(){
+								
 							}
 		}}
 	}),
@@ -106,6 +109,8 @@ exports["evqueue.events: ev_create with rcpt subscribed"] = function(test){
 			
 			test.notEqual(doc,undefined);
 			test.notEqual(db,undefined);
+			test.equal(db.save, undefined);
+			test.notEqual(db.select, undefined);
 			setTimeout(function(){ret_handler(ircpts)},500);
 			
 	};
@@ -117,7 +122,7 @@ exports["evqueue.events: ev_create with rcpt subscribed"] = function(test){
 	
 	
 	/*
-	 * 620793115 gets subscribed to the ev channel which menas hes in rcpts list 
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
 	 * so http_resp.write(...) should be called with the ev_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
@@ -150,12 +155,1636 @@ exports["evqueue.events: ev_create with rcpt subscribed"] = function(test){
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);			
-		test.expect(14);
+		test.expect(16);
 		test.done();
 	});
 		
 }
 
+
+exports["evqueue.events: ev_create, unreportable document, subscribed"] = function(test){
+		
+	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
+	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module
+							save:function(col_str,doc,ret_handler){
+																
+								test.equal(col_str,"dummy");								
+								test.equal( doc.test, rpc_params.doc.test );
+								test.equal( doc.uid, rpc_params.uid );
+								test.equal( doc.rcpts, undefined);
+								
+								//save doc to db...returns doc with _id		
+								doc._id = "50187f71556efcbb25000001";						
+								ret_handler(null,doc);	
+							},
+							select: function(){
+								
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});				
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																								
+							subs_flags[2] = 0;//should not reach here since theres no default rcpt	
+						}
+						
+				    }; 
+				 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+		
+	
+	api.remote.create(rpc_params, function(err,val){
+		
+		test.ok(subs_flags[2]);
+		test.equal(err,null);
+		test.notEqual(val,undefined);			
+		test.expect(9);
+		test.done();
+	});
+		
+}
+
+
+exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_join");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,catalog:"docs"});
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.join(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(12);
+			test.done();
+		});
+	},500);
+		
+}
+
+
+
+exports["evqueue.events: ev_join, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.join(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(9);
+		test.done();
+	});
+			
+}
+
+
+exports["evqueue.events: ev_unjoin, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115,620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_unjoin");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,catalog:"docs"});
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 unjoins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.unjoin(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(12);
+			test.done();
+		});
+	},500);
+		
+}
+
+
+exports["evqueue.events: ev_unjoin, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115,620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.unjoin(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(9);
+		test.done();
+	});
+			
+}
+
+exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:5};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.b, 5);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_add");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"b", value:5,catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.add(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+
+exports["evqueue.events: ev_add, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"b",value:5, uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.add(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(9);
+		test.done();
+	});
+			
+}
+
+
+
+exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.a, undefined);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_rem");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.remove(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+
+exports["evqueue.events: ev_rem, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.a, undefined);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.remove(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(10);
+		test.done();
+	});
+			
+}
+
+
+exports["evqueue.events: ev_set, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.a, 5);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_set");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",value:5,catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.set(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+exports["evqueue.events: ev_set, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", value:5, uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.a, 5);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.set(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(10);
+		test.done();
+	});
+			
+}
+
+
+exports["evqueue.events: ev_incr, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");								
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.a, 2);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_incr");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.incr(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+
+exports["evqueue.events: ev_incr, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.a, 2);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.incr(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(10);
+		test.done();
+	});
+			
+}
+
+
+exports["evqueue.events: ev_decr, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.a, 0);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_decr");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.decr(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+
+exports["evqueue.events: ev_decr, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.equal(doc.a, 0);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.decr(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(10);
+		test.done();
+	});
+			
+}
+
+
+exports["evqueue.events: ev_push, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.deepEqual(doc.a, [1,5]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_push");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",value:5,catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.push(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+
+exports["evqueue.events: ev_push, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a",value:5, uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.deepEqual(doc.a, [1,5]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.push(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(10);
+		test.done();
+	});
+			
+}
+
+
+exports["evqueue.events: ev_pop, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.deepEqual(doc.a, [1]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_pop");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.pop(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+exports["evqueue.events: ev_pop, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.deepEqual(doc.a, [1]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+					
+	api.remote.pop(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(10);
+		test.done();
+	});
+			
+}
+
+exports["evqueue.events: ev_pull, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.deepEqual(doc.a, [5]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_pull");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		api.remote.pull(rpc_params, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+exports["evqueue.events: ev_pull, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, rpc_params.wid);
+								
+								setTimeout(function(){//200ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},60);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.deepEqual(doc.a, [5]);
+																
+								//save doc to db...returns with _id:12345
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,doc);
+								},70);	
+							}
+		}}
+	}),
+	eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api}
+	});			
+	
+	
+	/*
+	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 */ 
+	var subs_flags = [0,0,1]; 	
+	var subs_params = {uid:620793119};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+																																												
+							subs_flags[2] = 0;																	
+						}
+						
+				    }; 
+				    					    				
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+								
+	api.remote.pull(rpc_params, function(err,val){
+		
+		test.equal(err,null);
+		test.notEqual(val,undefined);
+		test.ok(subs_flags[2]);			
+		test.expect(10);
+		test.done();
+	});
+	
+			
+}
 
 
 
