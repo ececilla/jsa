@@ -101,7 +101,15 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{	"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									
+								}	
+					}
+		}
 	});
 	
 	
@@ -155,7 +163,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);			
-		test.expect(16);
+		test.expect(18);
 		test.done();
 	});
 		
@@ -183,9 +191,16 @@ exports["evqueue.events: ev_create, unreportable document, subscribed"] = functi
 								
 							}
 		}}
-	}),
+	}), eq_flag = 1,
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									eq_flag = 0;//should not reach here since theres no rcpt in this doc.				
+								}	
+					}
+		}
 	});				
 	
 	
@@ -215,9 +230,10 @@ exports["evqueue.events: ev_create, unreportable document, subscribed"] = functi
 	api.remote.create(rpc_params, function(err,val){
 		
 		test.ok(subs_flags[2]);
+		test.ok(eq_flag);
 		test.equal(err,null);
 		test.notEqual(val,undefined);			
-		test.expect(9);
+		test.expect(10);
 		test.done();
 	});
 		
@@ -258,7 +274,16 @@ exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);																		
+								}	
+					}
+		}
 	});			
 	
 	
@@ -299,7 +324,7 @@ exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(12);
+			test.expect(15);
 			test.done();
 		});
 	},500);
@@ -342,7 +367,16 @@ exports["evqueue.events: ev_join, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -373,7 +407,7 @@ exports["evqueue.events: ev_join, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(9);
+		test.expect(12);
 		test.done();
 	});
 			
@@ -414,7 +448,16 @@ exports["evqueue.events: ev_unjoin, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -455,7 +498,7 @@ exports["evqueue.events: ev_unjoin, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(12);
+			test.expect(15);
 			test.done();
 		});
 	},500);
@@ -497,7 +540,16 @@ exports["evqueue.events: ev_unjoin, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -528,7 +580,7 @@ exports["evqueue.events: ev_unjoin, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(9);
+		test.expect(12);
 		test.done();
 	});
 			
@@ -569,7 +621,16 @@ exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -610,7 +671,7 @@ exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(13);
+			test.expect(16);
 			test.done();
 		});
 	},500);
@@ -652,7 +713,16 @@ exports["evqueue.events: ev_add, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -683,7 +753,7 @@ exports["evqueue.events: ev_add, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(9);
+		test.expect(12);
 		test.done();
 	});
 			
@@ -726,7 +796,16 @@ exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -767,7 +846,7 @@ exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(13);
+			test.expect(16);
 			test.done();
 		});
 	},500);
@@ -810,7 +889,16 @@ exports["evqueue.events: ev_rem, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -841,7 +929,7 @@ exports["evqueue.events: ev_rem, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(10);
+		test.expect(13);
 		test.done();
 	});
 			
@@ -883,7 +971,16 @@ exports["evqueue.events: ev_set, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -924,7 +1021,7 @@ exports["evqueue.events: ev_set, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(13);
+			test.expect(16);
 			test.done();
 		});
 	},500);
@@ -966,7 +1063,16 @@ exports["evqueue.events: ev_set, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -997,7 +1103,7 @@ exports["evqueue.events: ev_set, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(10);
+		test.expect(13);
 		test.done();
 	});
 			
@@ -1039,7 +1145,16 @@ exports["evqueue.events: ev_incr, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1080,7 +1195,7 @@ exports["evqueue.events: ev_incr, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(13);
+			test.expect(16);
 			test.done();
 		});
 	},500);
@@ -1123,7 +1238,16 @@ exports["evqueue.events: ev_incr, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1154,7 +1278,7 @@ exports["evqueue.events: ev_incr, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(10);
+		test.expect(13);
 		test.done();
 	});
 			
@@ -1196,7 +1320,16 @@ exports["evqueue.events: ev_decr, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1237,7 +1370,7 @@ exports["evqueue.events: ev_decr, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(13);
+			test.expect(16);
 			test.done();
 		});
 	},500);
@@ -1280,7 +1413,16 @@ exports["evqueue.events: ev_decr, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1311,7 +1453,7 @@ exports["evqueue.events: ev_decr, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(10);
+		test.expect(13);
 		test.done();
 	});
 			
@@ -1353,7 +1495,16 @@ exports["evqueue.events: ev_push, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1394,7 +1545,7 @@ exports["evqueue.events: ev_push, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(13);
+			test.expect(16);
 			test.done();
 		});
 	},500);
@@ -1437,7 +1588,16 @@ exports["evqueue.events: ev_push, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1468,7 +1628,7 @@ exports["evqueue.events: ev_push, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(10);
+		test.expect(13);
 		test.done();
 	});
 			
@@ -1510,7 +1670,16 @@ exports["evqueue.events: ev_pop, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1551,7 +1720,7 @@ exports["evqueue.events: ev_pop, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(13);
+			test.expect(16);
 			test.done();
 		});
 	},500);
@@ -1593,7 +1762,16 @@ exports["evqueue.events: ev_pop, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1624,7 +1802,7 @@ exports["evqueue.events: ev_pop, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(10);
+		test.expect(13);
 		test.done();
 	});
 			
@@ -1665,7 +1843,16 @@ exports["evqueue.events: ev_pull, subscribed in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1706,7 +1893,7 @@ exports["evqueue.events: ev_pull, subscribed in rcpts"] = function(test){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
-			test.expect(13);
+			test.expect(16);
 			test.done();
 		});
 	},500);
@@ -1748,7 +1935,16 @@ exports["evqueue.events: ev_pull, subscribed not in rcpts"] = function(test){
 		}}
 	}),
 	eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api}
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, doc, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.equal(doc.ev_rcpt, 620793115);
+									test.notEqual(doc._id, undefined);
+								}	
+					}
+		}
 	});			
 	
 	
@@ -1779,7 +1975,7 @@ exports["evqueue.events: ev_pull, subscribed not in rcpts"] = function(test){
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(10);
+		test.expect(13);
 		test.done();
 	});
 	
