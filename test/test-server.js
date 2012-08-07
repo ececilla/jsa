@@ -403,7 +403,7 @@ exports["server.api.docs.unjoin: internal events, default catalog"] = function(t
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "docs");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
+		test.deepEqual(msg.ev_data.doc.rcpts, [620793115]);							
 	});
 				
 	
