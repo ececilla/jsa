@@ -1747,6 +1747,46 @@ exports["api.remote.incr: invalid params, wid.length != 24"] = function(test){
 	
 }
 
+exports["api.remote.incr: invalid params: field not a number"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"}; 
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:"not a number", rcpts:[620793114, 620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because field not a number
+							}
+		}}
+	});
+	
+	api.remote.incr(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);
+		test.deepEqual(err,{ code: -4, message: "Field 'a' not a number" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});			
+	
+}
+
 
 exports["api.remote.incr: valid params, existing field, explicit catalog, db async"] = function(test){
 	
@@ -1988,6 +2028,47 @@ exports["api.remote.decr: invalid params, wid.length != 24"] = function(test){
 	
 }
 
+exports["api.remote.decr: invalid params: field not a number"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"}; 
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:"not a number", rcpts:[620793114, 620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because field not a number
+							}
+		}}
+	});
+	
+	api.remote.decr(params,function(err,val){
+		
+		test.notEqual(err,null);
+		test.equal(val,null);
+		test.deepEqual(err,{ code: -4, message: "Field 'a' not a number" });
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});			
+	
+}
+
+
 exports["api.remote.decr: valid params, existing field, explicit catalog, db async"] = function(test){
 
 var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:"dummy"};
@@ -2041,7 +2122,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:
 
 exports["api.remote.decr: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"}; 
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
@@ -2081,7 +2162,7 @@ exports["api.remote.decr: valid params, wid not found"] = function(test){
 
 exports["api.remote.decr: valid params, uid not joined"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:[]}; //initialize field 'b' to an empty array.
+	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a"}; 
 	var dbdocs = {};
 				
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
