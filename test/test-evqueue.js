@@ -78,6 +78,94 @@ exports["evqueue.remote.subscribe: invocation"] = function(test){
 }
 
 
+exports["evqueue.events: custom event, explicit rcpts"] = function(test){
+
+	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rcpts = [620793119, 620793115];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+	
+	var counter = 0;
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	"./api":api,
+					"./db":{	counter:0,
+								save: function(col_str, signal, ret_handler){
+									
+									counter++;									
+									if(signal.ev_rcpt == 620793115){
+										
+										test.equal(col_str,"events");
+										test.notEqual( signal._id, undefined );
+										test.equal(signal.ev_msg.ev_type,"ev_dummy");
+										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
+										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
+										
+									}else if(signal.ev_rcpt == 620793119){
+										
+										test.equal(col_str, "events");
+										test.notEqual( signal._id, undefined );
+										test.equal(signal.ev_msg.ev_type,"ev_dummy");
+										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
+										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
+										
+									}else{
+										test.equal(false);
+									}
+																										
+								}	
+					}
+		}
+	});
+	
+			
+	/*
+	 * 620793115 gets subscribed to the ev channel  
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);						
+								test.equal(json_obj.ev_type,"ev_dummy");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data, rpc_params);
+																												
+						}
+						
+				    }; 
+				 
+	eq.remote.subscribe(http_resp,subs_params);	
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	eq.api.listen("ev_dummy");	
+	api.emit("ev_dummy", rpc_params, rcpts);
+	test.equal(counter,2);
+	
+	
+	eq.api.listen("ev_foo", function(params, recipients){
+		
+		test.deepEqual(params.ev_data, rpc_params);
+		test.equal(recipients, rcpts);
+	});
+	
+	api.emit("ev_foo", rpc_params, rcpts);
+	
+	test.done();
+	
+}
+
+
+
+
+
 exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpts"] = function(test){
 		
 	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
@@ -105,8 +193,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 					"./db":{
 								save: function(col_str, doc, ret_handler){
 									
-									test.equal(col_str, "events");
-									
+									test.equal(col_str, "events");									
 								}	
 					}
 		}
@@ -149,7 +236,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 								test.deepEqual(json_obj.ev_data,{uid:620793114,
 																 doc:{test:"test", uid:620793114, wid:"50187f71556efcbb25000001"},
 																 catalog:"dummy" } );	
-								
+													
 						}
 						
 				    }; 
@@ -162,9 +249,10 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 	api.remote.create(rpc_params, function(err,val){
 		
 		test.equal(err,null);
-		test.notEqual(val,undefined);			
+		test.notEqual(val,undefined);	
 		test.expect(18);
-		test.done();
+		test.done();				
+		
 	});
 		
 }
@@ -238,6 +326,7 @@ exports["evqueue.events: ev_create, unreportable document, subscribed"] = functi
 	});
 		
 }
+
 
 
 exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
@@ -679,6 +768,8 @@ exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
 }
 
 
+
+
 exports["evqueue.events: ev_add, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"b",value:5, uid:620793114};
@@ -758,7 +849,6 @@ exports["evqueue.events: ev_add, subscribed not in rcpts"] = function(test){
 	});
 			
 }
-
 
 
 exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
