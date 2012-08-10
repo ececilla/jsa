@@ -80,6 +80,48 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 }
 
 
+exports["api.emit:params, no explicit rcpts"] = function(test){
+	
+	var api = require("../lib/api");			
+	var emit_params = {foo:1, bar:5};
+	
+	api.on("ev_dummy", function(msg, rcpts){
+		
+		test.equal(msg.ev_type, "ev_dummy");
+		test.notEqual(msg.ev_tstamp, undefined);
+		test.equal(typeof msg.ev_tstamp, "number");
+		test.deepEqual(msg.ev_data, emit_params);
+		test.equal(rcpts, undefined);
+		test.done();
+	});
+	
+	api.emit("ev_dummy", emit_params);
+				
+}
+
+
+exports["api.emit:params, explicit rcpts"] = function(test){
+	
+	var api = require("../lib/api");			
+	var emit_params = {foo:1, bar:5};
+	var emit_rcpts = [1,2,3];
+	
+	api.on("ev_foo", function(msg, rcpts){
+		
+		test.equal(msg.ev_type, "ev_foo");
+		test.notEqual(msg.ev_tstamp, undefined);
+		test.equal(typeof msg.ev_tstamp, "number");
+		test.deepEqual(msg.ev_data, emit_params);
+		test.deepEqual(rcpts, emit_rcpts);
+		test.done();
+	});
+	
+	api.emit("ev_foo", emit_params, emit_rcpts);
+				
+}
+
+
+
 exports["api.remote.create: valid params, non init.rcpts, default catalog"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}};	    
