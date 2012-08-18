@@ -28,10 +28,14 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.stop, undefined );
 	test.notEqual( server.api.docs, undefined );
 	test.notEqual( server.api.docs.remote_func, undefined  );
+	test.notEqual( server.api.docs.newop, undefined );
 	test.notEqual( server.api.init, undefined );
 	test.notEqual( server.api.init.init_func, undefined  );
 	test.notEqual( server.api.events, undefined );
 	test.notEqual( server.api.events.on, undefined );
+	test.notEqual( server.api.events.emit, undefined );
+	
+	test.notEqual( server.eq.listen, undefined );
 	
 	//check exported functions can be invoked.
 	server.api.docs.remote_func();
@@ -40,7 +44,7 @@ exports["module exported functions"] = function(test){
 	server.api.init.init_func();	
 	test.ok(flags[1]);
 	
-	test.expect(11);	
+	test.expect(14);	
 	test.done();
 }
 
@@ -950,6 +954,138 @@ exports["server.api.docs.pull: internal events, explicit catalog, wrong ev handl
 	});
 						
 }
+
+
+exports["server.api.events.emit"] = function(test){
+	
+	var server = require("../lib/server");
+	var myparams = {foo:1, bar:"bar"},
+		myrcpts = [1,2,3];
+	
+	server.api.events.on("ev_bar", function(params, rcpts){
+		
+		test.deepEqual( params.ev_data, myparams );
+		test.equal( rcpts, myrcpts );
+		test.done();	
+	});
+	
+	server.api.events.emit("ev_bar", myparams, myrcpts);	
+	
+}
+
+
+
+exports["server.api.docs.newop"] = function(test){
+	
+	var server = require("../lib/server");
+	var api = require("../lib/api");	
+		
+	var myparams = {foo:1, bar:"test"};
+		
+	
+	server.api.docs.newop("newop", function(params, ret_handler){
+		
+		test.deepEqual(params, myparams);		
+		ret_handler(null,1);
+	});
+	
+	//ev_newop will be emitted by default.
+	server.api.events.on("ev_newop", function(params, rcpts){
+		
+		test.deepEqual( params.ev_data, myparams );
+		test.equal( rcpts, undefined );
+		test.expect(6);
+		test.done();		
+	});
+	
+	
+	
+	test.notEqual( api.remote["newop"], undefined );
+	api.remote["newop"](myparams, function(err,val){
+		
+		test.equal(err,null);
+		test.ok(val);
+	});
+	
+}
+
+
+exports["server.api.docs.newop:cancel default event"] = function(test){
+	
+	
+	var server = require("../lib/server");
+	var api = require("../lib/api");	
+	var myparams = {foo:1, bar:"test"};
+	
+	server.api.docs.newop("dummy", function(params, ret_handler){
+				
+		test.deepEqual(params, myparams);
+		ret_handler(null,1);
+		params.cancel_default_event = 1;
+	});
+		
+	server.api.events.on("ev_dummy", function(params, rcpts){
+				
+		test.ok(false);		
+	});
+		
+	
+	test.notEqual( api.remote["dummy"], undefined );
+	api.remote["dummy"](myparams, function(err,val){
+		
+		test.equal(err,null);
+		test.ok(val);		
+	});
+	
+	test.expect(4);
+	test.done();
+}
+
+
+exports["server.api.docs.newop:evqueue listening"] = function(test){
+	
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{"./db":{	
+							save:function(col_str, signal, ret_handler){
+									
+								console.log("dsfklsdjfljsdlfsd");								
+								test.equal(col_str,"events");
+								console.log(col_str);
+								console.log(doc);	
+								test.done();																																													
+							}
+		}}
+	});	
+	
+	var api = sandbox.require("../lib/api");
+				
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./evqueue":eq, "./api":api}		
+	});
+	
+	var myparams = {foo:1};
+		
+	
+	server.api.docs.newop("test", function(params, ret_handler){
+		
+		test.deepEqual(params, myparams);
+		params.doc = {rcpts:[620793118]};
+		ret_handler(null,1);
+	});
+		
+	
+	
+	test.notEqual( api.remote["test"], undefined );
+	api.remote["test"](myparams, function(err,val){
+		
+		test.equal(err,null);
+		test.ok(val);
+	});
+	
+}
+
 
 
 
