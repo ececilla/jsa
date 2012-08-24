@@ -28,7 +28,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.stop, undefined );
 	test.notEqual( server.api.docs, undefined );
 	test.notEqual( server.api.docs.remote_func, undefined  );
-	test.notEqual( server.api.docs.newop, undefined );
+	test.notEqual( server.api.newop, undefined );
 	test.notEqual( server.api.init, undefined );
 	test.notEqual( server.api.init.init_func, undefined  );
 	test.notEqual( server.api.events, undefined );
@@ -983,18 +983,20 @@ exports["server.api.docs.newop"] = function(test){
 	var myparams = {foo:1, bar:"test"};
 		
 	
-	server.api.docs.newop("newop", function(params, ret_handler){
+	server.api.newop("newop", function(params, ret_handler){
 		
 		test.deepEqual(params, myparams);		
 		ret_handler(null,1);
 	});
+	
+	test.notEqual(server.api.docs.newop, undefined);
 	
 	//ev_newop will be emitted by default.
 	server.api.events.on("ev_newop", function(params, rcpts){
 		
 		test.deepEqual( params.ev_data, myparams );
 		test.equal( rcpts, undefined );
-		test.expect(6);
+		test.expect(7);
 		test.done();		
 	});
 	
@@ -1007,6 +1009,7 @@ exports["server.api.docs.newop"] = function(test){
 		test.ok(val);
 	});
 	
+	
 }
 
 
@@ -1017,7 +1020,7 @@ exports["server.api.docs.newop:cancel default event"] = function(test){
 	var api = require("../lib/api");	
 	var myparams = {foo:1, bar:"test"};
 	
-	server.api.docs.newop("dummy", function(params, ret_handler){
+	server.api.newop("dummy", function(params, ret_handler){
 				
 		test.deepEqual(params, myparams);
 		ret_handler(null,1);
@@ -1031,59 +1034,15 @@ exports["server.api.docs.newop:cancel default event"] = function(test){
 		
 	
 	test.notEqual( api.remote["dummy"], undefined );
-	api.remote["dummy"](myparams, function(err,val){
+	test.notEqual( server.api.docs["dummy"], undefined );
+	server.api.docs["dummy"](myparams, function(err,val){
 		
 		test.equal(err,null);
 		test.ok(val);		
 	});
 	
-	test.expect(4);
+	test.expect(5);
 	test.done();
-}
-
-
-exports["server.api.docs.newop:evqueue listening"] = function(test){
-	
-	
-	var eq = sandbox.require("../lib/evqueue",{
-		requires:{"./db":{	
-							save:function(col_str, signal, ret_handler){
-									
-								console.log("dsfklsdjfljsdlfsd");								
-								test.equal(col_str,"events");
-								console.log(col_str);
-								console.log(doc);	
-								test.done();																																													
-							}
-		}}
-	});	
-	
-	var api = sandbox.require("../lib/api");
-				
-	var server = sandbox.require("../lib/server",{
-		
-		requires:{"./evqueue":eq, "./api":api}		
-	});
-	
-	var myparams = {foo:1};
-		
-	
-	server.api.docs.newop("test", function(params, ret_handler){
-		
-		test.deepEqual(params, myparams);
-		params.doc = {rcpts:[620793118]};
-		ret_handler(null,1);
-	});
-		
-	
-	
-	test.notEqual( api.remote["test"], undefined );
-	api.remote["test"](myparams, function(err,val){
-		
-		test.equal(err,null);
-		test.ok(val);
-	});
-	
 }
 
 
