@@ -992,7 +992,7 @@ exports["api.remote.add: valid params, non existing field, explicit catalog, db 
 								},500);
 								
 							},
-							save:function(col_str,doc,ret_handler){
+							save:function(col_str, doc,ret_handler){
 								
 								test.equal(col_str,"dummy");
 								
@@ -1013,6 +1013,58 @@ exports["api.remote.add: valid params, non existing field, explicit catalog, db 
 		test.equal(err,null);
 		test.equal(val,0);
 		test.expect(9);
+		test.done();
+		
+	});
+		
+}
+
+
+exports["api.remote.add: valid params, non existing inner field, explicit catalog, db async"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:[4,5], catalog:"dummy"}; //initialize field 'b' to an empty array.
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.equal(dbdocs[id_str].a.b, undefined);
+								test.notEqual(dbdocs[id_str], undefined);																
+								
+								setTimeout(function(){ //db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str, doc,ret_handler){
+								
+								test.equal(col_str,"dummy");
+								
+								//field params.fname added with default value params.value
+								test.notEqual(doc.a.b, undefined);
+								test.deepEqual( doc.a.b, params.value );
+								test.deepEqual(doc.a, {c:1,b:[4,5]});
+								
+								setTimeout(function(){ //db 500ms delay saving document																
+									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.add(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(10);
 		test.done();
 		
 	});
@@ -1141,6 +1193,48 @@ exports["api.remote.add: valid params, existing field"] = function(test){
 	});
 				
 }
+
+exports["api.remote.add: valid params, existing inner field"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b.c", value:"default text"};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:{c:"my text"}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].b.c, undefined);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because wid not found.
+							}
+		}}
+	});
+	
+	api.remote.add(params,function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,null);		
+		test.deepEqual(err,{code:-3, message:"Field 'b.c' already exists @docs:50187f71556efcbb25000001"});
+		test.ok(flag);
+		test.expect(8);
+		test.done();
+		
+	});
+				
+}
+
 
 exports["api.remote.remove: missing params"] = function(test){
 	
@@ -1307,6 +1401,58 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 		
 }
 
+exports["api.remote.remove: valid params, existing inner field, explicit catalog, db async"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{c:1,b:2}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for remove procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								
+								setTimeout(function(){ //db 500ms delay retrieving document
+								
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								
+								//field fname removed
+								test.equal(doc.a.b, undefined);
+								test.deepEqual(doc.a,{c:1});								
+								
+								setTimeout(function(){//db 500ms delay saving document
+																									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.remove(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(9);
+		test.done();
+		
+	});
+		
+		
+}
+
+
 exports["api.remote.remove: valid params, wid not found"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"}; 
@@ -1419,6 +1565,46 @@ exports["api.remote.remove: valid params, nonexisting field"] = function(test){
 		
 		test.notEqual(err,null);		
 		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"})
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+	});
+				
+		
+}
+
+exports["api.remote.remove: valid params, nonexisting inner field"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:{c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for remove procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.equal(dbdocs[id_str].a.b, undefined);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because wid not found.
+							}
+		}}
+	});
+	
+	api.remote.remove(params,function(err,val){
+		
+		test.notEqual(err,null);		
+		test.deepEqual(err,{code:-3, message:"Field 'a.b' not exists @docs:50187f71556efcbb25000001"})
 		test.ok(flag);
 		test.expect(7);
 		test.done();
