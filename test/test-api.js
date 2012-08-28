@@ -1786,6 +1786,57 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:3,
 }
 
 
+exports["api.remote.set: valid params, existing inner field, explicit catalog, db async"] = function(test){
+	
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:3, catalog:"dummy"};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:2,c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for set procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.equal(dbdocs[id_str].a.b, 2); //b:2
+								
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");
+								
+								//field fname set
+								test.equal(doc.a.b, 3);								
+																								
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.set(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		
+	});
+	
+	test.done();	
+		
+}
+
+
 exports["api.remote.set: valid params, wid not found"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
@@ -1898,6 +1949,46 @@ exports["api.remote.set: valid params, non existing field"] = function(test){
 		
 		test.notEqual(err,null);		
 		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+				
+}
+
+exports["api.remote.set: valid params, non existing inner field"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.z", value:3};
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:{b:1,c:2}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for set procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.equal(dbdocs[id_str].a.z, undefined);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because non existing field
+							}
+		}}
+	});
+	
+	api.remote.set(params,function(err,val){
+		
+		test.notEqual(err,null);		
+		test.deepEqual(err,{code:-3, message:"Field 'a.z' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -2067,6 +2158,58 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:
 	
 }
 
+
+exports["api.remote.incr: valid params, existing inner field, explicit catalog, db async"] = function(test){
+	
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", catalog:"dummy"};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:2,c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for incr procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.equal(dbdocs[id_str].a.b, 2); //b:2
+								
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");
+								
+								//field fname to increment
+								test.equal(doc.a.b, 3);								
+								
+								setTimeout(function(){//db 500ms delay saving document
+																									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.incr(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(9);
+		test.done();
+		
+	});
+		
+	
+}
+
 exports["api.remote.incr: valid params, wid not found"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
@@ -2179,6 +2322,48 @@ exports["api.remote.incr: valid params, non existing field"] = function(test){
 		
 		test.notEqual(err,null);		
 		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+						
+	
+}
+
+
+exports["api.remote.incr: valid params, non existing inner field"] = function(test){
+
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:3};
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:{c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for incr procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.equal(dbdocs[id_str].a.b, undefined);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because non existing field
+							}
+		}}
+	});
+	
+	api.remote.incr(params,function(err,val){
+		
+		test.notEqual(err,null);		
+		test.deepEqual(err,{code:-3, message:"Field 'a.b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -2348,6 +2533,57 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:
 	
 }
 
+exports["api.remote.decr: valid params, existing inner field, explicit catalog, db async"] = function(test){
+
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", catalog:"dummy"};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:2,c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for decr procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.equal(dbdocs[id_str].a.b, 2); //b:2
+								
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");
+								
+								//field fname to decrement
+								test.equal(doc.a.b, 1);								
+																								
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.decr(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(9);
+		test.done();
+		
+	});
+		
+	
+}
+
 exports["api.remote.decr: valid params, wid not found"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"}; 
@@ -2460,6 +2696,47 @@ exports["api.remote.decr: valid params, non existing field"] = function(test){
 		
 		test.notEqual(err,null);		
 		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
+		test.ok(flag)
+		test.expect(7);
+		test.done();
+		
+	});
+				
+
+}
+
+exports["api.remote.decr: valid params, non existing inner field"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:{c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for decr procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.equal(dbdocs[id_str].a.b, undefined);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because non existing field
+							}
+		}}
+	});
+	
+	api.remote.decr(params,function(err,val){
+		
+		test.notEqual(err,null);		
+		test.deepEqual(err,{code:-3, message:"Field 'a.b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag)
 		test.expect(7);
 		test.done();
@@ -2599,6 +2876,59 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 	
 }
 
+exports["api.remote.push: valid params, existing inner field as array, explicit catalog, db async"] = function(test){
+	
+
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:5, catalog:"dummy"};
+	var dbdocs = {};
+		
+		//document WITH b array field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:[1,2,3,4],c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for push procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.deepEqual(dbdocs[id_str].a.b, [1,2,3,4]); //b:[1,2,3,4]
+								
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");
+								
+								//field fname to decrement
+								test.deepEqual(doc.a.b, [1,2,3,4,5]);
+								test.deepEqual(doc.a,{b:[1,2,3,4,5],c:1});								
+																								
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.push(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(10);
+		test.done();
+		
+	});
+		
+	
+}
+
 
 exports["api.remote.push: valid params, existing field as nonarray"] = function(test){
 	
@@ -2628,6 +2958,42 @@ exports["api.remote.push: valid params, existing field as nonarray"] = function(
 		
 		test.equal(val,null);
 		test.deepEqual(err,{code:-4, message:"Field 'b' not an array"});
+		test.expect(7);
+		test.done();
+		
+	});
+	
+	
+}
+
+exports["api.remote.push: valid params, existing inner field as nonarray"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:5};
+	var dbdocs = {};
+		
+		//document WITH a.b non-array field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:"this is not an array",c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for push procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.notEqual(typeof dbdocs[id_str].a.b, "object"); //b:"this is not an array"
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							}
+		}}
+	});
+	
+	api.remote.push(params,function(err,val){
+		
+		test.equal(val,null);
+		test.deepEqual(err,{code:-4, message:"Field 'a.b' not an array"});
 		test.expect(7);
 		test.done();
 		
@@ -2748,6 +3114,45 @@ exports["api.remote.push: valid params, non existing field"] = function(test){
 		
 		test.notEqual(err,null);		
 		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+	});			
+		
+}
+
+exports["api.remote.push: valid params, non existing inner field"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:5};
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:{c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for push procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.equal(dbdocs[id_str].a.b, undefined);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because non existing field.
+							}
+		}}
+	});
+	
+	api.remote.push(params,function(err,val){
+		
+		test.notEqual(err,null);		
+		test.deepEqual(err,{code:-3, message:"Field 'a.b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
@@ -2880,6 +3285,60 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 	
 }
 
+exports["api.remote.pop: valid params, existing inner field as array, explicit catalog, db async"] = function(test){
+	
+
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", catalog:"dummy"};
+	var dbdocs = {};
+		
+		//document WITH b array field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:[1,2,3,4],c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for pop procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.deepEqual(dbdocs[id_str].a.b, [1,2,3,4]); //b:[1,2,3,4]
+								
+								setTimeout(function(){//db 500ms retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");
+								
+								//field fname to pop
+								test.deepEqual(doc.a.b, [1,2,3]);
+								test.deepEqual(doc.a, {b:[1,2,3],c:1} );								
+																								
+								setTimeout(function(){//db 500ms saving document
+									
+									ret_handler(null,doc);
+								},500);
+									
+							}
+		}}
+	});
+	
+	api.remote.pop(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(10);
+		test.done();
+		
+	});
+		
+	
+}
+
 exports["api.remote.pop: valid params, existing field as nonarray"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
@@ -2913,6 +3372,48 @@ exports["api.remote.pop: valid params, existing field as nonarray"] = function(t
 		
 		test.equal(val,null);
 		test.deepEqual(err,{code:-4, message:"Field 'b' not an array"});
+		test.ok(flag);
+		test.expect(8);
+		test.done();
+		
+	});
+		
+		
+}
+
+exports["api.remote.pop: valid params, existing inner field as nonarray"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
+	var dbdocs = {};
+		
+		//document WITH b non-array field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:"this is not an array"}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for pop procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.notEqual(typeof dbdocs[id_str].a.b, "object"); //b:"this is not an array"
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because field not array
+							}
+		}}
+	});
+	
+	api.remote.pop(params,function(err,val){
+		
+		test.equal(val,null);
+		test.deepEqual(err,{code:-4, message:"Field 'a.b' not an array"});
 		test.ok(flag);
 		test.expect(8);
 		test.done();
@@ -3045,6 +3546,50 @@ exports["api.remote.pop: valid params, non existing field"] = function(test){
 	
 }
 
+exports["api.remote.pop: valid params, non existing inner field"] = function(test){
+	
+
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:{c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for add procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.equal(dbdocs[id_str].a.b, undefined);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because wid not found.
+							}
+		}}
+	});
+	
+	api.remote.pop(params,function(err,val){
+		
+		test.notEqual(err,null);		
+		test.deepEqual(err,{code:-3, message:"Field 'a.b' not exists @docs:50187f71556efcbb25000001"});
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+			
+	
+}
+
+
+
 exports["api.remote.pull: missing params"] = function(test){
 	
 var api = require("../lib/api");
@@ -3165,6 +3710,59 @@ exports["api.remote.pull: valid params, existing field as array, explicit catalo
 	
 }
 
+exports["api.remote.pull: valid params, existing inner field as array, explicit catalog, db async"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", catalog:"dummy"};
+	var dbdocs = {};
+		
+		//document WITH b array field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:[1,2,3,4],c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for pop procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.deepEqual(dbdocs[id_str].a.b, [1,2,3,4]); //b:[1,2,3,4]
+								
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");
+								
+								//field fname to pull
+								test.deepEqual(doc.a.b, [2,3,4]);
+								test.deepEqual(doc.a, {b:[2,3,4],c:1});								
+																								
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.pull(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(10);
+		test.done();
+		
+	});
+		
+	
+}
+
+
 exports["api.remote.pull: valid params, existing field as nonarray"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
@@ -3207,8 +3805,50 @@ exports["api.remote.pull: valid params, existing field as nonarray"] = function(
 	
 }
 
+exports["api.remote.pull: valid params, existing inner field as nonarray"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
+	var dbdocs = {};
+		
+		//document WITH b non-array field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:"this is not an array"}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for pull procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.notEqual(typeof dbdocs[id_str].a.b, "object"); //b:"this is not an array"
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because wid not found.
+							}
+		}}
+	});
+	
+	api.remote.pull(params,function(err,val){
+		
+		test.equal(val,null);
+		test.deepEqual(err,{code:-4, message:"Field 'a.b' not an array"});
+		test.ok(flag);
+		test.expect(8);
+		test.done();
+		
+	});
+		
+	
+}
 
-exports["api.remote.pop: valid params, wid not found"] = function(test){
+
+exports["api.remote.pull: valid params, wid not found"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
 	var dbdocs = {};
@@ -3320,6 +3960,47 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 		
 		test.notEqual(err,null);		
 		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
+		test.ok(flag);
+		test.expect(7);
+		test.done();
+		
+	});
+				
+	
+}
+
+exports["api.remote.pull: valid params, non existing inner field"] = function(test){
+	
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
+	var dbdocs = {};
+		
+		//document WITHOUT b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:{c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for pull procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.equal(dbdocs[id_str].a.b, undefined);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	//should not reach this because non existing field
+							}
+		}}
+	});
+	
+	api.remote.pull(params,function(err,val){
+		
+		test.notEqual(err,null);		
+		test.deepEqual(err,{code:-3, message:"Field 'a.b' not exists @docs:50187f71556efcbb25000001"});
 		test.ok(flag);
 		test.expect(7);
 		test.done();
