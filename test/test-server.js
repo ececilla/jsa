@@ -1024,7 +1024,7 @@ exports["server.api.docs.newop:cancel default event"] = function(test){
 				
 		test.deepEqual(params, myparams);
 		ret_handler(null,1);
-		params.cancel_default_event = 1;
+		server.api.events.cancel_default_event();
 	});
 		
 	server.api.events.on("ev_dummy", function(params, rcpts){
@@ -1044,6 +1044,67 @@ exports["server.api.docs.newop:cancel default event"] = function(test){
 	test.expect(5);
 	test.done();
 }
+
+
+
+exports["server.api.docs.newop: create based op"] = function(test){
+	
+	var myparams = {uid:620793114, doc:{test:"test"}};	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{
+							save:function(col_str, doc, ret_handler){
+								
+								test.equal(col_str,"docs");								
+								test.equal( doc.test, myparams.doc.test );
+								test.equal( doc.uid, myparams.uid );
+								//beacause init.rcpts is null the initial rcpts list is [uid]
+								test.deepEqual( doc.rcpts, [myparams.uid]);
+								
+								//save doc to db...returns with _id:12345
+								ret_handler(null,{_id:12345, test:"test", uid:620793114, rcpts:[620793114]});	
+							}
+		}}
+	});
+	
+	var server = sandbox.require("../lib/server",{
+		requires:{"./api":api}
+	});
+			
+	
+	server.api.newop("newop1", function(params, ret_handler){
+				
+		test.deepEqual(params, myparams);	
+		
+		server.api.events.cancel_default_event();						
+		server.api.docs.create( params, function(err, val){
+							
+			ret_handler(err,val);
+			server.api.events.emit("ev_newop1",{dummy:1});	
+		});	
+		
+	});
+			
+	
+	//ev_newop will be emitted by default.
+	server.api.events.on("ev_newop1", function(params, rcpts){
+				
+		test.deepEqual( params.ev_data, {dummy:1} );
+		test.equal( rcpts, undefined );
+		test.expect(10);
+		test.done();		
+	});
+	
+	
+	
+	test.notEqual( api.remote["newop1"], undefined );
+	api.remote["newop1"](myparams, function(err,val){
+				
+		test.equal(err,null);
+		test.deepEqual(val,{wid:"12345"});
+	});
+		
+}
+
 
 
 
