@@ -136,7 +136,7 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 								test.deepEqual( doc.rcpts, [params.uid]);
 								
 								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345, test:"test"});	
+								ret_handler(null,{_id:12345, test:"test", uid:620793114, rcpts:[620793114]});	
 							}
 		}}
 	});
