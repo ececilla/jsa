@@ -1070,33 +1070,50 @@ exports["server.api.docs.newop: create based op"] = function(test){
 		requires:{"./api":api}
 	});
 			
+	//Register of two custom operations, one of them calls the primitive operation 'create'.
+	server.api.newop("newop2", function(params, ret_handler){
+		
+		server.api.events.cancel_default_event();
+		server.api.events.emit("ev_newop2");
+	});
+	test.notEqual( api.remote["newop2"], undefined );
+	test.notEqual( server.api.docs.newop2, undefined );
 	
 	server.api.newop("newop1", function(params, ret_handler){
 				
 		test.deepEqual(params, myparams);	
-		
-		server.api.events.cancel_default_event();						
+								
+		//call primitive function					
 		server.api.docs.create( params, function(err, val){
 							
-			ret_handler(err,val);
-			server.api.events.emit("ev_newop1",{dummy:1});	
+			ret_handler(err,val);				
 		});	
 		
+		server.api.events.ev_newop1.params = {dummy:1};	
+		server.api.events.ev_newop1.rcpts = [620793114];
+		
 	});
-			
-	
-	//ev_newop will be emitted by default.
-	server.api.events.on("ev_newop1", function(params, rcpts){
-				
-		test.deepEqual( params.ev_data, {dummy:1} );
-		test.equal( rcpts, undefined );
-		test.expect(10);
-		test.done();		
-	});
-	
-	
-	
 	test.notEqual( api.remote["newop1"], undefined );
+	test.notEqual( server.api.docs.newop1, undefined );		
+	
+	//ev_newop1 will be emitted by default.
+	server.api.events.on("ev_newop1", function(params, rcpts){
+					
+		test.deepEqual( params.ev_data, {dummy:1} );
+		test.deepEqual( rcpts, [620793114] );
+		test.expect(15);
+		test.done();	
+			
+	}).on("ev_create", function(params, rcpts){
+				
+		test.equal(rcpts, undefined);
+		test.deepEqual(params.ev_data, { uid:620793114,doc:{ test:"test",uid:620793114,rcpts:[620793114]},catalog:"docs"});
+	});
+	
+	
+	
+	api.remote["newop2"]();
+	
 	api.remote["newop1"](myparams, function(err,val){
 				
 		test.equal(err,null);
