@@ -36,6 +36,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.events.emit, undefined );
 	
 	test.notEqual( server.eq.listen, undefined );
+	test.notEqual( server.db, undefined );
 	
 	//check exported functions can be invoked.
 	server.api.docs.remote_func();
@@ -44,7 +45,7 @@ exports["module exported functions"] = function(test){
 	server.api.init.init_func();	
 	test.ok(flags[1]);
 	
-	test.expect(14);	
+	test.expect(15);	
 	test.done();
 }
 
@@ -1013,7 +1014,7 @@ exports["server.api.docs.newop"] = function(test){
 }
 
 
-exports["server.api.docs.newop:cancel default event"] = function(test){
+exports["server.api.docs.newop: cancel default event"] = function(test){
 	
 	
 	var server = require("../lib/server");
@@ -1023,8 +1024,9 @@ exports["server.api.docs.newop:cancel default event"] = function(test){
 	server.api.newop("dummy", function(params, ret_handler){
 				
 		test.deepEqual(params, myparams);
-		ret_handler(null,1);
 		server.api.events.cancel_default_event();
+		ret_handler(null,1);
+		
 	});
 		
 	server.api.events.on("ev_dummy", function(params, rcpts){
@@ -1070,11 +1072,12 @@ exports["server.api.docs.newop: create based op"] = function(test){
 		requires:{"./api":api}
 	});
 			
-	//Register of two custom operations, one of them calls the primitive operation 'create'.
+	//Registation of two custom operations, one of them calls the primitive operation 'create'.
 	server.api.newop("newop2", function(params, ret_handler){
 		
 		server.api.events.cancel_default_event();
 		server.api.events.emit("ev_newop2");
+		ret_handler();
 	});
 	test.notEqual( api.remote["newop2"], undefined );
 	test.notEqual( server.api.docs.newop2, undefined );
@@ -1083,15 +1086,15 @@ exports["server.api.docs.newop: create based op"] = function(test){
 				
 		test.deepEqual(params, myparams);	
 								
-		//call primitive function					
+		//call primitive function
+							
 		server.api.docs.create( params, function(err, val){
 							
+			server.api.events.ev_newop1.params = {dummy:1};	
+			server.api.events.ev_newop1.rcpts = [620793114];
 			ret_handler(err,val);				
 		});	
-		
-		server.api.events.ev_newop1.params = {dummy:1};	
-		server.api.events.ev_newop1.rcpts = [620793114];
-		
+						
 	});
 	test.notEqual( api.remote["newop1"], undefined );
 	test.notEqual( server.api.docs.newop1, undefined );		
@@ -1118,6 +1121,90 @@ exports["server.api.docs.newop: create based op"] = function(test){
 				
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});
+	});
+		
+}
+
+exports["server.api.docs.newop: db access based op"] = function(test){
+	
+	var myparams = {wid:"50187f71556efcbb25000001", uid:620793114, fname1:"a", fname2:"b", catalog:"dummy"};	
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[ 620793114, 620793115 ], uid:620793114};    
+	
+	var db = {
+		
+		select: function(col_str, id_str, ret_handler){
+								
+			test.equal(col_str, "dummy");
+			test.equal(id_str, myparams.wid);
+			test.notEqual(dbdocs[id_str], undefined);								
+																			
+			setTimeout(function(){//db 50ms delay retrieving document
+				
+				ret_handler(null,dbdocs[id_str]);
+			},50);
+			
+		},
+		save:function(col_str, doc, ret_handler){
+			
+			test.equal(col_str,"dummy");											
+			test.equal( doc.uid, myparams.uid );
+			test.equal( doc.b, 999 );			
+			
+			//save doc to db...returns with _id:12345			
+			ret_handler(null,doc);	
+		}	
+		
+	},
+	
+	api = sandbox.require("../lib/api",{
+		requires:{ "./db":db }
+	}),
+	
+	server = sandbox.require("../lib/server",{
+		requires:{
+					"./api":api,
+					"./db":db
+				}		
+	});
+				
+	
+	server.api.newop("newop3", function(params, ret_handler){
+				
+		test.deepEqual(params, myparams);
+		
+		//recuperamos un documento
+		server.db.select(params.catalog, params.wid, function(err,doc){
+			
+			doc.b = 999;
+			
+			server.db.save(params.catalog, doc, function(err,val){
+				
+				server.api.events.ev_newop3.params = {dummy:1};	
+				server.api.events.ev_newop3.rcpts = doc.rcpts.concat([620793117]);			
+				ret_handler(err,val);
+			});
+			
+		});	
+																	
+	});	
+	
+	//ev_newop3 will be emitted by default.
+	server.api.events.on("ev_newop3", function(params, rcpts){
+					
+		test.deepEqual( params.ev_data, {dummy:1} );
+		test.deepEqual( rcpts, [620793114, 620793115, 620793117] );		
+		test.done();	
+			
+	});
+				
+	
+	api.remote["newop3"](myparams, function(err,val){
+				
+		test.equal(err,null);	
+				
 	});
 		
 }
