@@ -976,7 +976,7 @@ exports["server.api.events.emit"] = function(test){
 
 
 
-exports["server.api.docs.newop"] = function(test){
+exports["server.api.docs.newop: invocation"] = function(test){
 	
 	var server = require("../lib/server");
 	var api = require("../lib/api");	
@@ -1045,6 +1045,71 @@ exports["server.api.docs.newop: cancel default event"] = function(test){
 	
 	test.expect(5);
 	test.done();
+}
+
+
+exports["server.api.docs.newop: event custom params"] = function(test){
+	
+	var nevents = 0;
+	var db = {
+				
+		save:function(col_str, doc, ret_handler){
+			
+			nevents++;
+			
+			test.equal(col_str,"events");																
+			test.equal( doc.ev_msg.ev_type, "ev_dummy");
+			test.deepEqual( doc.ev_msg.ev_data, {test:1});
+			
+			//save doc to db...returns with _id:12345			
+			ret_handler(null,doc);	
+		}	
+		
+	};
+	
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{ "./db":db, "./api":api }
+	});
+	
+	var server = sandbox.require("../lib/server",{
+		requires:{ "./evqueue":eq, "./api":api }
+	});
+	
+		
+		
+	var myparams = {foo:1, bar:"test"};
+	
+	server.api.newop("dummy", function(params, ret_handler){
+		
+				
+		test.deepEqual(params, myparams);
+		server.api.events.ev_dummy.params = {test:1};
+		server.api.events.ev_dummy.rcpts = [5,6,7,8];
+		ret_handler(null,1);
+		
+	});
+		
+	server.api.events.on("ev_dummy", function(params, rcpts){
+		
+		test.equal(nevents,4);
+		test.deepEqual(params.ev_data,{test:1});
+		test.deepEqual(rcpts,[5,6,7,8]);		
+		test.done();			
+	});
+		
+	
+	test.notEqual( api.remote["dummy"], undefined );
+	test.notEqual( server.api.docs["dummy"], undefined );
+	server.api.docs["dummy"](myparams, function(err,val){
+		
+		test.equal(err,null);
+		test.ok(val);		
+	});
+	
+	
+	
 }
 
 
@@ -1125,7 +1190,8 @@ exports["server.api.docs.newop: create based op"] = function(test){
 		
 }
 
-exports["server.api.docs.newop: db access based op"] = function(test){
+
+exports["server.api.docs.newop: db raw access based op"] = function(test){
 	
 	var myparams = {wid:"50187f71556efcbb25000001", uid:620793114, fname1:"a", fname2:"b", catalog:"dummy"};	
 	var dbdocs = {};
