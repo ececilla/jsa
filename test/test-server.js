@@ -1051,12 +1051,12 @@ exports["server.api.docs.newop: cancel default event"] = function(test){
 exports["server.api.docs.newop: event custom params"] = function(test){
 	
 	var nevents = 0;
+	var rcpts = [5,6,7,8];
 	var db = {
 				
 		save:function(col_str, doc, ret_handler){
-			
-			nevents++;
-			
+						
+			test.equal(doc.ev_rcpt, rcpts[nevents++] );
 			test.equal(col_str,"events");																
 			test.equal( doc.ev_msg.ev_type, "ev_dummy");
 			test.deepEqual( doc.ev_msg.ev_data, {test:1});
@@ -1086,7 +1086,7 @@ exports["server.api.docs.newop: event custom params"] = function(test){
 				
 		test.deepEqual(params, myparams);
 		server.api.events.ev_dummy.params = {test:1};
-		server.api.events.ev_dummy.rcpts = [5,6,7,8];
+		server.api.events.ev_dummy.rcpts = rcpts;
 		ret_handler(null,1);
 		
 	});
@@ -1095,7 +1095,7 @@ exports["server.api.docs.newop: event custom params"] = function(test){
 		
 		test.equal(nevents,4);
 		test.deepEqual(params.ev_data,{test:1});
-		test.deepEqual(rcpts,[5,6,7,8]);		
+		test.deepEqual(rcpts,[5,6,7,8]);				
 		test.done();			
 	});
 		
@@ -1180,7 +1180,7 @@ exports["server.api.docs.newop: create based op"] = function(test){
 	
 	
 	
-	api.remote["newop2"]();
+	api.remote["newop2"]({},function(){});
 	
 	api.remote["newop1"](myparams, function(err,val){
 				
@@ -1274,6 +1274,93 @@ exports["server.api.docs.newop: db raw access based op"] = function(test){
 	});
 		
 }
+
+
+exports["server.api.docs.newop: wid based op"] = function(test){
+	
+		
+	var myparams = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:3, catalog:"dummy"};	
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[ 620793114, 620793115 ], uid:620793114};    
+	
+	var db = {
+		select: function(col_str, id_str, ret_handler){
+								
+			test.equal(col_str, "dummy");
+			test.equal(id_str, myparams.wid);
+			test.notEqual(dbdocs[id_str], undefined);								
+																										
+			ret_handler(null,dbdocs[id_str]);
+						
+		},		
+		save:function(col_str, doc, ret_handler){
+												
+			//save doc to db...returns with _id:12345			
+			ret_handler(null,doc);	
+		}	
+		
+	};
+			
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":db}
+	});
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api,
+				  "./db":{
+				  		
+				  		save:function(col_str, doc, ret_handler){
+				  			
+				  			test.equal(col_str, "events");
+				  			test.equal(doc.ev_rcpt, 620793115);
+				  			test.equal(doc.ev_msg.ev_type,"ev_foo1");
+				  			test.deepEqual(doc.ev_msg.ev_data,myparams);
+				  			
+				  		}
+				  	}	
+				  }
+	});
+		
+	var server = sandbox.require("../lib/server",{
+		requires:{ "./db":db, "./api":api, "./evqueue":eq }
+	});
+						
+	
+	server.api.newop("foo1", function(params, ret_handler){
+		
+		console.log(params);		
+		test.notEqual(params.doc, undefined);	
+		test.deepEqual(params.doc, dbdocs["50187f71556efcbb25000001"] );	
+		test.deepEqual(params, myparams);
+		
+		//operacion set hecha desde newop
+		params.doc[params.fname] = params.value;	
+		ret_handler(null,1);
+		
+	});
+		
+	server.api.events.on("ev_foo1", function(params, rcpts){
+		
+					
+		test.equal(rcpts,undefined);				
+		test.done();			
+	});
+		
+	
+	test.notEqual( api.remote["foo1"], undefined );
+	test.notEqual( server.api.docs["foo1"], undefined );
+	api.remote["foo1"](myparams, function(err,val){
+		
+		test.equal(err,null);
+		test.ok(val);		
+	});
+	
+	
+	
+}
+
 
 
 
