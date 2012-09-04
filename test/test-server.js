@@ -1329,8 +1329,7 @@ exports["server.api.docs.newop: wid based op"] = function(test){
 						
 	
 	server.api.newop("foo1", function(params, ret_handler){
-		
-		console.log(params);		
+						
 		test.notEqual(params.doc, undefined);	
 		test.deepEqual(params.doc, dbdocs["50187f71556efcbb25000001"] );	
 		test.deepEqual(params, myparams);
@@ -1343,8 +1342,10 @@ exports["server.api.docs.newop: wid based op"] = function(test){
 		
 	server.api.events.on("ev_foo1", function(params, rcpts){
 		
-					
-		test.equal(rcpts,undefined);				
+		test.equal(rcpts,undefined);
+		test.equal(params.ev_type, "ev_foo1");
+		test.deepEqual(params.ev_data.doc,dbdocs["50187f71556efcbb25000001"]);		
+						
 		test.done();			
 	});
 		
