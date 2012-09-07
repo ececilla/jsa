@@ -1191,33 +1191,34 @@ exports["server.api.docs.newop: create based op"] = function(test){
 }
 
 
+
 exports["server.api.docs.newop: db raw access based op"] = function(test){
 	
-	var myparams = {wid:"50187f71556efcbb25000001", uid:620793114, fname1:"a", fname2:"b", catalog:"dummy"};	
-	var dbdocs = {};
+	var myparams = {uid:620793114, catalog:"users"};	
+	var dbusers = {};
 		
 		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[ 620793114, 620793115 ], uid:620793114};    
+		dbusers["620793114"] = {uid:"620793114",name:"Enric", surname:"Cecilla"};    
 	
 	var db = {
 		
 		select: function(col_str, id_str, ret_handler){
 								
-			test.equal(col_str, "dummy");
-			test.equal(id_str, myparams.wid);
-			test.notEqual(dbdocs[id_str], undefined);								
+			test.equal(col_str, "users");
+			test.equal(id_str, myparams.uid);
+			test.notEqual(dbusers[id_str], undefined);								
 																			
 			setTimeout(function(){//db 50ms delay retrieving document
 				
-				ret_handler(null,dbdocs[id_str]);
+				ret_handler(null,dbusers[id_str]);
 			},50);
 			
 		},
-		save:function(col_str, doc, ret_handler){
+		save: function(col_str, doc, ret_handler){
 			
-			test.equal(col_str,"dummy");											
-			test.equal( doc.uid, myparams.uid );
-			test.equal( doc.b, 999 );			
+			test.equal(col_str,"users");											
+			test.equal( doc.name, "Enric" );
+			test.equal( doc.newfield, 999);					
 			
 			//save doc to db...returns with _id:12345			
 			ret_handler(null,doc);	
@@ -1239,17 +1240,16 @@ exports["server.api.docs.newop: db raw access based op"] = function(test){
 	
 	server.api.newop("newop3", function(params, ret_handler){
 				
-		test.deepEqual(params, myparams);
+		test.deepEqual(params, myparams); 		
 		
-		//recuperamos un documento
-		server.db.select(params.catalog, params.wid, function(err,doc){
+		//recuperamos un usuario
+		server.db.select(params.catalog, ""+params.uid, function(err,user){
 			
-			doc.b = 999;
+			user.newfield = 999;
 			
-			server.db.save(params.catalog, doc, function(err,val){
+			server.db.save(params.catalog, user, function(err,val){
 				
-				server.api.events.ev_newop3.params = {dummy:1};	
-				server.api.events.ev_newop3.rcpts = doc.rcpts.concat([620793117]);			
+				server.api.events.ev_newop3.params = {dummy:1};						
 				ret_handler(err,val);
 			});
 			
@@ -1260,8 +1260,7 @@ exports["server.api.docs.newop: db raw access based op"] = function(test){
 	//ev_newop3 will be emitted by default.
 	server.api.events.on("ev_newop3", function(params, rcpts){
 					
-		test.deepEqual( params.ev_data, {dummy:1} );
-		test.deepEqual( rcpts, [620793114, 620793115, 620793117] );		
+		test.deepEqual( params.ev_data, {dummy:1} );			
 		test.done();	
 			
 	});
@@ -1274,6 +1273,7 @@ exports["server.api.docs.newop: db raw access based op"] = function(test){
 	});
 		
 }
+
 
 
 exports["server.api.docs.newop: wid based op"] = function(test){
@@ -1358,8 +1358,7 @@ exports["server.api.docs.newop: wid based op"] = function(test){
 		test.ok(val);		
 	});
 	
-	
-	
+		
 }
 
 
