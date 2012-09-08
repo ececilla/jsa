@@ -49,8 +49,24 @@ exports["module exported functions"] = function(test){
 	test.done();
 }
 
+exports["server.events.on: custom server events"] = function(test){
+	
+	var server = require("../lib/server");
+	var params = {test:1};
+	var rcpts = [1,2,3,4];
+	server.events.on("ev_srv_start", function( _params, _rcpts){
+		
+		test.deepEqual(_params.ev_data, {test:1});
+		test.deepEqual(_rcpts,[1,2,3,4]);
+		test.done();
+	});
+	
+	server.events.emit("ev_srv_start", params, rcpts );	
+	
+}
 
-exports["server.api.docs.create: internal events, default catalog"] = function(test){
+
+exports["server.api.docs.create: internal api events, default catalog"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}};
 	    
