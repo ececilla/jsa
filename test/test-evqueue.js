@@ -52,6 +52,38 @@ exports["evqueue.remove_subscription"] = function(test){
 }
 
 
+exports["evqueue.remote.subscribe: no params"] = function(test){
+	
+	
+	var eq = require("../lib/evqueue");
+	
+	var flags = [0];	
+	var http_resp = {   
+						end:function(){ flags[0] = 1;},						
+				    }; 
+				 
+	eq.remote.subscribe(http_resp,undefined);
+	test.ok(flags[0]);		
+			
+	test.done();				
+}
+
+exports["evqueue.remote.subscribe: no uid"] = function(test){
+	
+	
+	var eq = require("../lib/evqueue");
+	var params = {}
+	var flags = [0];	
+	var http_resp = {   
+						end:function(){ flags[0] = 1;},						
+				    }; 
+				 
+	eq.remote.subscribe(http_resp, params);
+	test.ok(flags[0]);		
+			
+	test.done();				
+}
+
 
 
 exports["evqueue.remote.subscribe: invocation"] = function(test){
@@ -77,6 +109,41 @@ exports["evqueue.remote.subscribe: invocation"] = function(test){
 	test.done();				
 }
 
+exports["evqueue.remote.subscribe: invocation with tstamp"] = function(test){
+	
+	var flags = [0,0];
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	
+					"./db":{	
+								criteria: function(col_str, criteria, order_field, ret_handler){
+									
+									test.equal(col_str, "events");
+									test.deepEqual( order_field, {"ev_msg.ev_tstamp":1} );
+																																																		
+								}	
+					}
+		}
+	});
+	
+	
+	var params = {uid:620793114, tstamp:79487593593};
+	var http_resp = {   
+						on:function(){ flags[0] = 1;},
+						connection:{
+							on:function(){ flags[1] = 1; }
+						}
+				    }; 
+				 
+	eq.remote.subscribe(http_resp,params);
+	test.ok(flags[0]);
+	test.ok(flags[1]);	
+	
+	test.deepEqual( eq.get_subscription(params.uid), {http:http_resp});
+	
+	test.expect(5);	
+	test.done();				
+}
+
 
 exports["evqueue.events: custom event, explicit rcpts, subscription"] = function(test){
 
@@ -92,7 +159,7 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 					"./db":{	counter:0,
 								save: function(col_str, signal, ret_handler){
 									
-									counter++;									
+									counter++;																		
 									if(signal.ev_rcpt == 620793115){
 										
 										test.equal(col_str,"events");
@@ -129,7 +196,7 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 						connection:{
 							on:function(){ subs_flags[1] = 1; }
 						},
-						write:function(str){
+						write:function(str){// called from within push
 															
 								var json_obj = JSON.parse(str);						
 								test.equal(json_obj.ev_type,"ev_dummy");
@@ -216,8 +283,7 @@ exports["evqueue.events: custom event, custom listen_handler"] = function(test){
 		test.equal(msg.ev_type, "ev_dummy");
 		test.equal(typeof msg.ev_tstamp, "number");
 		test.deepEqual(msg.ev_data, rpc_params);
-		test.equal(_rcpts, rcpts );
-		console.log(msg);
+		test.equal(_rcpts, rcpts );		
 		
 	});			
 	api.emit("ev_dummy", rpc_params, rcpts);						
@@ -237,7 +303,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module
 							save:function(col_str,doc,ret_handler){
-																
+															
 								test.equal(col_str,"dummy");								
 								test.equal( doc.test, rpc_params.doc.test );
 								test.equal( doc.uid, rpc_params.uid );
@@ -257,7 +323,8 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 					"./db":{
 								save: function(col_str, doc, ret_handler){
 									
-									test.equal(col_str, "events");									
+									test.equal(col_str, "events");
+									ret_handler();									
 								}	
 					}
 		}
@@ -292,7 +359,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 							on:function(){ subs_flags[1] = 1; }
 						},
 						write:function(str){
-															
+																						
 								var json_obj = JSON.parse(str);						
 								test.equal(json_obj.ev_type,"ev_create");
 								test.notEqual(json_obj.ev_tstamp, undefined);
@@ -433,7 +500,8 @@ exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
 									
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
-									test.notEqual(doc._id, undefined);																		
+									test.notEqual(doc._id, undefined);	
+									ret_handler();																	
 								}	
 					}
 		}
@@ -658,6 +726,7 @@ exports["evqueue.events: ev_unjoin, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
@@ -882,6 +951,7 @@ exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
@@ -1107,6 +1177,7 @@ exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
@@ -1331,6 +1402,7 @@ exports["evqueue.events: ev_set, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
@@ -1554,6 +1626,7 @@ exports["evqueue.events: ev_incr, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
@@ -1778,6 +1851,7 @@ exports["evqueue.events: ev_decr, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
@@ -2002,6 +2076,7 @@ exports["evqueue.events: ev_push, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
@@ -2226,6 +2301,7 @@ exports["evqueue.events: ev_pop, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
@@ -2448,6 +2524,7 @@ exports["evqueue.events: ev_pull, subscribed in rcpts"] = function(test){
 									test.equal(col_str, "events");
 									test.equal(doc.ev_rcpt, 620793115);
 									test.notEqual(doc._id, undefined);
+									ret_handler();
 								}	
 					}
 		}
