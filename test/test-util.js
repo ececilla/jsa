@@ -84,8 +84,6 @@ exports["util.del_field:existing single field"] = function(test){
 }
 
 
-
-
 exports["util.del_field:non existing field-path"] = function(test){
 		
 	var doc = {x:{y:{z:1}}};	
@@ -93,6 +91,18 @@ exports["util.del_field:non existing field-path"] = function(test){
 	util.del_field(doc,"x.nonexisting.z");
 	
 	test.equal( doc.x.y.z, 1 );			
+	test.done();
+}
+
+exports["util.list_remote_procedures"] = function(test){
+	
+	test.notEqual(util.list_remote_procedures, undefined);
+	test.done();	
+}
+
+exports["util.change_console_log_printing_format"] = function(test){
+	
+	test.notEqual(util.change_console_log_printing_format, undefined);
 	test.done();
 }
 
