@@ -215,15 +215,7 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 	eq.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
 	api.emit("ev_dummy", rpc_params, rcpts);
 	test.equal(counter,2);
-	
-	
-	eq.api.listen("ev_foo", function(params, recipients){
 		
-		test.deepEqual(params.ev_data, rpc_params);
-		test.equal(recipients, rcpts);
-	});
-	
-	api.emit("ev_foo", rpc_params, rcpts);
 	
 	test.done();
 	
@@ -257,42 +249,6 @@ exports["evqueue.events: listening custom event, wrong event emitted"] = functio
 	test.done();
 	
 }
-
-exports["evqueue.events: custom event, custom listen_handler"] = function(test){
-
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [620793119, 620793115];
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{}}
-	});
-	
-	var flag = 1;	
-	var eq = sandbox.require("../lib/evqueue",{
-		requires:{	"./api":api,
-					"./db":{	
-								save: function(col_str, signal, ret_handler){
-									
-									flag = 0;																																											
-								}	
-					}
-		}
-	});
-				
-	eq.api.listen("ev_dummy", function(msg, _rcpts){
-		
-		test.equal(msg.ev_type, "ev_dummy");
-		test.equal(typeof msg.ev_tstamp, "number");
-		test.deepEqual(msg.ev_data, rpc_params);
-		test.equal(_rcpts, rcpts );		
-		
-	});			
-	api.emit("ev_dummy", rpc_params, rcpts);						
-	
-	test.ok(flag);
-	test.done();
-	
-}
-
 
 
 

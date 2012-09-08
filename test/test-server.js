@@ -26,6 +26,8 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.settings, undefined );
 	test.notEqual( server.start, undefined );
 	test.notEqual( server.stop, undefined );
+	test.notEqual( server.events.on, undefined );
+	test.notEqual( server.events.emit, undefined );
 	test.notEqual( server.api.docs, undefined );
 	test.notEqual( server.api.docs.remote_func, undefined  );
 	test.notEqual( server.api.newop, undefined );
@@ -34,8 +36,9 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.events, undefined );
 	test.notEqual( server.api.events.on, undefined );
 	test.notEqual( server.api.events.emit, undefined );
-	
-	test.notEqual( server.eq.listen, undefined );
+		
+	test.notEqual( server.eq.events.on, undefined );
+	test.notEqual( server.eq.events.emit, undefined );
 	test.notEqual( server.db, undefined );
 	
 	//check exported functions can be invoked.
@@ -45,7 +48,7 @@ exports["module exported functions"] = function(test){
 	server.api.init.init_func();	
 	test.ok(flags[1]);
 	
-	test.expect(15);	
+	test.expect(18);	
 	test.done();
 }
 
@@ -64,6 +67,40 @@ exports["server.events.on: custom server events"] = function(test){
 	server.events.emit("ev_srv_start", params, rcpts );	
 	
 }
+
+exports["server.eq.events.on: custom eq events"] = function(test){
+	
+	var server = require("../lib/server");
+	var params = {test:1};
+	var rcpts = [1,2,3,4];
+	server.eq.events.on("ev_eq_push", function( _params, _rcpts){
+		
+		test.deepEqual(_params.ev_data, {test:1});
+		test.deepEqual(_rcpts,[1,2,3,4]);
+		test.done();
+	});
+	
+	server.eq.events.emit("ev_eq_push", params, rcpts );	
+	
+}
+
+exports["server.api.events.on: custom api events"] = function(test){
+	
+	var server = require("../lib/server");
+	var params = {test:1};
+	var rcpts = [1,2,3,4];
+	server.api.events.on("ev_api_dummyop", function( _params, _rcpts){
+		
+		test.deepEqual(_params.ev_data, {test:1});
+		test.deepEqual(_rcpts,[1,2,3,4]);
+		test.done();
+	});
+	
+	server.api.events.emit("ev_api_dummyop", params, rcpts );	
+	
+}
+
+
 
 
 exports["server.api.docs.create: internal api events, default catalog"] = function(test){
