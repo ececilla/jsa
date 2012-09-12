@@ -252,14 +252,14 @@ exports["evqueue.events: listening custom event, wrong event emitted"] = functio
 
 
 
-exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpts"] = function(test){
+exports["evqueue.events: ev_api_create, reportable document, subscribed in init.rcpts"] = function(test){
 		
 	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
 	    ircpts = [620793115, 620793119];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module
 							save:function(col_str,doc,ret_handler){
-															
+													
 								test.equal(col_str,"dummy");								
 								test.equal( doc.test, rpc_params.doc.test );
 								test.equal( doc.uid, rpc_params.uid );
@@ -278,7 +278,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 		requires:{	"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
-									
+																		
 									test.equal(col_str, "events");
 									ret_handler();									
 								}	
@@ -305,7 +305,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -317,7 +317,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 						write:function(str){
 																						
 								var json_obj = JSON.parse(str);						
-								test.equal(json_obj.ev_type,"ev_create");
+								test.equal(json_obj.ev_type,"ev_api_create");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{uid:620793114,
@@ -345,7 +345,7 @@ exports["evqueue.events: ev_create, reportable document, subscribed in init.rcpt
 }
 
 
-exports["evqueue.events: ev_create, unreportable document, subscribed"] = function(test){
+exports["evqueue.events: ev_api_create, unreportable document, subscribed"] = function(test){
 		
 	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	    
@@ -381,7 +381,7 @@ exports["evqueue.events: ev_create, unreportable document, subscribed"] = functi
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793115};
@@ -416,7 +416,7 @@ exports["evqueue.events: ev_create, unreportable document, subscribed"] = functi
 
 
 
-exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_join, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -466,7 +466,7 @@ exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -479,7 +479,7 @@ exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_join");
+								test.equal(json_obj.ev_type,"ev_api_join");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,catalog:"docs"});
@@ -510,7 +510,7 @@ exports["evqueue.events: ev_join, subscribed in rcpts"] = function(test){
 
 
 
-exports["evqueue.events: ev_join, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_join, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -559,7 +559,7 @@ exports["evqueue.events: ev_join, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -591,7 +591,7 @@ exports["evqueue.events: ev_join, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_join autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_join autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -610,7 +610,7 @@ exports["evqueue.events: ev_join autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_join");
+										test.equal(signal.ev_msg.ev_type,"ev_api_join");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -618,7 +618,7 @@ exports["evqueue.events: ev_join autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_join");
+										test.equal(signal.ev_msg.ev_type,"ev_api_join");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -632,7 +632,7 @@ exports["evqueue.events: ev_join autolistening, explicit rcpts"] = function(test
 	});
 				
 			
-	api.emit("ev_join", rpc_params, rcpts);
+	api.emit("ev_api_join", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -641,7 +641,7 @@ exports["evqueue.events: ev_join autolistening, explicit rcpts"] = function(test
 
 
 
-exports["evqueue.events: ev_unjoin, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_unjoin, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -691,7 +691,7 @@ exports["evqueue.events: ev_unjoin, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -704,7 +704,7 @@ exports["evqueue.events: ev_unjoin, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_unjoin");
+								test.equal(json_obj.ev_type,"ev_api_unjoin");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,catalog:"docs"});
@@ -734,7 +734,7 @@ exports["evqueue.events: ev_unjoin, subscribed in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_unjoin, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -783,7 +783,7 @@ exports["evqueue.events: ev_unjoin, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -815,7 +815,7 @@ exports["evqueue.events: ev_unjoin, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_unjoin autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_unjoin autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -834,7 +834,7 @@ exports["evqueue.events: ev_unjoin autolistening, explicit rcpts"] = function(te
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_unjoin");
+										test.equal(signal.ev_msg.ev_type,"ev_api_unjoin");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -842,7 +842,7 @@ exports["evqueue.events: ev_unjoin autolistening, explicit rcpts"] = function(te
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_unjoin");
+										test.equal(signal.ev_msg.ev_type,"ev_api_unjoin");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -856,7 +856,7 @@ exports["evqueue.events: ev_unjoin autolistening, explicit rcpts"] = function(te
 	});
 				
 			
-	api.emit("ev_unjoin", rpc_params, rcpts);
+	api.emit("ev_api_unjoin", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -865,7 +865,7 @@ exports["evqueue.events: ev_unjoin autolistening, explicit rcpts"] = function(te
 
 
 
-exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_add, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:5};
 	var dbdocs = {};//documents at db
@@ -916,7 +916,7 @@ exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -929,7 +929,7 @@ exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_add");
+								test.equal(json_obj.ev_type,"ev_api_add");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"b", value:5,catalog:"docs"});								
@@ -961,7 +961,7 @@ exports["evqueue.events: ev_add, subscribed in rcpts"] = function(test){
 
 
 
-exports["evqueue.events: ev_add, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_add, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"b",value:5, uid:620793114};
 	var dbdocs = {};//documents at db
@@ -1010,7 +1010,7 @@ exports["evqueue.events: ev_add, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -1042,7 +1042,7 @@ exports["evqueue.events: ev_add, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_add autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_add autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -1061,7 +1061,7 @@ exports["evqueue.events: ev_add autolistening, explicit rcpts"] = function(test)
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_add");
+										test.equal(signal.ev_msg.ev_type,"ev_api_add");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1069,7 +1069,7 @@ exports["evqueue.events: ev_add autolistening, explicit rcpts"] = function(test)
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_add");
+										test.equal(signal.ev_msg.ev_type,"ev_api_add");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1083,7 +1083,7 @@ exports["evqueue.events: ev_add autolistening, explicit rcpts"] = function(test)
 	});
 				
 			
-	api.emit("ev_add", rpc_params, rcpts);
+	api.emit("ev_api_add", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -1091,7 +1091,7 @@ exports["evqueue.events: ev_add autolistening, explicit rcpts"] = function(test)
 }
 
 
-exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_rem, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
 	var dbdocs = {};//documents at db
@@ -1142,7 +1142,7 @@ exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -1155,7 +1155,7 @@ exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_rem");
+								test.equal(json_obj.ev_type,"ev_api_rem");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
@@ -1185,7 +1185,7 @@ exports["evqueue.events: ev_rem, subscribed in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_rem, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_rem, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -1235,7 +1235,7 @@ exports["evqueue.events: ev_rem, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -1267,7 +1267,7 @@ exports["evqueue.events: ev_rem, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_rem autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_rem autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -1286,7 +1286,7 @@ exports["evqueue.events: ev_rem autolistening, explicit rcpts"] = function(test)
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_rem");
+										test.equal(signal.ev_msg.ev_type,"ev_api_rem");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1294,7 +1294,7 @@ exports["evqueue.events: ev_rem autolistening, explicit rcpts"] = function(test)
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_rem");
+										test.equal(signal.ev_msg.ev_type,"ev_api_rem");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1308,7 +1308,7 @@ exports["evqueue.events: ev_rem autolistening, explicit rcpts"] = function(test)
 	});
 				
 			
-	api.emit("ev_rem", rpc_params, rcpts);
+	api.emit("ev_api_rem", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -1316,7 +1316,7 @@ exports["evqueue.events: ev_rem autolistening, explicit rcpts"] = function(test)
 }
 
 
-exports["evqueue.events: ev_set, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_set, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5};
 	var dbdocs = {};//documents at db
@@ -1367,7 +1367,7 @@ exports["evqueue.events: ev_set, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -1380,7 +1380,7 @@ exports["evqueue.events: ev_set, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_set");
+								test.equal(json_obj.ev_type,"ev_api_set");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",value:5,catalog:"docs"});								
@@ -1409,7 +1409,7 @@ exports["evqueue.events: ev_set, subscribed in rcpts"] = function(test){
 		
 }
 
-exports["evqueue.events: ev_set, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_set, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", value:5, uid:620793114};
 	var dbdocs = {};//documents at db
@@ -1459,7 +1459,7 @@ exports["evqueue.events: ev_set, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -1491,7 +1491,7 @@ exports["evqueue.events: ev_set, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_set autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_set autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -1510,7 +1510,7 @@ exports["evqueue.events: ev_set autolistening, explicit rcpts"] = function(test)
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_set");
+										test.equal(signal.ev_msg.ev_type,"ev_api_set");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1518,7 +1518,7 @@ exports["evqueue.events: ev_set autolistening, explicit rcpts"] = function(test)
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_set");
+										test.equal(signal.ev_msg.ev_type,"ev_api_set");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1532,7 +1532,7 @@ exports["evqueue.events: ev_set autolistening, explicit rcpts"] = function(test)
 	});
 				
 			
-	api.emit("ev_set", rpc_params, rcpts);
+	api.emit("ev_api_set", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -1540,7 +1540,7 @@ exports["evqueue.events: ev_set autolistening, explicit rcpts"] = function(test)
 }
 
 
-exports["evqueue.events: ev_incr, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_incr, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
 	var dbdocs = {};//documents at db
@@ -1591,7 +1591,7 @@ exports["evqueue.events: ev_incr, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -1604,7 +1604,7 @@ exports["evqueue.events: ev_incr, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_incr");
+								test.equal(json_obj.ev_type,"ev_api_incr");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
@@ -1634,7 +1634,7 @@ exports["evqueue.events: ev_incr, subscribed in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_incr, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_incr, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -1684,7 +1684,7 @@ exports["evqueue.events: ev_incr, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -1716,7 +1716,7 @@ exports["evqueue.events: ev_incr, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_incr autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_incr autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -1735,7 +1735,7 @@ exports["evqueue.events: ev_incr autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_incr");
+										test.equal(signal.ev_msg.ev_type,"ev_api_incr");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1743,7 +1743,7 @@ exports["evqueue.events: ev_incr autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_incr");
+										test.equal(signal.ev_msg.ev_type,"ev_api_incr");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1757,7 +1757,7 @@ exports["evqueue.events: ev_incr autolistening, explicit rcpts"] = function(test
 	});
 				
 			
-	api.emit("ev_incr", rpc_params, rcpts);
+	api.emit("ev_api_incr", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -1765,7 +1765,7 @@ exports["evqueue.events: ev_incr autolistening, explicit rcpts"] = function(test
 }
 
 
-exports["evqueue.events: ev_decr, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_decr, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
 	var dbdocs = {};//documents at db
@@ -1816,7 +1816,7 @@ exports["evqueue.events: ev_decr, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -1829,7 +1829,7 @@ exports["evqueue.events: ev_decr, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_decr");
+								test.equal(json_obj.ev_type,"ev_api_decr");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
@@ -1859,7 +1859,7 @@ exports["evqueue.events: ev_decr, subscribed in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_decr, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_decr, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -1909,7 +1909,7 @@ exports["evqueue.events: ev_decr, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -1941,7 +1941,7 @@ exports["evqueue.events: ev_decr, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_decr autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_decr autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -1960,7 +1960,7 @@ exports["evqueue.events: ev_decr autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_decr");
+										test.equal(signal.ev_msg.ev_type,"ev_api_decr");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1968,7 +1968,7 @@ exports["evqueue.events: ev_decr autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_decr");
+										test.equal(signal.ev_msg.ev_type,"ev_api_decr");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -1982,7 +1982,7 @@ exports["evqueue.events: ev_decr autolistening, explicit rcpts"] = function(test
 	});
 				
 			
-	api.emit("ev_decr", rpc_params, rcpts);
+	api.emit("ev_api_decr", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -1990,7 +1990,7 @@ exports["evqueue.events: ev_decr autolistening, explicit rcpts"] = function(test
 }
 
 
-exports["evqueue.events: ev_push, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_push, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5};
 	var dbdocs = {};//documents at db
@@ -2041,7 +2041,7 @@ exports["evqueue.events: ev_push, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -2054,7 +2054,7 @@ exports["evqueue.events: ev_push, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_push");
+								test.equal(json_obj.ev_type,"ev_api_push");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",value:5,catalog:"docs"});								
@@ -2084,7 +2084,7 @@ exports["evqueue.events: ev_push, subscribed in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_push, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_push, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a",value:5, uid:620793114};
 	var dbdocs = {};//documents at db
@@ -2134,7 +2134,7 @@ exports["evqueue.events: ev_push, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -2167,7 +2167,7 @@ exports["evqueue.events: ev_push, subscribed not in rcpts"] = function(test){
 
 
 
-exports["evqueue.events: ev_push autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_push autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -2186,7 +2186,7 @@ exports["evqueue.events: ev_push autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_push");
+										test.equal(signal.ev_msg.ev_type,"ev_api_push");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -2194,7 +2194,7 @@ exports["evqueue.events: ev_push autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_push");
+										test.equal(signal.ev_msg.ev_type,"ev_api_push");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -2208,14 +2208,14 @@ exports["evqueue.events: ev_push autolistening, explicit rcpts"] = function(test
 	});
 				
 			
-	api.emit("ev_push", rpc_params, rcpts);
+	api.emit("ev_api_push", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
 	
 }
 
-exports["evqueue.events: ev_pop, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_pop, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
 	var dbdocs = {};//documents at db
@@ -2266,7 +2266,7 @@ exports["evqueue.events: ev_pop, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -2279,7 +2279,7 @@ exports["evqueue.events: ev_pop, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_pop");
+								test.equal(json_obj.ev_type,"ev_api_pop");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
@@ -2308,7 +2308,7 @@ exports["evqueue.events: ev_pop, subscribed in rcpts"] = function(test){
 		
 }
 
-exports["evqueue.events: ev_pop, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_pop, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -2358,7 +2358,7 @@ exports["evqueue.events: ev_pop, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -2390,7 +2390,7 @@ exports["evqueue.events: ev_pop, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_pop autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_pop autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -2409,7 +2409,7 @@ exports["evqueue.events: ev_pop autolistening, explicit rcpts"] = function(test)
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_pop");
+										test.equal(signal.ev_msg.ev_type,"ev_api_pop");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -2417,7 +2417,7 @@ exports["evqueue.events: ev_pop autolistening, explicit rcpts"] = function(test)
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_pop");
+										test.equal(signal.ev_msg.ev_type,"ev_api_pop");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -2431,14 +2431,14 @@ exports["evqueue.events: ev_pop autolistening, explicit rcpts"] = function(test)
 	});
 				
 			
-	api.emit("ev_pop", rpc_params, rcpts);
+	api.emit("ev_api_pop", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
 	
 }
 
-exports["evqueue.events: ev_pull, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_pull, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
 	var dbdocs = {};//documents at db
@@ -2489,7 +2489,7 @@ exports["evqueue.events: ev_pull, subscribed in rcpts"] = function(test){
 	
 	/*
 	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0]; 	
 	var subs_params = {uid:620793115};
@@ -2502,7 +2502,7 @@ exports["evqueue.events: ev_pull, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_pull");
+								test.equal(json_obj.ev_type,"ev_api_pull");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
@@ -2531,7 +2531,7 @@ exports["evqueue.events: ev_pull, subscribed in rcpts"] = function(test){
 		
 }
 
-exports["evqueue.events: ev_pull, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_pull, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -2581,7 +2581,7 @@ exports["evqueue.events: ev_pull, subscribed not in rcpts"] = function(test){
 	
 	/*
 	 * 620793119 gets subscribed to the ev channel which means hes in rcpts list 
-	 * so http_resp.write(...) should be called with the ev_create payload.	 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
 	 */ 
 	var subs_flags = [0,0,1]; 	
 	var subs_params = {uid:620793119};
@@ -2613,7 +2613,7 @@ exports["evqueue.events: ev_pull, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.events: ev_pull autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_pull autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -2632,7 +2632,7 @@ exports["evqueue.events: ev_pull autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_pull");
+										test.equal(signal.ev_msg.ev_type,"ev_api_pull");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -2640,7 +2640,7 @@ exports["evqueue.events: ev_pull autolistening, explicit rcpts"] = function(test
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_pull");
+										test.equal(signal.ev_msg.ev_type,"ev_api_pull");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -2654,7 +2654,7 @@ exports["evqueue.events: ev_pull autolistening, explicit rcpts"] = function(test
 	});
 				
 			
-	api.emit("ev_pull", rpc_params, rcpts);
+	api.emit("ev_api_pull", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();

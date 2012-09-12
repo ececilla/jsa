@@ -126,18 +126,18 @@ exports["server.api.docs.create: internal api events, default catalog"] = functi
 		
 	});
 	
-	//two ev_create handlers.				
+	//two ev_api_create handlers.				
 	server.api.events
-				.on("ev_create", function(msg){
+				.on("ev_api_create", function(msg){
 		
-					test.equal(msg.ev_type,"ev_create");
+					test.equal(msg.ev_type,"ev_api_create");
 					test.equal(msg.ev_data.uid, params.uid);
 					test.equal(msg.ev_data.catalog, "docs");
 					test.notEqual(msg.ev_data.doc.uid, undefined);
 					test.notEqual(msg.ev_data.doc.rcpts, undefined);				
 				})				
-				.on("ev_create",function(msg){
-					test.equal(msg.ev_type,"ev_create");
+				.on("ev_api_create",function(msg){
+					test.equal(msg.ev_type,"ev_api_create");
 					
 				});
 	
@@ -180,9 +180,9 @@ exports["server.api.docs.create: internal events, explicit catalog"] = function(
 	});
 	
 					
-	server.api.events.on("ev_create", function(msg){
+	server.api.events.on("ev_api_create", function(msg){
 		
-		test.equal(msg.ev_type,"ev_create");
+		test.equal(msg.ev_type,"ev_api_create");
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.catalog, "dummy");
 		test.notEqual(msg.ev_data.doc.uid, undefined);
@@ -242,9 +242,9 @@ exports["server.api.docs.create: internal events, explicit&added catalog"] = fun
 		ret_handler([620793115]);
 	});
 					
-	server.api.events.on("ev_create", function(msg){
+	server.api.events.on("ev_api_create", function(msg){
 		
-		test.equal(msg.ev_type,"ev_create");
+		test.equal(msg.ev_type,"ev_api_create");
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.catalog, "dummy");
 		test.equal(msg.ev_data.doc.uid, params.uid);
@@ -326,9 +326,9 @@ exports["server.api.docs.create: internal events, explicit&added catalog, ro db"
 		
 	});
 					
-	server.api.events.on("ev_create", function(msg){
+	server.api.events.on("ev_api_create", function(msg){
 		
-		test.equal(msg.ev_type,"ev_create");
+		test.equal(msg.ev_type,"ev_api_create");
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.catalog, "dummy");
 		test.equal(msg.ev_data.doc.uid, params.uid);
@@ -391,9 +391,9 @@ exports["server.api.docs.join: internal events, default catalog"] = function(tes
 	});
 	
 						
-	server.api.events.on("ev_join", function(msg){
+	server.api.events.on("ev_api_join", function(msg){
 		
-		test.equal(msg.ev_type,"ev_join");
+		test.equal(msg.ev_type,"ev_api_join");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
@@ -454,9 +454,9 @@ exports["server.api.docs.unjoin: internal events, default catalog"] = function(t
 	});
 	
 						
-	server.api.events.on("ev_unjoin", function(msg){
+	server.api.events.on("ev_api_unjoin", function(msg){
 		
-		test.equal(msg.ev_type,"ev_unjoin");
+		test.equal(msg.ev_type,"ev_api_unjoin");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
@@ -517,17 +517,17 @@ exports["server.api.docs.add: internal events, default catalog, wrong ev handler
 	});
 		
 	var flag = 1;					
-	server.api.events.on("ev_add", function(msg){
+	server.api.events.on("ev_api_add", function(msg){
 		
-		test.equal(msg.ev_type,"ev_add");
+		test.equal(msg.ev_type,"ev_api_add");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "docs");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
-	}).on("ev_unjoin",function(msg){
+	}).on("ev_api_unjoin",function(msg){
 		
-		flag = 0; //should not reach this point because ev_unjoin is never triggered
+		flag = 0; //should not reach this point because ev_api_unjoin is never triggered
 	});
 				
 	
@@ -583,17 +583,17 @@ exports["server.api.docs.remove: internal events, explicit catalog, wrong ev han
 	});
 		
 	var flag = 1;					
-	server.api.events.on("ev_rem", function(msg){
+	server.api.events.on("ev_api_rem", function(msg){
 		
-		test.equal(msg.ev_type,"ev_rem");
+		test.equal(msg.ev_type,"ev_api_rem");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
-	}).on("ev_create",function(msg){
+	}).on("ev_api_create",function(msg){
 		
-		flag = 0; //should not reach this point because ev_unjoin is never triggered
+		flag = 0; //should not reach this point because ev_api_unjoin is never triggered
 	});
 				
 	
@@ -652,17 +652,17 @@ exports["server.api.docs.set: internal events, explicit catalog, wrong ev handle
 		
 		
 	var flag = 1;					
-	server.api.events.on("ev_set", function(msg){
+	server.api.events.on("ev_api_set", function(msg){
 		
-		test.equal(msg.ev_type,"ev_set");
+		test.equal(msg.ev_type,"ev_api_set");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
-	}).on("ev_create",function(msg){
+	}).on("ev_api_create",function(msg){
 		
-		flag = 0; //should not reach this point because ev_create is never triggered
+		flag = 0; //should not reach this point because ev_api_create is never triggered
 	});					
 	
 	server.api.docs.set(params, function(err,val){
@@ -718,18 +718,18 @@ exports["server.api.docs.incr: internal events, explicit catalog, wrong ev handl
 	});
 	
 	var flag = 1;					
-	server.api.events.on("ev_incr", function(msg){
+	server.api.events.on("ev_api_incr", function(msg){
 		
-		test.equal(msg.ev_type,"ev_incr");
+		test.equal(msg.ev_type,"ev_api_incr");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
-	}).on("ev_create",function(msg){
+	}).on("ev_api_create",function(msg){
 		
-		flag = 0; //should not reach this point because ev_create is never triggered
+		flag = 0; //should not reach this point because ev_api_create is never triggered
 	});	
 	
 	server.api.docs.incr(params, function(err,val){
@@ -784,18 +784,18 @@ exports["server.api.docs.decr: internal events, explicit catalog, wrong ev handl
 	});
 	
 	var flag = 1;					
-	server.api.events.on("ev_decr", function(msg){
+	server.api.events.on("ev_api_decr", function(msg){
 		
-		test.equal(msg.ev_type,"ev_decr");
+		test.equal(msg.ev_type,"ev_api_decr");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
-	}).on("ev_incr",function(msg){
+	}).on("ev_api_incr",function(msg){
 		
-		flag = 0; //should not reach this point because ev_create is never triggered
+		flag = 0; //should not reach this point because ev_api_create is never triggered
 	});	
 	
 	server.api.docs.decr(params, function(err,val){
@@ -851,18 +851,18 @@ exports["server.api.docs.push: internal events, explicit catalog, wrong ev handl
 	});
 	
 	var flag = 1;					
-	server.api.events.on("ev_push", function(msg){
+	server.api.events.on("ev_api_push", function(msg){
 		
-		test.equal(msg.ev_type,"ev_push");
+		test.equal(msg.ev_type,"ev_api_push");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
-	}).on("ev_decr",function(msg){
+	}).on("ev_api_decr",function(msg){
 		
-		flag = 0; //should not reach this point because ev_decr is never triggered
+		flag = 0; //should not reach this point because ev_api_decr is never triggered
 	});	
 	
 	server.api.docs.push(params, function(err,val){
@@ -917,18 +917,18 @@ exports["server.api.docs.pop: internal events, explicit catalog, wrong ev handle
 	});
 	
 	var flag = 1;					
-	server.api.events.on("ev_pop", function(msg){
+	server.api.events.on("ev_api_pop", function(msg){
 		
-		test.equal(msg.ev_type,"ev_pop");
+		test.equal(msg.ev_type,"ev_api_pop");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
-	}).on("ev_push",function(msg){
+	}).on("ev_api_push",function(msg){
 		
-		flag = 0; //should not reach this point because ev_push is never triggered
+		flag = 0; //should not reach this point because ev_api_push is never triggered
 	});	
 	
 	server.api.docs.pop(params, function(err,val){
@@ -984,18 +984,18 @@ exports["server.api.docs.pull: internal events, explicit catalog, wrong ev handl
 	});
 	
 	var flag = 1;					
-	server.api.events.on("ev_pull", function(msg){
+	server.api.events.on("ev_api_pull", function(msg){
 		
-		test.equal(msg.ev_type,"ev_pull");
+		test.equal(msg.ev_type,"ev_api_pull");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_data.catalog, "dummy");					
 		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
 								
-	}).on("ev_pop",function(msg){
+	}).on("ev_api_pop",function(msg){
 		
-		flag = 0; //should not reach this point because ev_pop is never triggered
+		flag = 0; //should not reach this point because ev_api_pop is never triggered
 	});	
 	
 	server.api.docs.pull(params, function(err,val){
@@ -1225,7 +1225,7 @@ exports["server.api.docs.newop: create based op"] = function(test){
 		test.expect(15);
 		test.done();	
 			
-	}).on("ev_create", function(params, rcpts){
+	}).on("ev_api_create", function(params, rcpts){
 				
 		test.equal(rcpts, undefined);
 		test.deepEqual(params.ev_data, { uid:620793114,doc:{ test:"test",uid:620793114,rcpts:[620793114]},catalog:"docs"});

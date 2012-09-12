@@ -301,7 +301,7 @@ exports["api.remote.create: valid params, init.rcpts sync, added wrong catalog"]
 }
 
 
-exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_create triggered"] = function(test){
+exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_api_create triggered"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
 	    ircpts = [620793115];
@@ -335,9 +335,9 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_cr
 	});
 	
 	var flag = 0;
-	api.on("ev_create", function(msg){
+	api.on("ev_api_create", function(msg){
 		
-		test.equal(msg.ev_type,"ev_create");
+		test.equal(msg.ev_type,"ev_api_create");
 		test.notEqual(msg.ev_tstamp,undefined);
 		test.notEqual(msg.ev_data,undefined);
 		flag = 1;
