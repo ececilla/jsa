@@ -179,6 +179,7 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 									}else{
 										test.equal(false);
 									}
+									ret_handler();
 																										
 								}	
 					}
@@ -197,6 +198,7 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 							on:function(){ subs_flags[1] = 1; }
 						},
 						write:function(str){// called from within push
+								
 															
 								var json_obj = JSON.parse(str);						
 								test.equal(json_obj.ev_type,"ev_dummy");
@@ -213,10 +215,19 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 	test.ok(subs_flags[1]);
 	
 	eq.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	eq.on("ev_eq_push", function(msg, rcpt){
+		
+		test.equal(msg.ev_type, "ev_eq_push");
+		test.deepEqual(msg.ev_data.ev_data, rpc_params);		
+		test.equal(rcpt,620793115);
+		
+	});
+	
 	api.emit("ev_dummy", rpc_params, rcpts);
+	
 	test.equal(counter,2);
 		
-	
+	test.expect(20);
 	test.done();
 	
 }
@@ -297,7 +308,7 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 			
 	};
 	
-	api.init.addcreatehandler(function(params){
+	api.init.add_create_handler(function(params){
 		
 		return params.catalog == "dummy";
 	});
