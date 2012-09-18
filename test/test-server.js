@@ -228,7 +228,7 @@ exports["server.api.docs.create: internal events, explicit&added catalog"] = fun
 		
 	});
 	
-	server.api.init.addcreatehandler(function(params){
+	server.api.init.add_create_handler(function(params){
 			
 		return params.doc.test == "test";	
 	});
@@ -302,7 +302,7 @@ exports["server.api.docs.create: internal events, explicit&added catalog, ro db"
 		
 	});
 	
-	server.api.init.addcreatehandler(function(params){
+	server.api.init.add_create_handler(function(params){
 			
 		return params.doc.test == "test";	
 	});
