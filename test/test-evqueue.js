@@ -330,10 +330,10 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 								var json_obj = JSON.parse(str);						
 								test.equal(json_obj.ev_type,"ev_api_create");
 								test.notEqual(json_obj.ev_tstamp, undefined);
-								test.equal(typeof json_obj.ev_tstamp, "number");
-								test.deepEqual(json_obj.ev_data,{uid:620793114,
-																 doc:{test:"test", uid:620793114, wid:"50187f71556efcbb25000001"},
-																 catalog:"dummy" } );	
+								test.equal(typeof json_obj.ev_tstamp, "number");																								 																  
+								test.equal(json_obj.ev_data.catalog,"dummy");
+								test.equal(json_obj.ev_data.uid,620793114);
+								test.notEqual(json_obj.ev_data.doc.ctime,undefined);
 													
 						}
 						
@@ -348,7 +348,7 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);	
-		test.expect(18);
+		test.expect(20);
 		test.done();				
 		
 	});

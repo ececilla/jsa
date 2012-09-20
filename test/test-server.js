@@ -1222,13 +1222,16 @@ exports["server.api.docs.newop: create based op"] = function(test){
 					
 		test.deepEqual( params.ev_data, {dummy:1} );
 		test.deepEqual( rcpts, [620793114] );
-		test.expect(15);
+		test.expect(17);
 		test.done();	
 			
 	}).on("ev_api_create", function(params, rcpts){
 				
 		test.equal(rcpts, undefined);
-		test.deepEqual(params.ev_data, { uid:620793114,doc:{ test:"test",uid:620793114,rcpts:[620793114]},catalog:"docs"});
+		
+		test.equal(params.ev_data.uid, 620793114);
+		test.equal(params.ev_data.catalog, "docs");
+		test.notEqual(params.ev_data.doc, undefined);
 	});
 	
 	
