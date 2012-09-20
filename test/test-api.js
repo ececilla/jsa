@@ -134,7 +134,8 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 								test.equal( doc.uid, params.uid );
 								//beacause init.rcpts is null the initial rcpts list is [uid]
 								test.deepEqual( doc.rcpts, [params.uid]);
-								
+								test.notEqual(doc.ctime, undefined);
+								test.equal(typeof doc.ctime, "number");											
 								//save doc to db...returns with _id:12345
 								ret_handler(null,{_id:12345, test:"test", uid:620793114, rcpts:[620793114]});	
 							}
@@ -145,10 +146,51 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 		
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});
-		test.expect(6);
+		test.expect(8);
 		test.done();			
 	});
 		
+}
+
+exports["api.remote.create: valid params with ttl, non init.rcpts, default catalog"] = function(test){
+	
+	var params = {uid:620793114, doc:{test:"test"}, ttl:600};	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{
+							save:function(col_str,doc,ret_handler){
+								
+								if(col_str == "docs"){
+									
+									test.equal(col_str,"docs");								
+									test.equal( doc.test, params.doc.test );
+									test.equal( doc.uid, params.uid );
+									//beacause init.rcpts is null the initial rcpts list is [uid]
+									test.deepEqual( doc.rcpts, [params.uid]);
+									test.notEqual(doc.ctime, undefined);
+									test.equal(typeof doc.ctime, "number");		
+									test.equal(doc.etime, doc.ctime + params.ttl*1000);													
+									//save doc to db...returns with _id:12345
+									ret_handler(null,{_id:12345, test:"test", uid:620793114, ctime:doc.ctime, etime:doc.etime, rcpts:[620793114]});
+								}else if(col_str == "timers"){
+									
+									test.equal(col_str,"timers");
+									test.equal(doc.wid,12345);
+									test.notEqual(doc.etime, undefined);
+									ret_handler();
+									//ret_handler(new Error("test"));									
+								}	
+							}
+		}}
+	});
+			
+	api.remote.create(params, function(err,val){
+		
+		test.equal(err,null);		
+		test.deepEqual(val,{wid:"12345"});		
+					
+	});
+	test.expect(12);
+	test.done();	
 }
 
 
