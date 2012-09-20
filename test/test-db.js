@@ -6,6 +6,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(db.save, undefined);
 	test.notEqual(db.select, undefined);
 	test.notEqual(db.remove, undefined);
+	test.notEqual(db.removeById, undefined);
 	test.done()
 }
 
