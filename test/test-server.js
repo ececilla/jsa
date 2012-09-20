@@ -1369,8 +1369,9 @@ exports["server.api.docs.newop: wid based op"] = function(test){
 				  			test.equal(col_str, "events");
 				  			test.equal(doc.ev_rcpt, 620793115);
 				  			test.equal(doc.ev_msg.ev_type,"ev_foo1");
+				  			test.equal(doc.ev_msg.ev_data.doc, undefined);
 				  			test.deepEqual(doc.ev_msg.ev_data,myparams);
-				  			
+				  			ret_handler();
 				  		}
 				  	}	
 				  }
