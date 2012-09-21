@@ -123,7 +123,7 @@ exports["util.change_console_log_printing_format"] = function(test){
 exports["util.start_expire_timer"] = function(test){
 	
 	//This document expires in 1 sec.
-	var doc = {etime:new Date().getTime() + 1000,wid:"505c3cc67c0877830b000001"};
+	var doc = {etime:new Date().getTime() + 1000, wid:"505c3cc67c0877830b000001"};
 	
 	var util = sandbox.require("../lib/util",{
 		requires:{"./db":{
@@ -136,12 +136,44 @@ exports["util.start_expire_timer"] = function(test){
 		}}
 	});
 	
-	util.start_expire_timer("docs", doc, function(){
+	util.start_expire_timer({catalog:"docs",etime:doc.etime,wid:doc.wid}, function(){
 		
 		test.expect(2);
 		test.done();
 	})
 	
+}
+
+exports["util.load_expire_timers"] = function(test){
+	
+	//This document expires in 1 sec.
+	var arr_timers = [{wid:666,etime:1379699594550,catalog:"docs"},{wid:777,etime:1379699595550,catalog:"docs"},{wid:111,etime:1379699598550,catalog:"docs"}];
+	
+	var util = sandbox.require("../lib/util",{
+		requires:{"./db":{
+							criteria:function( col_str, criteria, order_field, ret_handler ){
+								
+									
+									test.equal(col_str,"timers");
+									test.deepEqual(criteria,{});	
+									ret_handler(null,arr_timers);								
+							}
+				}		
+		}
+	});
+	
+	//this function will be called from load_expire_timers
+	var ncall = 0;
+	util.start_expire_timer = function( timer, ret_handler){
+				
+		test.deepEqual(timer,arr_timers[ncall++]);
+		
+						
+	}
+	
+	util.load_expire_timers();
+	test.expect(5);
+	test.done();
 }
 
 
