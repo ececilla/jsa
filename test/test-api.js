@@ -15,7 +15,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(api.remote.decr,undefined);
 	test.notEqual(api.remote.push,undefined);
 	test.notEqual(api.remote.pop,undefined);
-	test.notEqual(api.remote.pull,undefined);
+	test.notEqual(api.remote.shift,undefined);
 	
 	test.notEqual(api.on,undefined);
 	test.equal(api.rcpts, null);
@@ -3632,14 +3632,14 @@ exports["api.remote.pop: valid params, non existing inner field"] = function(tes
 
 
 
-exports["api.remote.pull: missing params"] = function(test){
+exports["api.remote.shift: missing params"] = function(test){
 	
 var api = require("../lib/api");
 	
 	//wid missing	
 	var params = {miss_wid:"12345", uid:620793114, fname:"b"};
 	
-	api.remote.pull(params, function(err,val){
+	api.remote.shift(params, function(err,val){
 		
 		test.equal(err.code,-2);
 		test.equal(val,null);
@@ -3647,7 +3647,7 @@ var api = require("../lib/api");
 	
 	//uid missing
 	params = {wid:"12345", miss_uid:620793114, fname:"b"};
-	api.remote.pull(params, function(err,val){
+	api.remote.shift(params, function(err,val){
 		
 		test.equal(err.code,-2);
 		test.equal(val,null);
@@ -3655,7 +3655,7 @@ var api = require("../lib/api");
 	
 	//fname missing
 	params = {wid:"12345", uid:620793114, miss_fname:"b"};
-	api.remote.pull(params, function(err,val){
+	api.remote.shift(params, function(err,val){
 		
 		test.equal(err.code,-2);
 		test.equal(val,null);
@@ -3667,13 +3667,13 @@ var api = require("../lib/api");
 }
 
 
-exports["api.remote.pull: invalid params: wid not hexstr"] = function(test){
+exports["api.remote.shift: invalid params: wid not hexstr"] = function(test){
 	
 	var api = require("../lib/api");		
 	
 	//wid missing
 	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
-	api.remote.pull(params, function(err,val){
+	api.remote.shift(params, function(err,val){
 		
 		test.equal(val,null);
 		test.notEqual(err,undefined);
@@ -3684,13 +3684,13 @@ exports["api.remote.pull: invalid params: wid not hexstr"] = function(test){
 }
 
 
-exports["api.remote.pull: invalid params, wid.length != 24"] = function(test){
+exports["api.remote.shift: invalid params, wid.length != 24"] = function(test){
 	
 	var api = require("../lib/api");		
 	
 	//wid missing
 	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
-	api.remote.pull(params, function(err,val){
+	api.remote.shift(params, function(err,val){
 		
 		test.equal(val,null);
 		test.notEqual(err,undefined);
@@ -3701,7 +3701,7 @@ exports["api.remote.pull: invalid params, wid.length != 24"] = function(test){
 }
 
 
-exports["api.remote.pull: valid params, existing field as array, explicit catalog, db async"] = function(test){
+exports["api.remote.shift: valid params, existing field as array, explicit catalog, db async"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", catalog:"dummy"};
 	var dbdocs = {};
@@ -3729,7 +3729,7 @@ exports["api.remote.pull: valid params, existing field as array, explicit catalo
 								
 								test.equal(col_str,"dummy");
 								
-								//field fname to pull
+								//field fname to shift
 								test.deepEqual(doc[params.fname], [2,3,4]);								
 																								
 								setTimeout(function(){//db 500ms delay saving document
@@ -3740,7 +3740,7 @@ exports["api.remote.pull: valid params, existing field as array, explicit catalo
 		}}
 	});
 	
-	api.remote.pull(params,function(err,val){
+	api.remote.shift(params,function(err,val){
 		
 		test.equal(err,null);
 		test.equal(val,0);
@@ -3752,7 +3752,7 @@ exports["api.remote.pull: valid params, existing field as array, explicit catalo
 	
 }
 
-exports["api.remote.pull: valid params, existing inner field as array, explicit catalog, db async"] = function(test){
+exports["api.remote.shift: valid params, existing inner field as array, explicit catalog, db async"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", catalog:"dummy"};
 	var dbdocs = {};
@@ -3780,7 +3780,7 @@ exports["api.remote.pull: valid params, existing inner field as array, explicit 
 								
 								test.equal(col_str,"dummy");
 								
-								//field fname to pull
+								//field fname to shift
 								test.deepEqual(doc.a.b, [2,3,4]);
 								test.deepEqual(doc.a, {b:[2,3,4],c:1});								
 																								
@@ -3792,7 +3792,7 @@ exports["api.remote.pull: valid params, existing inner field as array, explicit 
 		}}
 	});
 	
-	api.remote.pull(params,function(err,val){
+	api.remote.shift(params,function(err,val){
 		
 		test.equal(err,null);
 		test.equal(val,0);
@@ -3805,7 +3805,7 @@ exports["api.remote.pull: valid params, existing inner field as array, explicit 
 }
 
 
-exports["api.remote.pull: valid params, existing field as nonarray"] = function(test){
+exports["api.remote.shift: valid params, existing field as nonarray"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
@@ -3815,7 +3815,7 @@ exports["api.remote.pull: valid params, existing field as nonarray"] = function(
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for pull procedure
+		requires:{"./db":{	//db mock module for shift procedure
 							select: function(col_str, id_str, ret_handler){
 								
 								test.equal(col_str, "docs");
@@ -3834,7 +3834,7 @@ exports["api.remote.pull: valid params, existing field as nonarray"] = function(
 		}}
 	});
 	
-	api.remote.pull(params,function(err,val){
+	api.remote.shift(params,function(err,val){
 		
 		test.equal(val,null);
 		test.deepEqual(err,{code:-4, message:"Field 'b' not an array"});
@@ -3847,7 +3847,7 @@ exports["api.remote.pull: valid params, existing field as nonarray"] = function(
 	
 }
 
-exports["api.remote.pull: valid params, existing inner field as nonarray"] = function(test){
+exports["api.remote.shift: valid params, existing inner field as nonarray"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
 	var dbdocs = {};
@@ -3857,7 +3857,7 @@ exports["api.remote.pull: valid params, existing inner field as nonarray"] = fun
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for pull procedure
+		requires:{"./db":{	//db mock module for shift procedure
 							select: function(col_str, id_str, ret_handler){
 								
 								test.equal(col_str, "docs");
@@ -3876,7 +3876,7 @@ exports["api.remote.pull: valid params, existing inner field as nonarray"] = fun
 		}}
 	});
 	
-	api.remote.pull(params,function(err,val){
+	api.remote.shift(params,function(err,val){
 		
 		test.equal(val,null);
 		test.deepEqual(err,{code:-4, message:"Field 'a.b' not an array"});
@@ -3890,7 +3890,7 @@ exports["api.remote.pull: valid params, existing inner field as nonarray"] = fun
 }
 
 
-exports["api.remote.pull: valid params, wid not found"] = function(test){
+exports["api.remote.shift: valid params, wid not found"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
 	var dbdocs = {};
@@ -3917,7 +3917,7 @@ exports["api.remote.pull: valid params, wid not found"] = function(test){
 		}}
 	});
 	
-	api.remote.pull(params,function(err,val){
+	api.remote.shift(params,function(err,val){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);
@@ -3930,7 +3930,7 @@ exports["api.remote.pull: valid params, wid not found"] = function(test){
 		
 }
 
-exports["api.remote.pull: valid params, uid not joined"] = function(test){
+exports["api.remote.shift: valid params, uid not joined"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"a", value:0}; //initialize field 'b' to an empty array.
 	var dbdocs = {};
@@ -3956,7 +3956,7 @@ exports["api.remote.pull: valid params, uid not joined"] = function(test){
 		}}
 	});
 	
-	api.remote.pull(params,function(err,val){
+	api.remote.shift(params,function(err,val){
 		
 		test.notEqual(err,null);
 		test.equal(val,null);		
@@ -3970,7 +3970,7 @@ exports["api.remote.pull: valid params, uid not joined"] = function(test){
 }
 
 
-exports["api.remote.pull: valid params, non existing field"] = function(test){
+exports["api.remote.shift: valid params, non existing field"] = function(test){
 	
 var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	var dbdocs = {};
@@ -3980,7 +3980,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for pull procedure
+		requires:{"./db":{	//db mock module for shift procedure
 							select: function(col_str, id_str, ret_handler){
 								
 								test.equal(col_str, "docs");
@@ -3998,7 +3998,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 		}}
 	});
 	
-	api.remote.pull(params,function(err,val){
+	api.remote.shift(params,function(err,val){
 		
 		test.notEqual(err,null);		
 		test.deepEqual(err,{code:-3, message:"Field 'b' not exists @docs:50187f71556efcbb25000001"});
@@ -4011,7 +4011,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b"};
 	
 }
 
-exports["api.remote.pull: valid params, non existing inner field"] = function(test){
+exports["api.remote.shift: valid params, non existing inner field"] = function(test){
 	
 var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
 	var dbdocs = {};
@@ -4021,7 +4021,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
 	
 	var flag = 1;
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for pull procedure
+		requires:{"./db":{	//db mock module for shift procedure
 							select: function(col_str, id_str, ret_handler){
 								
 								test.equal(col_str, "docs");
@@ -4039,7 +4039,7 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
 		}}
 	});
 	
-	api.remote.pull(params,function(err,val){
+	api.remote.shift(params,function(err,val){
 		
 		test.notEqual(err,null);		
 		test.deepEqual(err,{code:-3, message:"Field 'a.b' not exists @docs:50187f71556efcbb25000001"});
@@ -4048,6 +4048,5 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b"};
 		test.done();
 		
 	});
-				
-	
+					
 }

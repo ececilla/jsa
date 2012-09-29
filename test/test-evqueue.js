@@ -2449,7 +2449,7 @@ exports["evqueue.events: ev_api_pop autolistening, explicit rcpts"] = function(t
 	
 }
 
-exports["evqueue.events: ev_api_pull, subscribed in rcpts"] = function(test){
+exports["evqueue.events: ev_api_shift, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
 	var dbdocs = {};//documents at db
@@ -2513,7 +2513,7 @@ exports["evqueue.events: ev_api_pull, subscribed in rcpts"] = function(test){
 															
 								var json_obj = JSON.parse(str);	
 													
-								test.equal(json_obj.ev_type,"ev_api_pull");
+								test.equal(json_obj.ev_type,"ev_api_shift");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,fname:"a",catalog:"docs"});								
@@ -2531,7 +2531,7 @@ exports["evqueue.events: ev_api_pull, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		api.remote.pull(rpc_params, function(err,val){
+		api.remote.shift(rpc_params, function(err,val){
 			
 			test.equal(err,null);
 			test.notEqual(val,undefined);			
@@ -2542,7 +2542,7 @@ exports["evqueue.events: ev_api_pull, subscribed in rcpts"] = function(test){
 		
 }
 
-exports["evqueue.events: ev_api_pull, subscribed not in rcpts"] = function(test){
+exports["evqueue.events: ev_api_shift, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -2612,7 +2612,7 @@ exports["evqueue.events: ev_api_pull, subscribed not in rcpts"] = function(test)
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 								
-	api.remote.pull(rpc_params, function(err,val){
+	api.remote.shift(rpc_params, function(err,val){
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);
@@ -2624,7 +2624,7 @@ exports["evqueue.events: ev_api_pull, subscribed not in rcpts"] = function(test)
 }
 
 
-exports["evqueue.events: ev_api_pull autolistening, explicit rcpts"] = function(test){
+exports["evqueue.events: ev_api_shift autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -2643,7 +2643,7 @@ exports["evqueue.events: ev_api_pull autolistening, explicit rcpts"] = function(
 										
 										test.equal(col_str,"events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_api_pull");
+										test.equal(signal.ev_msg.ev_type,"ev_api_shift");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -2651,7 +2651,7 @@ exports["evqueue.events: ev_api_pull autolistening, explicit rcpts"] = function(
 										
 										test.equal(col_str, "events");
 										test.notEqual( signal._id, undefined );
-										test.equal(signal.ev_msg.ev_type,"ev_api_pull");
+										test.equal(signal.ev_msg.ev_type,"ev_api_shift");
 										test.equal( typeof signal.ev_msg.ev_tstamp, "number");
 										test.deepEqual( signal.ev_msg.ev_data, rpc_params );
 										
@@ -2665,7 +2665,7 @@ exports["evqueue.events: ev_api_pull autolistening, explicit rcpts"] = function(
 	});
 				
 			
-	api.emit("ev_api_pull", rpc_params, rcpts);
+	api.emit("ev_api_shift", rpc_params, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();

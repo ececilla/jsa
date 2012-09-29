@@ -105,17 +105,12 @@ exports["util.del_field:non existing field-path"] = function(test){
 	test.done();
 }
 
-exports["util.list_remote_procedures"] = function(test){
-	
-	var util = require("../lib/util");
-	test.notEqual(util.list_remote_procedures, undefined);
-	test.done();	
-}
 
-exports["util.change_console_log_printing_format"] = function(test){
+
+exports["util.add_console_log_printing_format"] = function(test){
 	
 	var util = require("../lib/util");
-	test.notEqual(util.change_console_log_printing_format, undefined);
+	test.notEqual(util.add_console_log_printing_format, undefined);
 	test.done();
 }
 

@@ -943,7 +943,7 @@ exports["server.api.docs.pop: internal events, explicit catalog, wrong ev handle
 }
 
 
-exports["server.api.docs.pull: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.docs.shift: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
 	var dbdocs = {};//documents at db
@@ -984,9 +984,9 @@ exports["server.api.docs.pull: internal events, explicit catalog, wrong ev handl
 	});
 	
 	var flag = 1;					
-	server.api.events.on("ev_api_pull", function(msg){
+	server.api.events.on("ev_api_shift", function(msg){
 		
-		test.equal(msg.ev_type,"ev_api_pull");
+		test.equal(msg.ev_type,"ev_api_shift");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(msg.ev_data.uid, params.uid);
 		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
@@ -998,7 +998,7 @@ exports["server.api.docs.pull: internal events, explicit catalog, wrong ev handl
 		flag = 0; //should not reach this point because ev_api_pop is never triggered
 	});	
 	
-	server.api.docs.pull(params, function(err,val){
+	server.api.docs.shift(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.equal(val,0);						
