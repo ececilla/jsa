@@ -41,6 +41,9 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.eq.events.emit, undefined );
 	test.notEqual( server.db, undefined );
 	
+	test.notEqual( server.config.system, undefined);
+	
+	
 	//check exported functions can be invoked.
 	server.api.docs.remote_func();
 	test.ok(flags[0]);
@@ -48,7 +51,10 @@ exports["module exported functions"] = function(test){
 	server.api.init.init_func();	
 	test.ok(flags[1]);
 	
-	test.expect(18);	
+	server.settings();
+	test.notEqual( server.config.app, undefined);
+	
+	test.expect(20);	
 	test.done();
 }
 
@@ -153,6 +159,38 @@ exports["server.api.docs.create: internal api events, default catalog"] = functi
 					
 	
 }
+
+exports["server.api.docs.create: throw error when no ret_handler handles the error"] = function(test){
+	
+	var params = {uid:620793114, doc:{test:"test"}};
+	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for create procedure
+							save:function(col_str,doc,ret_handler){
+																
+								test.equal(col_str,"docs");								
+								test.equal( doc.test, params.doc.test );
+								test.equal( doc.uid, params.uid );
+								test.deepEqual( doc.rcpts, [620793114]);
+								
+								//save doc to db...returns with _id:12345
+								ret_handler(new Error("some db error"),null);	
+							}
+		}}
+	});				
+	var server = sandbox.require("../lib/server",{
+		requires:{"./api":api}
+		
+	});
+		
+	test.throws(
+		function(){server.api.docs.create(params)},
+		Error);
+	test.expect(5);	
+	test.done();				
+	
+}
+
 
 
 exports["server.api.docs.create: internal events, explicit catalog"] = function(test){
