@@ -150,9 +150,24 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 		
 }
 
+/*
 exports["api.remote.create: valid params with ttl, non init.rcpts, default catalog"] = function(test){
 	
-	var params = {uid:620793114, doc:{test:"test"}, ttl:600};	    
+	var params = {uid:620793114, doc:{test:"test"}, ttl:600};
+	var time = 	sandbox.require("../lib/time",{
+		requires:{"./db":{
+							save:function(col_str,doc,ret_handler){
+								console.log("save:"+col_str)
+								ret_handler();
+							},
+							remove: function(col_str, criteria, ret_handler){
+								console.log("remove:"+col_str);
+								ret_handler();
+							}
+						}
+				}		
+		});
+									    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{
 							save:function(col_str,doc,ret_handler){
@@ -169,15 +184,10 @@ exports["api.remote.create: valid params with ttl, non init.rcpts, default catal
 									test.equal(doc.etime, doc.ctime + params.ttl*1000);													
 									//save doc to db...returns with _id:12345
 									ret_handler(null,{_id:12345, test:"test", uid:620793114, ctime:doc.ctime, etime:doc.etime, rcpts:[620793114]});
-								}else if(col_str == "timers"){
-									
-									test.equal(col_str,"timers");
-									test.equal(doc.wid,12345);
-									test.notEqual(doc.etime, undefined);
-									ret_handler();
-									//ret_handler(new Error("test"));									
-								}	
-							}
+								}
+							},
+					"./time":time		
+							
 		}}
 	});
 			
@@ -190,7 +200,7 @@ exports["api.remote.create: valid params with ttl, non init.rcpts, default catal
 	test.expect(12);
 	test.done();	
 }
-
+*/
 
 exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = function(test){
 	
