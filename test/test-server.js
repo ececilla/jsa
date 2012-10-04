@@ -58,6 +58,36 @@ exports["module exported functions"] = function(test){
 	test.done();
 }
 
+exports["server.api.init.execute: init scripts"] = function(test){
+	
+	var server = require("../lib/server");
+	var async = require("async");	
+	var flags = [0, 0];
+	
+	server.api.init.execute.push(function(end_handler){
+		
+		flags[0] = 1;
+		end_handler();
+	});
+	
+	server.api.init.execute.push(function(end_handler){
+		
+		flags[1] = 1;
+		end_handler();
+	});
+	
+	async.series(server.api.init.execute,function(){
+		
+		test.ok(flags[0]);
+		test.ok(flags[1]);
+		test.done();
+	});
+	
+	
+		
+	
+}
+
 exports["server.events.on: custom server events"] = function(test){
 	
 	var server = require("../lib/server");
