@@ -91,14 +91,23 @@ exports["endpoint.rpc: method not found"] = function(test){
 exports["endpoint.rpc: method invocation: with result, no params"] = function(test){
 	
 	var ret_value = {test:1};
+		
+	var api = {	remote:{
+						test: function(params, ret_handler){
+															
+							ret_handler(null,ret_value);
+							
+						}}
+			 };
+	
+	var srv = sandbox.require("../lib/server",{
+		requires:{	"./api":api}					 				
+	});			
+	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{"./api":{	remote:{
-							test: function(params, ret_handler){
-																
-								ret_handler(null,ret_value);
-								
-							}}
-		}}
+		requires:{	"./api":api,
+					"./server":srv	 
+				}
 	});
 	
 	var req_str = '{"jsonrpc":"2.0","method":"test","id":123}';
@@ -126,18 +135,26 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 				"method":"test",
 				"params":{x:1,y:2},
 				"id":"123"};
-		
+				
+	var api = {	remote:{
+						test: function(params, ret_handler){
+							
+							test.deepEqual(params, req.params);								
+							ret_handler(null,params.x + params.y);
+							
+						}}
+			 };
+	
+	var srv = sandbox.require("../lib/server",{
+		requires:{	"./api":api}					 				
+	});			
+	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{"./api":{	remote:{
-								test: function(params, ret_handler){//remote procedure test
-																	
-									test.deepEqual(params, req.params);								
-									ret_handler(null,params.x + params.y);
-									
-								}
-							}
-		}}
+		requires:{	"./api":api,
+					"./server":srv	 
+				}
 	});
+								
 	
 	var req_str = JSON.stringify(req);
 	
@@ -161,15 +178,25 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 exports["endpoint.rpc: method invocation: with error"] = function(test){
 
 	var err_value = {test:1};
+	
+	var api = {	remote:{
+						test: function(params, ret_handler){
+																				
+							ret_handler(err_value,null);
+							
+						}}
+			 };
+	
+	var srv = sandbox.require("../lib/server",{
+		requires:{	"./api":api}					 				
+	});			
+	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{"./api":{	remote:{
-								test: function(params, ret_handler){
-																	
-									ret_handler(err_value,null);									
-								}
-							}
-		}}
+		requires:{	"./api":api,
+					"./server":srv	 
+				}
 	});
+		
 	
 	var req_str = '{"jsonrpc":"2.0","method":"test","id":123}';
 	
@@ -192,16 +219,26 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 exports["endpoint.rpc: method invocation without id"] = function(test){
 	
 	var flags = [0, 1, 1, 1];	
+	
+	var api = {	remote:{
+						test: function(params, ret_handler){
+																				
+							flags[0] = 1;	//remote procedure gets executed.						
+							ret_handler(null,{});
+							
+						}}
+			 };
+	
+	var srv = sandbox.require("../lib/server",{
+		requires:{	"./api":api}					 				
+	});			
+	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{"./api":{	remote:{
-								test: function(params, ret_handler){
-																	
-									flags[0] = 1;	//remote procedure gets executed.						
-									ret_handler(null,{});									
-								}
-							}
-		}}
+		requires:{	"./api":api,
+					"./server":srv	 
+				}
 	});
+			
 	
 	var req_str = '{"jsonrpc":"2.0","method":"test"}';
 	
