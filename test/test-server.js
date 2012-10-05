@@ -12,8 +12,8 @@ exports["module exported functions"] = function(test){
 										flags[0] = 1;								
 									}
 								},									
-								init:{
-									init_func: function(){
+								config:{
+									config_func: function(){
 										
 										flags[1] = 1;
 									}
@@ -27,12 +27,11 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.start, undefined );
 	test.notEqual( server.stop, undefined );
 	test.notEqual( server.events.on, undefined );
-	test.notEqual( server.events.emit, undefined );
-	test.notEqual( server.api.docs, undefined );
-	test.notEqual( server.api.docs.remote_func, undefined  );
-	test.notEqual( server.api.newop, undefined );
-	test.notEqual( server.api.init, undefined );
-	test.notEqual( server.api.init.init_func, undefined  );
+	test.notEqual( server.events.emit, undefined );	
+	test.notEqual( server.api.remote_func, undefined  );	
+	test.notEqual( server.api.config, undefined );
+	test.notEqual( server.api.config.newop, undefined );
+	test.notEqual( server.api.config.config_func, undefined  );
 	test.notEqual( server.api.events, undefined );
 	test.notEqual( server.api.events.on, undefined );
 	test.notEqual( server.api.events.emit, undefined );
@@ -45,38 +44,38 @@ exports["module exported functions"] = function(test){
 	
 	
 	//check exported functions can be invoked.
-	server.api.docs.remote_func();
+	server.api.remote_func();
 	test.ok(flags[0]);
 	
-	server.api.init.init_func();	
+	server.api.config.config_func();	
 	test.ok(flags[1]);
 	
 	server.settings();
 	test.notEqual( server.config.app, undefined);
 	
-	test.expect(20);	
+	test.expect(19);	
 	test.done();
 }
 
-exports["server.api.init.execute: init scripts"] = function(test){
+exports["server.init.execute: init scripts"] = function(test){
 	
 	var server = require("../lib/server");
 	var async = require("async");	
 	var flags = [0, 0];
 	
-	server.api.init.execute.push(function(end_handler){
+	server.init.execute.push(function(end_handler){
 		
 		flags[0] = 1;
 		end_handler();
 	});
 	
-	server.api.init.execute.push(function(end_handler){
+	server.init.execute.push(function(end_handler){
 		
 		flags[1] = 1;
 		end_handler();
 	});
 	
-	async.series(server.api.init.execute,function(){
+	async.series(server.init.execute,function(){
 		
 		test.ok(flags[0]);
 		test.ok(flags[1]);
@@ -139,7 +138,7 @@ exports["server.api.events.on: custom api events"] = function(test){
 
 
 
-exports["server.api.docs.create: internal api events, default catalog"] = function(test){
+exports["server.api.create: internal api events, default catalog"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}};
 	    
@@ -177,7 +176,7 @@ exports["server.api.docs.create: internal api events, default catalog"] = functi
 					
 				});
 	
-	server.api.docs.create(params, function(err,val){
+	server.api.create(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.notEqual(val);
@@ -190,7 +189,7 @@ exports["server.api.docs.create: internal api events, default catalog"] = functi
 	
 }
 
-exports["server.api.docs.create: throw error when no ret_handler handles the error"] = function(test){
+exports["server.api.create: throw error when no ret_handler handles the error"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}};
 	    
@@ -214,7 +213,7 @@ exports["server.api.docs.create: throw error when no ret_handler handles the err
 	});
 		
 	test.throws(
-		function(){server.api.docs.create(params)},
+		function(){server.api.create(params)},
 		Error);
 	test.expect(5);	
 	test.done();				
@@ -223,7 +222,7 @@ exports["server.api.docs.create: throw error when no ret_handler handles the err
 
 
 
-exports["server.api.docs.create: internal events, explicit catalog"] = function(test){
+exports["server.api.create: internal events, explicit catalog"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	    
@@ -259,7 +258,7 @@ exports["server.api.docs.create: internal events, explicit catalog"] = function(
 		
 	});
 	
-	server.api.docs.create(params, function(err,val){
+	server.api.create(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.notEqual(val);
@@ -272,7 +271,7 @@ exports["server.api.docs.create: internal events, explicit catalog"] = function(
 }
 
 
-exports["server.api.docs.create: internal events, explicit&added catalog"] = function(test){
+exports["server.api.create: internal events, explicit&added catalog"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	    
@@ -296,13 +295,13 @@ exports["server.api.docs.create: internal events, explicit&added catalog"] = fun
 		
 	});
 	
-	server.api.init.add_create_handler(function(params){
+	server.api.config.add_create_handler(function(params){
 			
 		return params.doc.test == "test";	
 	});
 	
 	
-	server.api.init.rcpts(function(doc,db,ret_handler){
+	server.api.config.rcpts(function(doc,db,ret_handler){
 	
 		
 		test.notEqual(doc,undefined);
@@ -320,7 +319,7 @@ exports["server.api.docs.create: internal events, explicit&added catalog"] = fun
 				
 	});
 	
-	server.api.docs.create(params, function(err,val){
+	server.api.create(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);
@@ -334,7 +333,7 @@ exports["server.api.docs.create: internal events, explicit&added catalog"] = fun
 }
 
 
-exports["server.api.docs.create: internal events, explicit&added catalog, ro db"] = function(test){
+exports["server.api.create: internal events, explicit&added catalog, ro db"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	var dbdocs = {};//documents at db	
@@ -370,13 +369,13 @@ exports["server.api.docs.create: internal events, explicit&added catalog, ro db"
 		
 	});
 	
-	server.api.init.add_create_handler(function(params){
+	server.api.config.add_create_handler(function(params){
 			
 		return params.doc.test == "test";	
 	});
 	
 	
-	server.api.init.rcpts(function(doc,db,ret_handler){
+	server.api.config.rcpts(function(doc,db,ret_handler){
 	
 		
 		test.notEqual(doc,undefined);
@@ -404,7 +403,7 @@ exports["server.api.docs.create: internal events, explicit&added catalog, ro db"
 				
 	});
 	
-	server.api.docs.create(params, function(err,val){
+	server.api.create(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);
@@ -419,7 +418,7 @@ exports["server.api.docs.create: internal events, explicit&added catalog, ro db"
 
 
 
-exports["server.api.docs.join: internal events, default catalog"] = function(test){
+exports["server.api.join: internal events, default catalog"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -470,7 +469,7 @@ exports["server.api.docs.join: internal events, default catalog"] = function(tes
 	});
 				
 	
-	server.api.docs.join(params, function(err,val){
+	server.api.join(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.deepEqual(val,{doc:{a:1, b:"test1234", uid:620793115, wid:"50187f71556efcbb25000001"}});						
@@ -482,7 +481,7 @@ exports["server.api.docs.join: internal events, default catalog"] = function(tes
 }
 
 
-exports["server.api.docs.unjoin: internal events, default catalog"] = function(test){
+exports["server.api.unjoin: internal events, default catalog"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116};
 	var dbdocs = {};//documents at db
@@ -533,7 +532,7 @@ exports["server.api.docs.unjoin: internal events, default catalog"] = function(t
 	});
 				
 	
-	server.api.docs.unjoin(params, function(err,val){
+	server.api.unjoin(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.equal(val,0);						
@@ -545,7 +544,7 @@ exports["server.api.docs.unjoin: internal events, default catalog"] = function(t
 }
 
 
-exports["server.api.docs.add: internal events, default catalog, wrong ev handler"] = function(test){
+exports["server.api.add: internal events, default catalog, wrong ev handler"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"c", value:[]};
 	var dbdocs = {};//documents at db
@@ -599,7 +598,7 @@ exports["server.api.docs.add: internal events, default catalog, wrong ev handler
 	});
 				
 	
-	server.api.docs.add(params, function(err,val){
+	server.api.add(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.equal(val,0);						
@@ -611,7 +610,7 @@ exports["server.api.docs.add: internal events, default catalog, wrong ev handler
 }
 
 
-exports["server.api.docs.remove: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.remove: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"b", catalog:"dummy"};
 	var dbdocs = {};//documents at db
@@ -665,7 +664,7 @@ exports["server.api.docs.remove: internal events, explicit catalog, wrong ev han
 	});
 				
 	
-	server.api.docs.remove(params, function(err,val){
+	server.api.remove(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.equal(val,0);						
@@ -679,7 +678,7 @@ exports["server.api.docs.remove: internal events, explicit catalog, wrong ev han
 
 
 
-exports["server.api.docs.set: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.set: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", value:5, catalog:"dummy"};
 	var dbdocs = {};//documents at db
@@ -733,7 +732,7 @@ exports["server.api.docs.set: internal events, explicit catalog, wrong ev handle
 		flag = 0; //should not reach this point because ev_api_create is never triggered
 	});					
 	
-	server.api.docs.set(params, function(err,val){
+	server.api.set(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.equal(val,0);						
@@ -746,7 +745,7 @@ exports["server.api.docs.set: internal events, explicit catalog, wrong ev handle
 
 
 
-exports["server.api.docs.push: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.push: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", value:9, catalog:"dummy"};
 	var dbdocs = {};//documents at db
@@ -801,7 +800,7 @@ exports["server.api.docs.push: internal events, explicit catalog, wrong ev handl
 		flag = 0; //should not reach this point because ev_api_decr is never triggered
 	});	
 	
-	server.api.docs.push(params, function(err,val){
+	server.api.push(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.equal(val,0);						
@@ -812,7 +811,7 @@ exports["server.api.docs.push: internal events, explicit catalog, wrong ev handl
 						
 }
 
-exports["server.api.docs.pop: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.pop: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
 	var dbdocs = {};//documents at db
@@ -867,7 +866,7 @@ exports["server.api.docs.pop: internal events, explicit catalog, wrong ev handle
 		flag = 0; //should not reach this point because ev_api_push is never triggered
 	});	
 	
-	server.api.docs.pop(params, function(err,val){
+	server.api.pop(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.equal(val,0);						
@@ -879,7 +878,7 @@ exports["server.api.docs.pop: internal events, explicit catalog, wrong ev handle
 }
 
 
-exports["server.api.docs.shift: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.shift: internal events, explicit catalog, wrong ev handler"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
 	var dbdocs = {};//documents at db
@@ -934,7 +933,7 @@ exports["server.api.docs.shift: internal events, explicit catalog, wrong ev hand
 		flag = 0; //should not reach this point because ev_api_pop is never triggered
 	});	
 	
-	server.api.docs.shift(params, function(err,val){
+	server.api.shift(params, function(err,val){
 		
 		test.equal(err,undefined);
 		test.equal(val,0);						
@@ -965,7 +964,7 @@ exports["server.api.events.emit"] = function(test){
 
 
 
-exports["server.api.docs.newop: invocation"] = function(test){
+exports["server.api.config.newop: invocation"] = function(test){
 	
 	var server = require("../lib/server");
 	var api = require("../lib/api");	
@@ -973,13 +972,13 @@ exports["server.api.docs.newop: invocation"] = function(test){
 	var myparams = {foo:1, bar:"test"};
 		
 	
-	server.api.newop("newop", function(params, ret_handler){
+	server.api.config.newop("newop", function(params, ret_handler){
 		
 		test.deepEqual(params, myparams);		
 		ret_handler(null,1);
 	});
 	
-	test.notEqual(server.api.docs.newop, undefined);
+	test.notEqual(server.api.newop, undefined);
 	
 	//ev_newop will be emitted by default.
 	server.api.events.on("ev_newop", function(params, rcpts){
@@ -1003,14 +1002,14 @@ exports["server.api.docs.newop: invocation"] = function(test){
 }
 
 
-exports["server.api.docs.newop: cancel default event"] = function(test){
+exports["server.api.config.newop: cancel default event"] = function(test){
 	
 	
 	var server = require("../lib/server");
 	var api = require("../lib/api");	
 	var myparams = {foo:1, bar:"test"};
 	
-	server.api.newop("dummy", function(params, ret_handler){
+	server.api.config.newop("dummy", function(params, ret_handler){
 				
 		test.deepEqual(params, myparams);
 		server.api.events.cancel_default_event();
@@ -1025,8 +1024,8 @@ exports["server.api.docs.newop: cancel default event"] = function(test){
 		
 	
 	test.notEqual( api.remote["dummy"], undefined );
-	test.notEqual( server.api.docs["dummy"], undefined );
-	server.api.docs["dummy"](myparams, function(err,val){
+	test.notEqual( server.api["dummy"], undefined );
+	server.api["dummy"](myparams, function(err,val){
 		
 		test.equal(err,null);
 		test.ok(val);		
@@ -1037,7 +1036,7 @@ exports["server.api.docs.newop: cancel default event"] = function(test){
 }
 
 
-exports["server.api.docs.newop: event custom params"] = function(test){
+exports["server.api.config.newop: event custom params"] = function(test){
 	
 	var nevents = 0;
 	var rcpts = [5,6,7,8];
@@ -1070,7 +1069,7 @@ exports["server.api.docs.newop: event custom params"] = function(test){
 		
 	var myparams = {foo:1, bar:"test"};
 	
-	server.api.newop("dummy", function(params, ret_handler){
+	server.api.config.newop("dummy", function(params, ret_handler){
 		
 				
 		test.deepEqual(params, myparams);
@@ -1090,8 +1089,8 @@ exports["server.api.docs.newop: event custom params"] = function(test){
 		
 	
 	test.notEqual( api.remote["dummy"], undefined );
-	test.notEqual( server.api.docs["dummy"], undefined );
-	server.api.docs["dummy"](myparams, function(err,val){
+	test.notEqual( server.api["dummy"], undefined );
+	server.api["dummy"](myparams, function(err,val){
 		
 		test.equal(err,null);
 		test.ok(val);		
@@ -1103,7 +1102,7 @@ exports["server.api.docs.newop: event custom params"] = function(test){
 
 
 
-exports["server.api.docs.newop: create based op"] = function(test){
+exports["server.api.config.newop: create based op"] = function(test){
 	
 	var myparams = {uid:620793114, doc:{test:"test"}};	    
 	var api = sandbox.require("../lib/api",{
@@ -1127,22 +1126,22 @@ exports["server.api.docs.newop: create based op"] = function(test){
 	});
 			
 	//Registation of two custom operations, one of them calls the primitive operation 'create'.
-	server.api.newop("newop2", function(params, ret_handler){
+	server.api.config.newop("newop2", function(params, ret_handler){
 		
 		server.api.events.cancel_default_event();
 		server.api.events.emit("ev_newop2");
 		ret_handler();
 	});
 	test.notEqual( api.remote["newop2"], undefined );
-	test.notEqual( server.api.docs.newop2, undefined );
+	test.notEqual( server.api.newop2, undefined );
 	
-	server.api.newop("newop1", function(params, ret_handler){
+	server.api.config.newop("newop1", function(params, ret_handler){
 				
 		test.deepEqual(params, myparams);	
 								
 		//call primitive function
 							
-		server.api.docs.create( params, function(err, val){
+		server.api.create( params, function(err, val){
 							
 			server.api.events.ev_newop1.params = {dummy:1};	
 			server.api.events.ev_newop1.rcpts = [620793114];
@@ -1151,7 +1150,7 @@ exports["server.api.docs.newop: create based op"] = function(test){
 						
 	});
 	test.notEqual( api.remote["newop1"], undefined );
-	test.notEqual( server.api.docs.newop1, undefined );		
+	test.notEqual( server.api.newop1, undefined );		
 	
 	//ev_newop1 will be emitted by default.
 	server.api.events.on("ev_newop1", function(params, rcpts){
@@ -1184,7 +1183,7 @@ exports["server.api.docs.newop: create based op"] = function(test){
 
 
 
-exports["server.api.docs.newop: db raw access based op"] = function(test){
+exports["server.api.config.newop: db raw access based op"] = function(test){
 	
 	var myparams = {uid:620793114, catalog:"users"};	
 	var dbusers = {};
@@ -1230,7 +1229,7 @@ exports["server.api.docs.newop: db raw access based op"] = function(test){
 	});
 				
 	
-	server.api.newop("newop3", function(params, ret_handler){
+	server.api.config.newop("newop3", function(params, ret_handler){
 				
 		test.deepEqual(params, myparams); 		
 		
@@ -1268,7 +1267,7 @@ exports["server.api.docs.newop: db raw access based op"] = function(test){
 
 
 
-exports["server.api.docs.newop: wid based op"] = function(test){
+exports["server.api.config.newop: wid based op"] = function(test){
 	
 		
 	var myparams = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:3, catalog:"dummy"};	
@@ -1321,7 +1320,7 @@ exports["server.api.docs.newop: wid based op"] = function(test){
 	});
 						
 	
-	server.api.newop("foo1", function(params, ret_handler){
+	server.api.config.newop("foo1", function(params, ret_handler){
 						
 		test.notEqual(params.doc, undefined);	
 		test.deepEqual(params.doc, dbdocs["50187f71556efcbb25000001"] );	
@@ -1344,7 +1343,7 @@ exports["server.api.docs.newop: wid based op"] = function(test){
 		
 	
 	test.notEqual( api.remote["foo1"], undefined );
-	test.notEqual( server.api.docs["foo1"], undefined );
+	test.notEqual( server.api["foo1"], undefined );
 	api.remote["foo1"](myparams, function(err,val){
 		
 		test.equal(err,null);

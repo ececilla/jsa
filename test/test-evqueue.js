@@ -308,7 +308,7 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 			
 	};
 	
-	api.init.add_create_handler(function(params){
+	api.config.add_create_handler(function(params){
 		
 		return params.catalog == "dummy";
 	});

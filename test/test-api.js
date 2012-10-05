@@ -252,7 +252,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit&added catalog
 	});
 	
 		
-	api.init.add_create_handler(function(params){
+	api.config.add_create_handler(function(params){
 		
 		return params.catalog == "dummy";
 	});
@@ -333,7 +333,7 @@ exports["api.remote.create: valid params, init.rcpts sync, added wrong catalog"]
 		flag = 0;	
 		ret_handler(ircpts);
 	};
-	api.init.add_create_handler(function(params){ 
+	api.config.add_create_handler(function(params){ 
 			return params.catalog == "dummy-wrong"; 
 	});
 		
@@ -379,7 +379,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 			
 	};
 	
-	api.init.add_create_handler(function(params){
+	api.config.add_create_handler(function(params){
 		
 		return params.catalog == "dummy";
 	});
