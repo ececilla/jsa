@@ -203,7 +203,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 								test.deepEqual( doc.rcpts, [620793114]);
 								
 								//save doc to db...returns with _id:12345
-								ret_handler(new Error("some db error"),null);	
+								ret_handler({message:"some db error"},null);	
 							}
 		}}
 	});				
@@ -211,10 +211,10 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 		requires:{"./api":api}
 		
 	});
+	
 		
-	test.throws(
-		function(){server.api.create(params)},
-		Error);
+	test.throws( function(){server.api.create(params)} );
+		
 	test.expect(5);	
 	test.done();				
 	
