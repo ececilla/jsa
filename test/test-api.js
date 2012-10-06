@@ -232,7 +232,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 				
 }
 
-exports["api.remote.create: valid params, non init.rcpts, explicit catalog, notifiable field"] = function(test){
+exports["api.remote.create: valid params, non init.rcpts, explicit catalog, notifiable true"] = function(test){
 	
 	var ircpts = [620793115];
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy", notifiable:1};	    
@@ -264,6 +264,45 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});
 		test.expect(8);	
+		test.done();		
+	});
+				
+}
+
+exports["api.remote.create: valid params, non init.rcpts, implicit catalog, notifiable false"] = function(test){
+	
+	var ircpts = [620793115];
+	var params = {uid:620793114, doc:{test:"test"}, notifiable:0};	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str, "docs");								
+								test.deepEqual( doc.test, params.doc.test )
+								test.equal( doc.uid, params.uid );
+								test.deepEqual( doc.rcpts, undefined);
+								
+								//save doc to db...returns with _id:12345
+								ret_handler(null,{_id:12345, test:"test"});	
+							}
+		}}
+	});
+	
+	var flag = 1;
+	api.rcpts = function(doc,db,ret_handler){
+		
+		flag = 0;
+		
+		ret_handler(ircpts);
+	};
+					
+	
+	api.remote.create(params, function(err,val){
+		
+		test.equal(err,null);
+		test.deepEqual(val,{wid:"12345"});
+		test.ok(flag);
+		test.expect(7);	
 		test.done();		
 	});
 				
