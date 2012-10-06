@@ -301,11 +301,10 @@ exports["server.api.create: internal events, explicit&added catalog"] = function
 	});
 	
 	
-	server.api.config.rcpts(function(doc,db,ret_handler){
+	server.api.config.rcpts(function(doc,ret_handler){
 	
 		
-		test.notEqual(doc,undefined);
-		test.notEqual(db,undefined);		
+		test.notEqual(doc,undefined);		
 		ret_handler([620793115]);
 	});
 					
@@ -325,7 +324,7 @@ exports["server.api.create: internal events, explicit&added catalog"] = function
 		test.notEqual(val,undefined);
 		test.deepEqual(val,{wid:"12345"});					
 				
-		test.expect(14);		
+		test.expect(13);		
 		test.done();
 	});
 					
@@ -339,9 +338,7 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 	var dbdocs = {};//documents at db	
 		dbdocs["1234"] = {_id:"1234",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
-		    
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
+	var db = {	
 							save:function(col_str, doc ,ret_handler){
 																
 								test.equal(col_str,"dummy");								
@@ -361,11 +358,14 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 								},50);	
 							}
 							
-		}}
+	};
+		    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":db}
 	}),			
 	
 	server = sandbox.require("../lib/server",{
-		requires:{"./api":api}
+		requires:{"./api":api,"./db":db}
 		
 	});
 	
@@ -375,17 +375,12 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 	});
 	
 	
-	server.api.config.rcpts(function(doc,db,ret_handler){
+	server.api.config.rcpts(function(doc,ret_handler){
 	
 		
 		test.notEqual(doc,undefined);
-		test.notEqual(db,undefined);
-		test.notEqual(db.select, undefined);
-		test.equal(db.save, undefined);
-		test.equal(db.remove, undefined);
-		test.equal(db.connect, undefined);
 		
-		db.select("dummy","5678",function(err,val){
+		server.db.select("dummy","5678",function(err,val){
 			
 			test.equal(val.a,2);			
 			ret_handler([val.uid]);
@@ -409,7 +404,7 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 		test.notEqual(val,undefined);
 		test.deepEqual(val,{wid:"56ff8"});					
 				
-		test.expect(19);		
+		test.expect(14);		
 		test.done();
 	});
 					

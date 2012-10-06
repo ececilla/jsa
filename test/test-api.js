@@ -251,10 +251,9 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 		}}
 	});
 	
-	api.rcpts = function(doc,db,ret_handler){
+	api.rcpts = function(doc,ret_handler){
 		
-		test.notEqual(doc,undefined);
-		test.notEqual(db,undefined);
+		test.notEqual(doc,undefined);		
 		ret_handler(ircpts);
 	};
 					
@@ -263,7 +262,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 		
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});
-		test.expect(8);	
+		test.expect(7);	
 		test.done();		
 	});
 				
@@ -289,7 +288,7 @@ exports["api.remote.create: valid params, non init.rcpts, implicit catalog, noti
 	});
 	
 	var flag = 1;
-	api.rcpts = function(doc,db,ret_handler){
+	api.rcpts = function(doc,ret_handler){
 		
 		flag = 0;
 		
@@ -366,10 +365,9 @@ exports["api.remote.create: valid params, init.rcpts sync, docs catalog"] = func
 	});
 	
 	
-	api.rcpts = function(doc,db,ret_handler){
+	api.rcpts = function(doc,ret_handler){
 		
-		test.notEqual(doc,undefined);
-		test.notEqual(db,undefined);
+		test.notEqual(doc,undefined);		
 		ret_handler(ircpts);
 	};
 	
@@ -377,7 +375,7 @@ exports["api.remote.create: valid params, init.rcpts sync, docs catalog"] = func
 		
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});
-		test.expect(8);
+		test.expect(7);
 		test.done();		
 	});
 	
@@ -404,7 +402,7 @@ exports["api.remote.create: valid params, init.rcpts sync, added wrong catalog"]
 	});
 	
 	var flag = 1;
-	api.rcpts = function(doc,db,ret_handler){
+	api.rcpts = function(doc,ret_handler){
 		
 		flag = 0;	
 		ret_handler(ircpts);
@@ -447,10 +445,9 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 	});
 	
 	
-	api.rcpts = function(doc,db,ret_handler){
+	api.rcpts = function(doc,ret_handler){
 			
-			test.notEqual(doc,undefined);
-			test.notEqual(db,undefined);
+			test.notEqual(doc,undefined);			
 			setTimeout(function(){ret_handler(ircpts)},500);
 			
 	};
@@ -475,7 +472,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 		test.equal(err,null);
 		test.deepEqual(val,{wid:"12345"});		
 		test.ok(flag);
-		test.expect(12);
+		test.expect(11);
 		test.done();
 	});
 		
