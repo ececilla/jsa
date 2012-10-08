@@ -298,12 +298,9 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 	});
 	
 	
-	api.rcpts = function(doc,db,ret_handler){
+	api.rcpts = function(doc,ret_handler){
 			
-			test.notEqual(doc,undefined);
-			test.notEqual(db,undefined);
-			test.equal(db.save, undefined);
-			test.notEqual(db.select, undefined);
+			test.notEqual(doc,undefined);									
 			setTimeout(function(){ret_handler(ircpts)},500);
 			
 	};
@@ -348,7 +345,7 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);	
-		test.expect(20);
+		test.expect(17);
 		test.done();				
 		
 	});
