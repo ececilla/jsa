@@ -2,7 +2,8 @@ var sandbox = require("sandboxed-module");
 
 exports["module exported functions"] = function(test){
 	
-	var flags = [0,0];	
+	var flags = [0,0];		
+	var _ = sandbox.require("../lib/constants");
 	var server = sandbox.require("../lib/server",
 		{
 			requires:{"./api":{	//db mock module
@@ -457,6 +458,70 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 	});
 					
 	
+}
+
+
+exports["server.api.dispose: internal events, default catalog"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var dbdocs = {};//documents at db
+	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793114], uid:620793114},
+		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115], uid:620793115};
+	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for create procedure
+							removeById:function(col_str, id_str, ret_handler){
+																
+								test.equal(col_str,"docs");																								
+								test.deepEqual( id_str, "50187f71556efcbb25000001");
+								
+								//save doc to db...returns number of removed objects
+								setTimeout(function(){//100ms delay deleting document.
+									
+									ret_handler(null,1);
+								},100);	
+							},
+							
+							select:function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								
+								setTimeout(function(){//50ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},50);	
+							}
+		}}
+	}),				
+	server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api}		
+	});
+	
+						
+	server.api.events.on("ev_api_dispose", function(msg){
+		
+		test.equal(msg.ev_type,"ev_api_dispose");		
+		test.notEqual(msg.ev_tstamp, undefined);
+		test.equal(msg.ev_data.uid, params.uid);
+		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_data.catalog, "docs");					
+		test.deepEqual(msg.ev_data.uid, 620793114);
+									
+	});
+				
+	
+	server.api.dispose(params, function(err,val){
+		
+		test.equal(err,undefined);
+		test.deepEqual(val,1);						
+				
+		test.expect(12);		
+		test.done();
+	});
+						
 }
 
 
@@ -1024,7 +1089,7 @@ exports["server.api.config.newop: invocation"] = function(test){
 	test.notEqual(server.api.newop, undefined);
 	
 	//ev_newop will be emitted by default.
-	server.api.events.on("ev_newop", function(params, rcpts){
+	server.api.events.on("ev_api_newop", function(params, rcpts){
 		
 		test.deepEqual( params.ev_data, myparams );
 		test.equal( rcpts, undefined );
@@ -1060,7 +1125,7 @@ exports["server.api.config.newop: cancel default event"] = function(test){
 		
 	});
 		
-	server.api.events.on("ev_dummy", function(params, rcpts){
+	server.api.events.on("ev_api_dummy", function(params, rcpts){
 				
 		test.ok(false);		
 	});
@@ -1089,7 +1154,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 						
 			test.equal(doc.ev_rcpt, rcpts[nevents++] );
 			test.equal(col_str,"events");																
-			test.equal( doc.ev_msg.ev_type, "ev_dummy");
+			test.equal( doc.ev_msg.ev_type, "ev_api_dummy");
 			test.deepEqual( doc.ev_msg.ev_data, {test:1});
 			
 			//save doc to db...returns with _id:12345			
@@ -1116,13 +1181,13 @@ exports["server.api.config.newop: event custom params"] = function(test){
 		
 				
 		test.deepEqual(params, myparams);
-		server.api.events.ev_dummy.params = {test:1};
-		server.api.events.ev_dummy.rcpts = rcpts;
+		server.api.events.ev_api_dummy.params = {test:1};
+		server.api.events.ev_api_dummy.rcpts = rcpts;
 		ret_handler(null,1);
 		
 	});
 		
-	server.api.events.on("ev_dummy", function(params, rcpts){
+	server.api.events.on("ev_api_dummy", function(params, rcpts){
 		
 		test.equal(nevents,4);
 		test.deepEqual(params.ev_data,{test:1});
@@ -1172,7 +1237,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	server.api.config.newop("newop2", function(params, ret_handler){
 		
 		server.api.events.cancel_default_event();
-		server.api.events.emit("ev_newop2");
+		server.api.events.emit("ev_api_newop2");
 		ret_handler();
 	});
 	test.notEqual( api.remote["newop2"], undefined );
@@ -1186,8 +1251,8 @@ exports["server.api.config.newop: create based op"] = function(test){
 							
 		server.api.create( params, function(err, val){
 							
-			server.api.events.ev_newop1.params = {dummy:1};	
-			server.api.events.ev_newop1.rcpts = [620793114];
+			server.api.events.ev_api_newop1.params = {dummy:1};	
+			server.api.events.ev_api_newop1.rcpts = [620793114];
 			ret_handler(err,val);				
 		});	
 						
@@ -1196,7 +1261,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	test.notEqual( server.api.newop1, undefined );		
 	
 	//ev_newop1 will be emitted by default.
-	server.api.events.on("ev_newop1", function(params, rcpts){
+	server.api.events.on("ev_api_newop1", function(params, rcpts){
 					
 		test.deepEqual( params.ev_data, {dummy:1} );
 		test.deepEqual( rcpts, [620793114] );
@@ -1283,7 +1348,7 @@ exports["server.api.config.newop: db raw access based op"] = function(test){
 			
 			server.db.save(params.catalog, user, function(err,val){
 				
-				server.api.events.ev_newop3.params = {dummy:1};						
+				server.api.events.ev_api_newop3.params = {dummy:1};						
 				ret_handler(err,val);
 			});
 			
@@ -1292,7 +1357,7 @@ exports["server.api.config.newop: db raw access based op"] = function(test){
 	});	
 	
 	//ev_newop3 will be emitted by default.
-	server.api.events.on("ev_newop3", function(params, rcpts){
+	server.api.events.on("ev_api_newop3", function(params, rcpts){
 					
 		test.deepEqual( params.ev_data, {dummy:1} );			
 		test.done();	
@@ -1349,7 +1414,7 @@ exports["server.api.config.newop: wid based op"] = function(test){
 				  			
 				  			test.equal(col_str, "events");
 				  			test.equal(doc.ev_rcpt, 620793115);
-				  			test.equal(doc.ev_msg.ev_type,"ev_foo1");
+				  			test.equal(doc.ev_msg.ev_type,"ev_api_foo1");
 				  			test.equal(doc.ev_msg.ev_data.doc, undefined);
 				  			test.deepEqual(doc.ev_msg.ev_data,myparams);
 				  			ret_handler();
@@ -1375,10 +1440,10 @@ exports["server.api.config.newop: wid based op"] = function(test){
 		
 	});
 		
-	server.api.events.on("ev_foo1", function(params, rcpts){
+	server.api.events.on("ev_api_foo1", function(params, rcpts){
 		
 		test.equal(rcpts,undefined);
-		test.equal(params.ev_type, "ev_foo1");
+		test.equal(params.ev_type, "ev_api_foo1");
 		test.deepEqual(params.ev_data.doc,dbdocs["50187f71556efcbb25000001"]);		
 						
 		test.done();			

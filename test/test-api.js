@@ -478,6 +478,194 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 		
 }
 
+exports["api.remote.dispose: missing params"] = function(test){
+	
+	var api = require("../lib/api");	
+	
+	//wid missing
+	params = {miss_wid:"12345", uid:620793114};
+	api.remote.dispose(params, function(err,val){
+				
+		test.equal(val,null);
+		test.deepEqual(err,{code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
+	});
+	
+	//uid missing
+	params = {wid:"12345", miss_uid:620793114};
+	api.remote.join(params, function(err,val){
+				
+		test.equal(val,null);
+		test.deepEqual(err,{code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
+	});
+	
+	test.done();
+	
+}
+
+exports["api.remote.dispose: invalid params: wid not hexstr"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	params = {wid:"wrongwid", uid:620793114};
+	api.remote.dispose(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});				
+	
+}
+
+exports["api.remote.dispose: invalid params, wid.length != 24"] = function(test){
+	
+	var api = require("../lib/api");		
+	
+	//wid missing
+	params = {wid:"50187f71556efcbb2500000", uid:620793114};
+	api.remote.dispose(params, function(err,val){
+		
+		test.equal(val,null);
+		test.notEqual(err,undefined);
+		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
+		test.done();				
+	});					
+	
+}
+
+
+exports["api.remote.dispose: valid params, wid not found"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["1234"] = {_id:"1234",a:1,b:"test1234", rcpts:[620793114], uid:620793114},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
+		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								
+								ret_handler(null,dbdocs[id_str]);								
+							}
+		}}
+	});
+		
+	
+	api.remote.dispose(params, function(err,val){
+				
+		test.equal(val,null);
+		test.notEqual(err,null);
+		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });					
+				
+		test.expect(5);		
+		test.done();
+		
+	});
+		
+}
+
+
+
+exports["api.remote.dispose: valid params, default catalog"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793114], uid:620793114},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
+		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							removeById:function(col_str, id_str,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.equal(id_str, params.wid);
+								
+								//remove doc
+								delete dbdocs[id_str];
+								
+								ret_handler(null,1);																					
+									
+							}
+		}}
+	});
+	
+	api.on("ev_api_dispose", function(msg, rcpts){
+		
+		test.equal( msg.ev_type, "ev_api_dispose");
+		test.deepEqual(msg.ev_data,{wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"} );
+		
+	});
+	
+	
+	api.remote.dispose(params, function(err,val){
+				
+		test.equal(err,null);				
+		test.equal(val, 1);
+		test.equal(dbdocs["50187f71556efcbb25000001"], undefined);
+		test.expect(9);
+		
+		test.done();
+		
+	});
+		
+}
+
+
+exports["api.remote.dispose: valid params, default catalog, uid not owner"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793115};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793114], uid:620793114},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
+	
+	var flag = 1;	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								
+								ret_handler(null,dbdocs[id_str]);
+								
+							},
+							removeById:function(col_str, id_str,ret_handler){
+								
+								flag = 0;																																				
+									
+							}
+		}}
+	});
+	
+	
+	api.remote.dispose(params, function(err,val){
+							
+		test.ok(flag);
+		test.deepEqual(err, {code:-7, message:"Not allowed, not document owner: @docs" + ":" + params.wid} );					
+		test.equal(val, null);		
+		test.expect(5);
+		
+		test.done();
+		
+	});
+		
+}
+
+
+
+
 
 exports["api.remote.join: missing params"] = function(test){
 	
@@ -588,7 +776,7 @@ exports["api.remote.join: valid params, uid not in rcpts, default catalog, db as
 		
 }
 
-
+//
 exports["api.remote.join: valid params, uid in rcpts, default catalog"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
