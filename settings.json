@@ -3,5 +3,6 @@
  "dbport":27017,
  "dbname":"jsa",
  "httpaddr":"127.0.0.1",
- "httpport":8080
+ "httpport":8080,
+ "debug":1
 }
