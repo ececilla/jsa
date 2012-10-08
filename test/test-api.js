@@ -2148,6 +2148,103 @@ var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:
 }
 
 
+exports["api.remote.set: valid params, existing inner array field, explicit catalog, db async"] = function(test){
+	
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:66, index:3, catalog:"dummy"};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:[1,2,3],c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for set procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								test.deepEqual(dbdocs[id_str].a.b, [1,2,3]); //a.b:[1,2,3]
+								
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"dummy");
+								
+								//field fname set
+								test.deepEqual(doc.a.b, [1,2,3,66]);								
+																								
+								setTimeout(function(){//db 500ms delay saving document
+									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.set(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(9);
+		
+		test.done();
+	});
+		
+		
+}
+
+exports["api.remote.set: valid params,non existing inner array field, explicit catalog, db async"] = function(test){
+	
+var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.c", value:66, index:3, catalog:"dummy"};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{b:[1,2,3],c:1}, rcpts:[620793115], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for set procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "dummy");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+																
+								
+								setTimeout(function(){//db 500ms delay retrieving document
+									
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								flag = 0;	
+							}
+		}}
+	});
+	
+	api.remote.set(params,function(err,val){
+		
+		test.ok(flag);
+		test.equal(val,null);
+		test.deepEqual(err,{code:-3,message:"Cannot index"});
+		
+		test.expect(6);
+		test.done();
+		
+	});
+		
+		
+}
+
+
 exports["api.remote.set: valid params, wid not found"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:4}; 
