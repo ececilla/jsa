@@ -30,6 +30,8 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.events.emit, undefined );	
 	test.notEqual( server.api.remote_func, undefined  );	
 	test.notEqual( server.api.config, undefined );
+	test.notEqual( server.api.config.enable_primitives, undefined );
+	test.notEqual( server.api.config.disable_primitives, undefined );
 	test.notEqual( server.api.config.newop, undefined );
 	test.notEqual( server.api.config.config_func, undefined  );
 	test.notEqual( server.api.events, undefined );
@@ -53,8 +55,54 @@ exports["module exported functions"] = function(test){
 	server.settings();
 	test.notEqual( server.config.app, undefined);
 	
-	test.expect(19);	
+	test.expect(21);	
 	test.done();
+}
+
+exports["server.api.config.disable/enable_primitives"] = function(test){
+	
+	var server = require("../lib/server");
+	//default values
+	test.ok( server.api.config.primitives.create );
+	test.ok( server.api.config.primitives.join );
+	test.ok( server.api.config.primitives.unjoin );
+	test.ok( server.api.config.primitives.add );
+	test.ok( server.api.config.primitives.remove );
+	test.ok( server.api.config.primitives.set );
+	test.ok( server.api.config.primitives.push );
+	test.ok( server.api.config.primitives.pop );
+	test.ok( server.api.config.primitives.shift );
+	test.ok( server.api.config.primitives.ack );
+	
+	//disable primitives
+	server.api.config.disable_primitives();
+	test.equal( server.api.config.primitives.create,0 );
+	test.equal( server.api.config.primitives.join,0 );
+	test.equal( server.api.config.primitives.unjoin,0 );
+	test.equal( server.api.config.primitives.add,0 );
+	test.equal( server.api.config.primitives.remove,0 );
+	test.equal( server.api.config.primitives.set,0 );
+	test.equal( server.api.config.primitives.push,0 );
+	test.equal( server.api.config.primitives.pop,0 );
+	test.equal( server.api.config.primitives.shift,0 );
+	test.equal( server.api.config.primitives.ack,0 );
+	server.api.config.enable_primitives();
+	
+	//enable primitives
+	test.ok( server.api.config.primitives.create );
+	test.ok( server.api.config.primitives.join );
+	test.ok( server.api.config.primitives.unjoin );
+	test.ok( server.api.config.primitives.add );
+	test.ok( server.api.config.primitives.remove );
+	test.ok( server.api.config.primitives.set );
+	test.ok( server.api.config.primitives.push );
+	test.ok( server.api.config.primitives.pop );
+	test.ok( server.api.config.primitives.shift );
+	test.ok( server.api.config.primitives.ack );
+	
+	test.expect(30);
+	test.done();
+	
 }
 
 exports["server.init.execute: init scripts"] = function(test){
