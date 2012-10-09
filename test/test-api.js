@@ -7,6 +7,7 @@ exports["module exported functions"] = function(test){
 		
 	test.notEqual(api.remote,undefined);
 	test.notEqual(api.remote.create,undefined);
+	test.notEqual(api.remote.dispose,undefined);
 	test.notEqual(api.remote.join,undefined);
 	test.notEqual(api.remote.add,undefined);
 	test.notEqual(api.remote.remove,undefined);
@@ -14,9 +15,12 @@ exports["module exported functions"] = function(test){
 	test.notEqual(api.remote.push,undefined);
 	test.notEqual(api.remote.pop,undefined);
 	test.notEqual(api.remote.shift,undefined);
+	test.notEqual(api.remote.ack,undefined);
 	
 	test.notEqual(api.on,undefined);
 	test.equal(api.rcpts, null);
+	
+	test.expect(13);
 	test.done();
 }
 
@@ -1756,6 +1760,102 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 		test.equal(err,null);
 		test.equal(val,0);
 		test.expect(9);
+		test.done();
+		
+	});
+		
+		
+}
+
+
+exports["api.remote.remove: valid params, existing inner array field, explicit catalog, db async"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", index:1};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{c:1,b:[4,5,6]}, rcpts:[620793114], uid:620793114};	
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for remove procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								
+								setTimeout(function(){ //db 500ms delay retrieving document
+								
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save:function(col_str,doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								
+								//array index removed								
+								test.deepEqual(doc.a.b,[4,6]);								
+								
+								setTimeout(function(){//db 500ms delay saving document
+																									
+									ret_handler(null,doc);
+								},500);	
+							}
+		}}
+	});
+	
+	api.remote.remove(params,function(err,val){
+		
+		test.equal(err,null);
+		test.equal(val,0);
+		test.expect(8);
+		test.done();
+		
+	});
+		
+		
+}
+
+exports["api.remote.remove: valid params, non existing inner array field, explicit catalog, db async"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", index:1};
+	var dbdocs = {};
+		
+		//document WITH b field.
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{c:1,b:1}, rcpts:[620793114], uid:620793114};	
+	
+	var flag = 1;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for remove procedure
+							select: function(col_str, id_str, ret_handler){
+								
+								test.equal(col_str, "docs");
+								test.equal(id_str, params.wid);
+								test.notEqual(dbdocs[id_str], undefined);								
+								test.notEqual(dbdocs[id_str].a.b, undefined);
+								
+								setTimeout(function(){ //db 500ms delay retrieving document
+								
+									ret_handler(null,dbdocs[id_str]);
+								},500);
+								
+							},
+							save: function(){
+								 
+								 flag = 0;
+							}
+		}}
+	});
+	
+	api.remote.remove(params,function(err,val){
+		
+		test.ok(flag);
+		test.equal(val,null);
+		test.deepEqual(err,{code:-3, message:"Cannot index"});		
+		
+		test.expect(7);		
 		test.done();
 		
 	});
