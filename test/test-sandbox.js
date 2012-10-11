@@ -74,7 +74,7 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints"] = function(test){
 		}
 	});
 	
-	sb.execute("join", params, function(err,doc){
+	sb.execute("join", params, function(err,result){
 		
 		test.ok(flags[0]);
 		test.ok(flags[1]);
@@ -145,9 +145,9 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints"] = function(test){
 		}
 	});
 	
-	sb.execute("join", params, function(err,doc){
+	sb.execute("join", params, function(err,result){
 		
-		test.deepEqual(doc.rcpts, [620793114,620793116]);
+		test.deepEqual(result.rcpts, [620793114,620793116]);
 		test.expect(12);
 		test.done();
 	});
@@ -183,7 +183,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] 
 							 test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001", catalog:"docs"});
 							 							 
 							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.
-							 ctx.doc = undefined;
+							 ctx.config.save = 0;
 							 ret_handler( null, 1 );
 						  }
 				}
@@ -215,10 +215,10 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] 
 		}
 	});
 	
-	sb.execute("dummy", params, function(err,val){
+	sb.execute("dummy", params, function(err,result){
 		
 		test.ok(flag);
-		test.deepEqual(val,1);
+		test.deepEqual(result,1);
 		test.expect(11);
 		test.done();
 	});
@@ -273,9 +273,9 @@ exports["sandbox.add_constraint: wid not found"] = function(test){
 		}
 	});
 	
-	sb.execute("join", params, function(err,doc){
+	sb.execute("join", params, function(err,result){
 		
-		test.deepEqual(err, { code: -7, message: 'Document not found: @docs:5074b135d03a0ac443000002' });
+		test.deepEqual(err, { code: -7, message: 'Document not found: #docs/5074b135d03a0ac443000002' });
 		test.expect(3);
 		test.done();
 	});
@@ -298,6 +298,7 @@ exports["sandbox.add_constraint: no wid"] = function(test){
 							 
 							 test.equal(ctx.doc, undefined);
 							 test.deepEqual(ctx.params, {uid:620793116,doc:{test:1},catalog:"docs"});
+							 ctx.config.save = 0;
 							 ret_handler(null, {wid:"5074b135d03a0ac443000001"} );
 						  }
 				}
@@ -318,7 +319,7 @@ exports["sandbox.add_constraint: no wid"] = function(test){
 		}
 	});
 	
-	sb.execute("create", params, function(err,doc){
+	sb.execute("create", params, function(err,result){
 		
 		test.ok(flag);
 		test.expect(5);
@@ -369,7 +370,7 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints, no wid "] = function
 		}
 	});
 	
-	sb.execute("create", params, function(err,doc){
+	sb.execute("create", params, function(err,result){
 		
 		test.ok(flags[0]);
 		test.ok(flags[1]);
@@ -408,7 +409,7 @@ exports["sandbox.add_constraint: constraints.is_owner"] = function(test){
 	sb.add_constraint("join","is_owner",sb.constraints.is_owner)
 	  .add_constraint("join","user_catalog",sb.constraints.user_catalog);
 	
-	sb.execute("join", params, function(err,doc){
+	sb.execute("join", params, function(err,result){
 		
 		test.deepEqual(err,{code:-2, message:"No access permission: not owner"});										
 		test.done();
@@ -442,7 +443,7 @@ exports["sandbox.add_constraint: constraints.in_rcpts"] = function(test){
 	
 	sb .add_constraint("join","in_rcpts",sb.constraints.in_rcpts);
 	
-	sb.execute("join", params, function(err,doc){
+	sb.execute("join", params, function(err,result){
 		
 		test.deepEqual(err,{code:-2, message:"No access permission: not in rcpts"});										
 		test.done();
@@ -476,7 +477,7 @@ exports["sandbox.add_constraint: constraints.user_catalog"] = function(test){
 	
 	sb .add_constraint("join","user_catalog",sb.constraints.user_catalog);
 	
-	sb.execute("join", params, function(err,doc){
+	sb.execute("join", params, function(err,result){
 		
 		test.deepEqual(err,{code:-2, message:"No access permission: system catalog"});										
 		test.done();
@@ -511,7 +512,7 @@ exports["sandbox.add_constraint: constraints.is_joinable"] = function(test){
 	sb.add_constraint("join","is_joinable",sb.constraints.is_joinable)
 	  .add_constraint("join","user_catalog",sb.constraints.user_catalog);
 	
-	sb.execute("join", params, function(err,doc){
+	sb.execute("join", params, function(err,result){
 		
 		test.deepEqual(err,{code:-2, message:"No access permission: not joinable"})										
 		test.done();
@@ -546,7 +547,7 @@ exports["sandbox.add_constraint: constraints.is_reserved"] = function(test){
 	sb.add_constraint("set","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
 	
-	sb.execute("set", params, function(err,doc){
+	sb.execute("set", params, function(err,result){
 		
 		test.deepEqual(err,{code:-3, message:"Reserved word not allowed as field name: " + params.fname })										
 		test.done();
@@ -581,13 +582,14 @@ exports["sandbox.add_constraint: constraints.field_exists"] = function(test){
 	sb.add_constraint("set","field_exists",sb.constraints.field_exists)
 	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
 	
-	sb.execute("set", params, function(err,doc){
+	sb.execute("set", params, function(err,result){
 		
 		test.deepEqual(err,{code:-3, message:"Not exists: #" + params.catalog + "/" + params.wid + "[" + params.fname + "]"});										
 		test.done();
 	});
 		
 }
+
 
 exports["sandbox.add_constraint: constraints.field_not_exists"] = function(test){
 	
@@ -616,7 +618,7 @@ exports["sandbox.add_constraint: constraints.field_not_exists"] = function(test)
 	sb.add_constraint("add","field_not_exists",sb.constraints.field_not_exists)
 	  .add_constraint("add","user_catalog",sb.constraints.user_catalog);
 	
-	sb.execute("add", params, function(err,doc){
+	sb.execute("add", params, function(err,result){
 		
 		test.deepEqual(err,{code:-3, message:"Already exists: #" + params.catalog + "/" + params.wid + "[" + params.fname + "]"});										
 		test.done();
@@ -652,9 +654,102 @@ exports["sandbox.add_constraint: constraints.field_type"] = function(test){
 	sb.add_constraint("set","field_type",sb.constraints.field_type("object"))
 	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
 	
-	sb.execute("set", params, function(err,doc){
+	sb.execute("set", params, function(err,result){
 		
 		test.deepEqual(err,{code:-4, message:"Wrong type: #" + params.catalog + "/" + params.wid + "[" + params.fname + "] not object"});										
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint: constraints.is_required"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", notest:"test", uid:620793114, rcpts:[620793114] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ set:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116, fname:"test", value:4};
+		
+	sb.add_constraint("set","param_required_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("set","param_required_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("set","param_required_fname",sb.constraints.is_required("fname"))
+	  .add_constraint("set","param_required_value",sb.constraints.is_required("value"))
+	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("set", params, function(err,result){
+										
+		test.deepEqual(err,{code:-4, message:"wid parameter required"});										
+		test.done();
+	});
+		
+}
+
+
+exports["sandbox.add_constraint: ctx.config.emit:1"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
+	
+	var api = require("../lib/api");
+	
+	api.remote.set = function(ctx, ret_handler){
+		
+		ctx.config.emit = 1;
+		ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
+		ret_handler( null, ctx.doc );
+	};	
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								test.equal(col_str,"docs");
+								test.equal(id_str,"5074b135d03a0ac443000001");
+								
+								ret_handler(null,dbdocs[id_str]);		
+							},
+							save: function(col_str, doc,ret_handler){
+																								
+								test.equal(col_str,"docs");								
+								ret_handler(null,{doc:doc});
+							}
+		},
+		"./api":api
+		}		
+	
+	});
+	
+	var flag = 0;
+	api.on("ev_api_set", function(ctx, rcpts){
+		
+		flag = 1;
+	});	
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
+		
+	sb.add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("set", params, function(err,result){
+		
+		test.ok(flag);
+		test.equal(err,undefined);
+		test.expect(5);									
 		test.done();
 	});
 		
