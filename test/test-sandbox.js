@@ -380,22 +380,120 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints, no wid "] = function
 		
 }
 
-exports["sandbox.add_constraint: 2/2 satisfied known constraints"] = function(test){
+
+exports["sandbox.add_constraint: constraints.is_owner"] = function(test){
 	
 	var  dbdocs = {};
-		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
-							},
-							save: function(col_str, doc,ret_handler){
+							}
+		},
+		"./api":{remote:{ join:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
+	
+	sb.add_constraint("join","is_owner",sb.constraints.is_owner)
+	  .add_constraint("join","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("join", params, function(err,doc){
+		
+		test.deepEqual(err,{code:-2, message:"No access permission: not owner"});										
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint: constraints.in_rcpts"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114, 620793115] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
 								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc,{_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114, 620793116] })
-								ret_handler(null,{wid:"5074b135d03a0ac443000001",reach:2});
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ join:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
+	
+	sb .add_constraint("join","in_rcpts",sb.constraints.in_rcpts);
+	
+	sb.execute("join", params, function(err,doc){
+		
+		test.deepEqual(err,{code:-2, message:"No access permission: not in rcpts"});										
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint: constraints.user_catalog"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ join:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"timers"};
+	
+	sb .add_constraint("join","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("join", params, function(err,doc){
+		
+		test.deepEqual(err,{code:-2, message:"No access permission: system catalog"});										
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint: constraints.is_joinable"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -411,12 +509,162 @@ exports["sandbox.add_constraint: 2/2 satisfied known constraints"] = function(te
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
 	sb.add_constraint("join","is_joinable",sb.constraints.is_joinable)
-	  .add_constraint("join","catalog",sb.constraints.user_catalog);
+	  .add_constraint("join","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("join", params, function(err,doc){
-												
+		
+		test.deepEqual(err,{code:-2, message:"No access permission: not joinable"})										
 		test.done();
 	});
 		
 }
+
+exports["sandbox.add_constraint: constraints.is_reserved"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ set:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"_id", value:4};
+	
+	sb.add_constraint("set","is_reserved",sb.constraints.is_reserved)
+	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("set", params, function(err,doc){
+		
+		test.deepEqual(err,{code:-3, message:"Reserved word not allowed as field name: " + params.fname })										
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint: constraints.field_exists"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", notest:"test", uid:620793114, rcpts:[620793114] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ set:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:4};
+	
+	sb.add_constraint("set","field_exists",sb.constraints.field_exists)
+	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("set", params, function(err,doc){
+		
+		test.deepEqual(err,{code:-3, message:"Not exists: #" + params.catalog + "/" + params.wid + "[" + params.fname + "]"});										
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint: constraints.field_not_exists"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ add:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:4};
+	
+	sb.add_constraint("add","field_not_exists",sb.constraints.field_not_exists)
+	  .add_constraint("add","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("add", params, function(err,doc){
+		
+		test.deepEqual(err,{code:-3, message:"Already exists: #" + params.catalog + "/" + params.wid + "[" + params.fname + "]"});										
+		test.done();
+	});
+		
+}
+
+
+exports["sandbox.add_constraint: constraints.field_type"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ set:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
+	
+	sb.add_constraint("set","field_type",sb.constraints.field_type("object"))
+	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("set", params, function(err,doc){
+		
+		test.deepEqual(err,{code:-4, message:"Wrong type: #" + params.catalog + "/" + params.wid + "[" + params.fname + "] not object"});										
+		test.done();
+	});
+		
+}
+
+
+
+
+
+
+
+
 
