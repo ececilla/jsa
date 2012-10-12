@@ -736,8 +736,9 @@ exports["sandbox.add_constraint: ctx.config.emit:1"] = function(test){
 	});
 	
 	var flag = 0;
-	api.on("ev_api_set", function(ctx, rcpts){
+	api.on("ev_api_set", function(msg, rcpts){
 		
+		console.log(msg);
 		flag = 1;
 	});	
 	
