@@ -145,7 +145,7 @@ exports["evqueue.remote.subscribe: invocation with tstamp"] = function(test){
 }
 
 
-exports["evqueue.events: custom event, explicit rcpts, subscription"] = function(test){
+exports["evqueue.on: custom event, explicit rcpts, subscription"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -198,9 +198,8 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 							on:function(){ subs_flags[1] = 1; }
 						},
 						write:function(str){// called from within push
-								
-															
-								var json_obj = JSON.parse(str);						
+																							
+								var json_obj = JSON.parse(str);														
 								test.equal(json_obj.ev_type,"ev_dummy");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
@@ -222,8 +221,8 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 		test.equal(rcpt,620793115);
 		
 	});
-	
-	api.emit("ev_dummy", rpc_params, rcpts);
+	var ctx = {doc:undefined,params:rpc_params};
+	api.emit("ev_dummy", ctx, rcpts);
 	
 	test.equal(counter,2);
 		
@@ -233,7 +232,7 @@ exports["evqueue.events: custom event, explicit rcpts, subscription"] = function
 }
 
 
-exports["evqueue.events: listening custom event, wrong event emitted"] = function(test){
+exports["evqueue.on: listening custom event, wrong event emitted"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -263,7 +262,7 @@ exports["evqueue.events: listening custom event, wrong event emitted"] = functio
 
 
 
-exports["evqueue.events: ev_api_create, reportable document, subscribed in init.rcpts"] = function(test){
+exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpts"] = function(test){
 		
 	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
 	    ircpts = [620793115, 620793119];
@@ -324,13 +323,13 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 						},
 						write:function(str){
 																						
-								var json_obj = JSON.parse(str);						
+								var json_obj = JSON.parse(str);													
 								test.equal(json_obj.ev_type,"ev_api_create");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");																								 																  
 								test.equal(json_obj.ev_data.catalog,"dummy");
 								test.equal(json_obj.ev_data.uid,620793114);
-								test.notEqual(json_obj.ev_data.doc.ctime,undefined);
+								test.notEqual(json_obj.ev_data.ctime,undefined);
 													
 						}
 						
@@ -340,8 +339,8 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 		
-	
-	api.remote.create(rpc_params, function(err,val){
+	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:0}};
+	api.remote.create(ctx, function(err,val){
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);	
@@ -353,9 +352,9 @@ exports["evqueue.events: ev_api_create, reportable document, subscribed in init.
 }
 
 
-exports["evqueue.events: ev_api_create, unreportable document, subscribed"] = function(test){
+exports["evqueue.on: ev_api_create, unreportable document, subscribed"] = function(test){
 		
-	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
+	var rpc_params = {uid:620793114, doc:{test:"ouuug test"}, catalog:"dummy"};
 	    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module
@@ -409,8 +408,8 @@ exports["evqueue.events: ev_api_create, unreportable document, subscribed"] = fu
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 		
-	
-	api.remote.create(rpc_params, function(err,val){
+	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:0}};
+	api.remote.create(ctx, function(err,val){
 		
 		test.ok(subs_flags[2]);
 		test.ok(eq_flag);
@@ -422,49 +421,34 @@ exports["evqueue.events: ev_api_create, unreportable document, subscribed"] = fu
 		
 }
 
-
-
-exports["evqueue.events: ev_api_join, subscribed in rcpts"] = function(test){
+exports["evqueue.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114,catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115, catalog:"docs"},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
+		requires:{"./db":{
+							removeById: function(col_str, id_str, ret_handler){
+																							
 								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+								test.equal(id_str, "50187f71556efcbb25000001");
+								delete 	dbdocs["50187f71556efcbb25000001"];//delete document							
+								ret_handler(null,1);																	
+							}	
+					}
+		}
+	});
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
-								save: function(col_str, doc, ret_handler){
-									
+								save: function(col_str, msg, ret_handler){
+																		
 									test.equal(col_str, "events");
-									test.equal(doc.ev_rcpt, 620793115);
-									test.notEqual(doc._id, undefined);	
+									test.equal(msg.ev_rcpt, 620793115);
+									test.notEqual(msg._id, undefined);	
 									ret_handler();																	
 								}	
 					}
@@ -484,10 +468,11 @@ exports["evqueue.events: ev_api_join, subscribed in rcpts"] = function(test){
 							on:function(){ subs_flags[1] = 1; }
 						},
 						write:function(str){
+								
 															
 								var json_obj = JSON.parse(str);	
-													
-								test.equal(json_obj.ev_type,"ev_api_join");
+										
+								test.equal(json_obj.ev_type,"ev_api_dispose");
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,catalog:"docs"});
@@ -505,11 +490,12 @@ exports["evqueue.events: ev_api_join, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		api.remote.join(rpc_params, function(err,val){
+		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:0}};
+		api.remote.dispose(ctx, function(err,val){
 			
-			test.equal(err,null);
+			test.equal(err,null);			
 			test.notEqual(val,undefined);			
-			test.expect(15);
+			test.expect(13);
 			test.done();
 		});
 	},500);
@@ -518,26 +504,98 @@ exports["evqueue.events: ev_api_join, subscribed in rcpts"] = function(test){
 
 
 
-exports["evqueue.events: ev_api_join, subscribed not in rcpts"] = function(test){
+
+exports["evqueue.on: ev_api_join, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115, catalog:"docs"},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
+		requires:{"./db":{
+							save: function(col_str, doc, ret_handler){
+																
 								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
+								test.deepEqual(doc, dbdocs["50187f71556efcbb25000001"]);								
+								ret_handler();																	
+							}	
+					}
+		}
+	});
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{"./api":api,
+					"./db":{
+								save: function(col_str, msg, ret_handler){
+																		
+									test.equal(col_str, "events");
+									test.equal(msg.ev_rcpt, 620793115);
+									test.notEqual(msg._id, undefined);	
+									ret_handler();																	
+								}	
+					}
+		}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
 								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
+															
+								var json_obj = JSON.parse(str);	
+										
+								test.equal(json_obj.ev_type,"ev_api_join");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114});
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	eq.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	setTimeout(function(){
+		
+		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:0}};
+		api.remote.join(ctx, function(err,val){
+			
+			test.equal(err,null);
+			test.notEqual(val,undefined);			
+			test.expect(13);
+			test.done();
+		});
+	},500);
+		
+}
+
+
+
+exports["evqueue.on: ev_api_join, subscribed not in rcpts"] = function(test){
+		
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115, catalog:"docs"},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{								
 							save:function(col_str,doc,ret_handler){
 								
 								test.equal(col_str,"docs");
@@ -586,23 +644,27 @@ exports["evqueue.events: ev_api_join, subscribed not in rcpts"] = function(test)
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-					
-	api.remote.join(rpc_params, function(err,val){
+	
+	var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:0}};				
+	api.remote.join(ctx, function(err,val){
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);
 		test.ok(subs_flags[2]);			
-		test.expect(12);
+		test.expect(10);
 		test.done();
 	});
 			
 }
 
 
-exports["evqueue.events: ev_api_join autolistening, explicit rcpts"] = function(test){
+exports["evqueue.on: ev_api_join autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115, catalog:"docs"};
 	var rcpts = [620793119, 620793115];
+	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -639,8 +701,8 @@ exports["evqueue.events: ev_api_join autolistening, explicit rcpts"] = function(
 		}
 	});
 				
-			
-	api.emit("ev_api_join", rpc_params, rcpts);
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:0}};		
+	api.emit("ev_api_join", ctx, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -649,40 +711,17 @@ exports["evqueue.events: ev_api_join autolistening, explicit rcpts"] = function(
 
 
 
-exports["evqueue.events: ev_api_unjoin, subscribed in rcpts"] = function(test){
-		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+exports["evqueue.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
+	
+	//explicit or implit, always there's a param catalog in the context	
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"}; 
+	
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115,620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -716,7 +755,7 @@ exports["evqueue.events: ev_api_unjoin, subscribed in rcpts"] = function(test){
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,catalog:"docs"});
-																								
+								test.done();																
 						}
 						
 				    }; 
@@ -726,56 +765,25 @@ exports["evqueue.events: ev_api_unjoin, subscribed in rcpts"] = function(test){
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	
-	//0.5s after 620793114 unjoins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
-	//because it belongs to the notification list (rcpts).
+	
 	setTimeout(function(){
 		
-		api.remote.unjoin(rpc_params, function(err,val){
-			
-			test.equal(err,null);
-			test.notEqual(val,undefined);			
-			test.expect(15);
-			test.done();
-		});
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		api.emit("ev_api_unjoin", ctx );
 	},500);
 		
 }
 
 
-exports["evqueue.events: ev_api_unjoin, subscribed not in rcpts"] = function(test){
+exports["evqueue.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115,620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -810,22 +818,18 @@ exports["evqueue.events: ev_api_unjoin, subscribed not in rcpts"] = function(tes
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-					
-	api.remote.unjoin(rpc_params, function(err,val){
-		
-		test.equal(err,null);
-		test.notEqual(val,undefined);
-		test.ok(subs_flags[2]);			
-		test.expect(12);
-		test.done();
-	});
+	
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	api.emit("ev_api_unjoin",ctx);
+	test.done();					
 			
 }
 
 
-exports["evqueue.events: ev_api_unjoin autolistening, explicit rcpts"] = function(test){
+exports["evqueue.on: ev_api_unjoin autolistening, explicit rcpts"] = function(test){
 
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
+	var doc = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115,620793114], uid:620793115};
 	var rcpts = [620793119, 620793115];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
@@ -863,8 +867,8 @@ exports["evqueue.events: ev_api_unjoin autolistening, explicit rcpts"] = functio
 		}
 	});
 				
-			
-	api.emit("ev_api_unjoin", rpc_params, rcpts);
+	var ctx = {params:rpc_params, doc:doc};		
+	api.emit("ev_api_unjoin", ctx, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -873,41 +877,16 @@ exports["evqueue.events: ev_api_unjoin autolistening, explicit rcpts"] = functio
 
 
 
-exports["evqueue.events: ev_api_add, subscribed in rcpts"] = function(test){
+exports["evqueue.on: ev_api_add, subscribed in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:5};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:5, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.equal(doc.b, 5);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -950,18 +929,13 @@ exports["evqueue.events: ev_api_add, subscribed in rcpts"] = function(test){
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-	
-	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
-	//because it belongs to the notification list (rcpts).
+		
 	setTimeout(function(){
 		
-		api.remote.add(rpc_params, function(err,val){
-			
-			test.equal(err,null);
-			test.notEqual(val,undefined);			
-			test.expect(16);
-			test.done();
-		});
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		api.emit("ev_api_add",ctx);
+		test.expect(9);
+		test.done();
 	},500);
 		
 }
@@ -969,40 +943,16 @@ exports["evqueue.events: ev_api_add, subscribed in rcpts"] = function(test){
 
 
 
-exports["evqueue.events: ev_api_add, subscribed not in rcpts"] = function(test){
+exports["evqueue.on: ev_api_add, subscribed not in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"b",value:5, uid:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"b",value:5, uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115, catalog:"docs"},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1037,26 +987,21 @@ exports["evqueue.events: ev_api_add, subscribed not in rcpts"] = function(test){
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-					
-	api.remote.add(rpc_params, function(err,val){
-		
-		test.equal(err,null);
-		test.notEqual(val,undefined);
-		test.ok(subs_flags[2]);			
-		test.expect(12);
-		test.done();
-	});
+	
+	var ctx =  {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	api.emit("ev_api_add", ctx);				
+	test.expect(5);
+	test.done();
 			
 }
 
 
-exports["evqueue.events: ev_api_add autolistening, explicit rcpts"] = function(test){
+exports["evqueue.on: ev_api_add autolistening, explicit rcpts"] = function(test){
 
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
+	var doc = {_id:"50187f71556efcbb25000001",a:1, uid:620793115, rcpts:[620793188,620793199] , catalog:"docs"};
 	var rcpts = [620793119, 620793115];
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{}}
-	});
+	var api = sandbox.require("../lib/api");
 	
 	var counter = 0;
 	var eq = sandbox.require("../lib/evqueue",{
@@ -1090,50 +1035,25 @@ exports["evqueue.events: ev_api_add autolistening, explicit rcpts"] = function(t
 		}
 	});
 				
-			
-	api.emit("ev_api_add", rpc_params, rcpts);
+	var ctx = {params:rpc_params, doc:doc};		
+	api.emit("ev_api_add", ctx, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
 	
 }
 
-
-exports["evqueue.events: ev_api_rem, subscribed in rcpts"] = function(test){
+//
+exports["evqueue.on: ev_api_rem, subscribed in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.equal(doc.a, undefined);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1181,53 +1101,25 @@ exports["evqueue.events: ev_api_rem, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		api.remote.remove(rpc_params, function(err,val){
-			
-			test.equal(err,null);
-			test.notEqual(val,undefined);			
-			test.expect(16);
-			test.done();
-		});
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		api.emit("ev_api_rem",ctx);
+		test.done();
+		
 	},500);
 		
 }
 
 
-exports["evqueue.events: ev_api_rem, subscribed not in rcpts"] = function(test){
+exports["evqueue.on: ev_api_rem, subscribed not  in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.equal(doc.a, undefined);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1262,26 +1154,22 @@ exports["evqueue.events: ev_api_rem, subscribed not in rcpts"] = function(test){
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-					
-	api.remote.remove(rpc_params, function(err,val){
-		
-		test.equal(err,null);
-		test.notEqual(val,undefined);
-		test.ok(subs_flags[2]);			
-		test.expect(13);
-		test.done();
-	});
+	
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	api.emit("ev_api_rem",ctx);				
+	
+	test.expect(5);
+	test.done();
 			
 }
 
 
-exports["evqueue.events: ev_api_rem autolistening, explicit rcpts"] = function(test){
+exports["evqueue.on: ev_api_rem autolistening, explicit rcpts"] = function(test){
 
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
+	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115};
 	var rcpts = [620793119, 620793115];
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{}}
-	});
+	var api = sandbox.require("../lib/api");
 	
 	var counter = 0;
 	var eq = sandbox.require("../lib/evqueue",{
@@ -1315,8 +1203,8 @@ exports["evqueue.events: ev_api_rem autolistening, explicit rcpts"] = function(t
 		}
 	});
 				
-			
-	api.emit("ev_api_rem", rpc_params, rcpts);
+	var ctx = {params:rpc_params, doc:doc };		
+	api.emit("ev_api_rem", ctx, rcpts);
 	test.equal(counter,2);					
 	
 	test.done();
@@ -1324,41 +1212,16 @@ exports["evqueue.events: ev_api_rem autolistening, explicit rcpts"] = function(t
 }
 
 
-exports["evqueue.events: ev_api_set, subscribed in rcpts"] = function(test){
+exports["evqueue.on: ev_api_set, subscribed in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.equal(doc.a, 5);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1406,52 +1269,25 @@ exports["evqueue.events: ev_api_set, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		api.remote.set(rpc_params, function(err,val){
-			
-			test.equal(err,null);
-			test.notEqual(val,undefined);			
-			test.expect(16);
-			test.done();
-		});
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		api.emit("ev_api_set",ctx);
+		test.expect(9);
+		test.done();
+		
 	},500);
 		
 }
 
-exports["evqueue.events: ev_api_set, subscribed not in rcpts"] = function(test){
+exports["evqueue.on: ev_api_set, subscribed not in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", value:5, uid:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", value:5, uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.equal(doc.a, 5);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1486,26 +1322,22 @@ exports["evqueue.events: ev_api_set, subscribed not in rcpts"] = function(test){
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-					
-	api.remote.set(rpc_params, function(err,val){
-		
-		test.equal(err,null);
-		test.notEqual(val,undefined);
-		test.ok(subs_flags[2]);			
-		test.expect(13);
-		test.done();
-	});
+	
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	
+	api.emit("ev_api_set",ctx);					
+	test.expect(5);
+	test.done();
 			
 }
 
 
-exports["evqueue.events: ev_api_set autolistening, explicit rcpts"] = function(test){
+exports["evqueue.on: ev_api_set autolistening, explicit rcpts"] = function(test){
 
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
+	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115};
 	var rcpts = [620793119, 620793115];
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{}}
-	});
+	var api = sandbox.require("../lib/api");
 	
 	var counter = 0;
 	var eq = sandbox.require("../lib/evqueue",{
@@ -1539,10 +1371,10 @@ exports["evqueue.events: ev_api_set autolistening, explicit rcpts"] = function(t
 		}
 	});
 				
-			
-	api.emit("ev_api_set", rpc_params, rcpts);
+	var ctx = {params:rpc_params, doc:doc};		
+	api.emit("ev_api_set", ctx, rcpts);
 	test.equal(counter,2);					
-	
+	test.expect(11);	
 	test.done();
 	
 }
@@ -1550,41 +1382,16 @@ exports["evqueue.events: ev_api_set autolistening, explicit rcpts"] = function(t
 
 
 
-exports["evqueue.events: ev_api_push, subscribed in rcpts"] = function(test){
+exports["evqueue.on: ev_api_push, subscribed in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.deepEqual(doc.a, [1,5]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1632,53 +1439,27 @@ exports["evqueue.events: ev_api_push, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		api.remote.push(rpc_params, function(err,val){
-			
-			test.equal(err,null);
-			test.notEqual(val,undefined);			
-			test.expect(16);
-			test.done();
-		});
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		
+		api.emit("ev_api_push",ctx);		
+		test.expect(9);
+		test.done();
+		
 	},500);
 		
 }
 
 
-exports["evqueue.events: ev_api_push, subscribed not in rcpts"] = function(test){
+exports["evqueue.on: ev_api_push, subscribed not in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a",value:5, uid:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a",value:5, uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.deepEqual(doc.a, [1,5]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1713,28 +1494,22 @@ exports["evqueue.events: ev_api_push, subscribed not in rcpts"] = function(test)
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-					
-	api.remote.push(rpc_params, function(err,val){
-		
-		test.equal(err,null);
-		test.notEqual(val,undefined);
-		test.ok(subs_flags[2]);			
-		test.expect(13);
-		test.done();
-	});
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	api.emit("ev_api_push", ctx);
+	
+	test.expect(5);
+	test.done();	
 			
 }
 
 
 
-exports["evqueue.events: ev_api_push autolistening, explicit rcpts"] = function(test){
+exports["evqueue.on: ev_api_push autolistening, explicit rcpts"] = function(test){
 
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var rcpts = [620793119, 620793115];
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{}}
-	});
-	
+	var api = sandbox.require("../lib/api");
+	var doc = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115, 620793114], uid:620793115};
 	var counter = 0;
 	var eq = sandbox.require("../lib/evqueue",{
 		requires:{	"./api":api,
@@ -1767,49 +1542,24 @@ exports["evqueue.events: ev_api_push autolistening, explicit rcpts"] = function(
 		}
 	});
 				
-			
-	api.emit("ev_api_push", rpc_params, rcpts);
+	var ctx = {params:rpc_params, doc:doc};		
+	api.emit("ev_api_push", ctx, rcpts);
 	test.equal(counter,2);					
 	
+	test.expect(11);
 	test.done();
 	
 }
 
-exports["evqueue.events: ev_api_pop, subscribed in rcpts"] = function(test){
+exports["evqueue.on: ev_api_pop, subscribed in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.deepEqual(doc.a, [1]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1857,52 +1607,24 @@ exports["evqueue.events: ev_api_pop, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		api.remote.pop(rpc_params, function(err,val){
-			
-			test.equal(err,null);
-			test.notEqual(val,undefined);			
-			test.expect(16);
-			test.done();
-		});
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		api.emit("ev_api_pop",ctx);
+		test.expect(9);
+		test.done();
+				
 	},500);
 		
 }
 
-exports["evqueue.events: ev_api_pop, subscribed not in rcpts"] = function(test){
+exports["evqueue.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.deepEqual(doc.a, [1]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
-	eq = sandbox.require("../lib/evqueue",{
+	var api = sandbox.require("../lib/api");
+	var eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -1937,26 +1659,22 @@ exports["evqueue.events: ev_api_pop, subscribed not in rcpts"] = function(test){
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-					
-	api.remote.pop(rpc_params, function(err,val){
-		
-		test.equal(err,null);
-		test.notEqual(val,undefined);
-		test.ok(subs_flags[2]);			
-		test.expect(13);
-		test.done();
-	});
+	
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	api.emit("ev_api_pop",ctx);
+	test.expect(5);
+	test.done();
+						
 			
 }
 
 
-exports["evqueue.events: ev_api_pop autolistening, explicit rcpts"] = function(test){
+exports["evqueue.on: ev_api_pop autolistening, explicit rcpts"] = function(test){
 
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
+	var doc = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115};
 	var rcpts = [620793119, 620793115];
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{}}
-	});
+	var api = sandbox.require("../lib/api");
 	
 	var counter = 0;
 	var eq = sandbox.require("../lib/evqueue",{
@@ -1990,48 +1708,24 @@ exports["evqueue.events: ev_api_pop autolistening, explicit rcpts"] = function(t
 		}
 	});
 				
-			
-	api.emit("ev_api_pop", rpc_params, rcpts);
+	var ctx = {params:rpc_params, doc:doc};		
+	api.emit("ev_api_pop", ctx, rcpts);
 	test.equal(counter,2);					
 	
+	test.expect(11);
 	test.done();
 	
 }
 
-exports["evqueue.events: ev_api_shift, subscribed in rcpts"] = function(test){
+exports["evqueue.on: ev_api_shift, subscribed in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a"};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.deepEqual(doc.a, [5]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
+	var api = sandbox.require("../lib/api");
+	
 	eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
@@ -2079,52 +1773,23 @@ exports["evqueue.events: ev_api_shift, subscribed in rcpts"] = function(test){
 	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		api.emit("ev_api_shift",ctx);
 		
-		api.remote.shift(rpc_params, function(err,val){
-			
-			test.equal(err,null);
-			test.notEqual(val,undefined);			
-			test.expect(16);
-			test.done();
-		});
+		test.expect(9);
+		test.done();
 	},500);
 		
 }
 
-exports["evqueue.events: ev_api_shift, subscribed not in rcpts"] = function(test){
+exports["evqueue.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 		
-	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, rpc_params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},60);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
-								test.deepEqual(doc.a, [5]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},70);	
-							}
-		}}
-	}),
+	var api = sandbox.require("../lib/api");
 	eq = sandbox.require("../lib/evqueue",{
 		requires:{"./api":api,
 					"./db":{
@@ -2160,22 +1825,20 @@ exports["evqueue.events: ev_api_shift, subscribed not in rcpts"] = function(test
 	eq.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-								
-	api.remote.shift(rpc_params, function(err,val){
-		
-		test.equal(err,null);
-		test.notEqual(val,undefined);
-		test.ok(subs_flags[2]);			
-		test.expect(13);
-		test.done();
-	});
+	
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	api.emit("ev_api_shift",ctx);	
+	test.expect(5);
+	test.done();						
+	
 				
 }
 
 
-exports["evqueue.events: ev_api_shift autolistening, explicit rcpts"] = function(test){
+exports["evqueue.on: ev_api_shift autolistening, explicit rcpts"] = function(test){
 
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	var doc = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115};
 	var rcpts = [620793119, 620793115];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
@@ -2213,10 +1876,11 @@ exports["evqueue.events: ev_api_shift autolistening, explicit rcpts"] = function
 		}
 	});
 				
-			
-	api.emit("ev_api_shift", rpc_params, rcpts);
+	var ctx = {params:rpc_params, doc:doc};		
+	api.emit("ev_api_shift", ctx, rcpts);
 	test.equal(counter,2);					
 	
+	test.expect(11);
 	test.done();
 	
 }
