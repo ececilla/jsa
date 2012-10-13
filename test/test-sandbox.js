@@ -115,7 +115,12 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints"] = function(test){
 							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.
 							 
 							 ret_handler( null, ctx.doc );
-						  }
+						 }				
+				},
+				emit: function(ev_name, ctx){
+						
+						test.equal(ev_name,"ev_api_join");
+															
 				}
 		}
 	}
@@ -148,7 +153,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints"] = function(test){
 	sb.execute("join", params, function(err,result){
 		
 		test.deepEqual(result.rcpts, [620793114,620793116]);
-		test.expect(12);
+		test.expect(13);
 		test.done();
 	});
 		
@@ -514,7 +519,7 @@ exports["sandbox.add_constraint: constraints.is_joinable"] = function(test){
 	
 	sb.execute("join", params, function(err,result){
 		
-		test.deepEqual(err,{code:-2, message:"No access permission: not joinable"})										
+		test.deepEqual(err,{code:-2, message:"No access permission: not joinable/unjoinable"})										
 		test.done();
 	});
 		
@@ -737,8 +742,7 @@ exports["sandbox.add_constraint: ctx.config.emit:1"] = function(test){
 	
 	var flag = 0;
 	api.on("ev_api_set", function(msg, rcpts){
-		
-		console.log(msg);
+				
 		flag = 1;
 	});	
 	
