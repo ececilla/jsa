@@ -1229,393 +1229,251 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 
 
 
-exports["api.remote.add: missing params"] = function(test){
+exports["api.remote.add: missing & wrong params"] = function(test){
 	
-	var api = require("../lib/api");
 	
-	//wid missing	
-	var params = {miss_wid:"12345", uid:620793114, fname:"b", value:[]};
-	
-	api.remote.add(params, function(err,val){
+	var dbdocs = {};
+	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, catalog:"dummy", test:"test",z:{y:1}, rcpts:[620793114,620793115]};
 		
-		test.equal(err.code,-2);
-		test.equal(val,null);
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																																						
+								test.equal(col_str,"docs");								
+								ret_handler(null,dbdocs[id_str]);								
+							}
+						 } 
+		}
 	});
 	
-	//uid missing
-	params = {wid:"12345", miss_uid:620793114, fname:"b", value:[]};
-	api.remote.add(params, function(err,val){
+	sb.add_constraint("add","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("add","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("add","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("add","param_fname",sb.constraints.is_required("fname"))
+	  .add_constraint("add","param_value",sb.constraints.is_required("value"))
+	  .add_constraint("add","is_reserved",sb.constraints.is_reserved)
+	  .add_constraint("add","not_exists",sb.constraints.field_not_exists)
+	  .add_constraint("add","in_rcpts",sb.constraints.in_rcpts);
 		
-		test.equal(err.code,-2);
-		test.equal(val,null);
+	//uid missing
+	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002", fname:"a", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		
+	});
+	
+	//wid missing
+	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002", fname:"a", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		
 	});
 	
 	//fname missing
-	params = {wid:"12345", uid:620793114, miss_fname:"b", value:[]};
-	api.remote.add(params, function(err,val){
+	params = {uid:620793114, wid:"50187f71556efcbb25000002", miss_fname:"a", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-4, message: "fname parameter required"});
 		
-		test.equal(err.code,-2);
-		test.equal(val,null);
-	});
+	}); 
 	
 	//value missing
-	params = {wid:"12345", uid:620793114, fname:"b", miss_value:[]};
-	api.remote.add(params, function(err,val){
+	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"a", miss_value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-4, message: "value parameter required"});
 		
-		test.equal(err.code,-2);
-		test.equal(val,null);
-	});	
-	
-	test.done();
-	
-}
-
-
-exports["api.remote.add: invalid params: wid not hexstr"] = function(test){
-	
-	var api = require("../lib/api");		
-	
-	//wid missing
-	var params = {wid:"wrongwid", uid:620793114, fname:"b", value:0};
-	api.remote.add(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
-		test.done();				
-	});				
-	
-}
-
-
-exports["api.remote.add: invalid params, wid.length != 24"] = function(test){
-	
-	var api = require("../lib/api");		
-	
-	//wid missing
-	var params = {wid:"50187f71556efcbb2500000", uid:620793114, fname:"b", value:[]};
-	api.remote.add(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
-		test.done();				
-	});					
-	
-}
-
-
-exports["api.remote.add: invalid params, reserved word: _id"] = function(test){
-	 
-	var api = require("../lib/api");		
-		
-	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"_id", value:[]};
-	api.remote.add(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Reserved word for field name: _id"});
-		test.done();				
-	});					
-	
-}
-
-exports["api.remote.add: invalid params, reserved word: rcpts"] = function(test){
-	
-	var api = require("../lib/api");		
-		
-	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"rcpts", value:[]};
-	api.remote.add(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Reserved word for field name: rcpts"});
-		test.done();				
-	});					
-	
-}
-
-
-exports["api.remote.add: invalid params, reserved word: uid"] = function(test){
-	
-	var api = require("../lib/api");		
-		
-	var params = {wid:"50187f71556efcbb25000002", uid:620793114, fname:"uid", value:[]};
-	api.remote.add(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Reserved word for field name: uid"});
-		test.done();				
-	});					
-	
-}
-
-
-exports["api.remote.add: valid params, non existing field, explicit catalog, db async"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:[], catalog:"dummy"}; //initialize field 'b' to an empty array.
-	var dbdocs = {};
-		
-		//document WITHOUT b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
-	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for add procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);
-								test.notEqual(dbdocs[id_str], undefined);								
-								test.equal(dbdocs[id_str][params.fname], undefined);
-								
-								setTimeout(function(){ //db 500ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},500);
-								
-							},
-							save:function(col_str, doc,ret_handler){
-								
-								test.equal(col_str,"dummy");
-								
-								//field params.fname added with default value params.value
-								test.notEqual(doc[params.fname], undefined);
-								test.deepEqual( doc[params.fname], params.value );
-								
-								setTimeout(function(){ //db 500ms delay saving document																
-									
-									ret_handler(null,doc);
-								},500);	
-							}
-		}}
 	});
 	
-	api.remote.add(params,function(err,val){
+	//reserved _id as field name
+	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"_id", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: _id"});
 		
-		test.equal(err,null);
-		test.equal(val,0);
-		test.expect(9);
+	});
+	
+	//reserved uid as field name
+	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"uid", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: uid"});
+		
+	});
+	
+	//reserved rcpts as field name
+	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"rcpts", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: rcpts"});		
+		
+	});
+	
+	//field not exists
+	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"test", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-3, message: "Already exists: #docs/50187f71556efcbb25000002[test]"});		
+		
+	});
+	
+	//inner field not exists
+	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.y", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-3, message: "Already exists: #docs/50187f71556efcbb25000002[z.y]"});		
+		
+	});
+	
+	
+	//reserved rcpts as field name
+	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"a", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-2, message: "No access permission: not in rcpts"});		
+		
+	});
+	
+	//wid not found
+	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"a", value:5};
+	sb.execute("add", params, function(err,result){
+					
+		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000005"});		
 		test.done();
 		
 	});
+		
+}
+
+
+exports["api.remote.add: valid params, non existing field, default catalog, db async"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:"test1234", rcpts:[620793114,620793117], catalog:"docs"};
+		
+				
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"docs");
+								test.equal(id_str,"50187f71556efcbb25000001");
+								test.equal(dbdocs["50187f71556efcbb25000001"].a, undefined);
+								
+								setTimeout(function(){ //db 50ms delay retrieving document
+									
+									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+								},50);
+																
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								
+								test.equal(doc.a,5);
+								test.equal(col_str,"docs");
+								
+								setTimeout(function(){ //db 50ms delay retrieving document
+									
+									ret_handler(null,doc);
+								},50);
+								
+							}
+						 }	  
+		}
+	});
+	
+	sb.add_constraint("add","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("add","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("add","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("add","param_fname",sb.constraints.is_required("fname"))
+	  .add_constraint("add","param_value",sb.constraints.is_required("value"))
+	  .add_constraint("add","is_reserved",sb.constraints.is_reserved)
+	  .add_constraint("add","not_exists",sb.constraints.field_not_exists)
+	  .add_constraint("add","in_rcpts",sb.constraints.in_rcpts);
+		
+	
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a", value:5};
+
+						
+	sb.execute("add", params, function(err,result){
+						
+						
+		test.equal(err,null);		
+		test.equal(result,1);	
+		test.expect(7);	
+		test.done();		
+		
+	});
+
 		
 }
 
 
 exports["api.remote.add: valid params, non existing inner field, explicit catalog, db async"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:[4,5], catalog:"dummy"}; //initialize field 'b' to an empty array.
+	
 	var dbdocs = {};
 		
 		//document WITHOUT b field.
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:{c:1}, rcpts:[620793115], uid:620793114};	
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for add procedure
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1}, rcpts:[620793114,620793117], catalog:"docs"};
+		
+				
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"dummy");
+								test.equal(id_str,"50187f71556efcbb25000001");								
 								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);
-								test.equal(dbdocs[id_str].a.b, undefined);
-								test.notEqual(dbdocs[id_str], undefined);																
-								
-								setTimeout(function(){ //db 500ms delay retrieving document
+								setTimeout(function(){ //db 50ms delay retrieving document
 									
-									ret_handler(null,dbdocs[id_str]);
-								},500);
-								
+									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+								},50);
+																
 							},
-							save:function(col_str, doc,ret_handler){
+							save:function(col_str,doc,ret_handler){
+															
 								
+								test.deepEqual(doc.a,{c:1,b:[4,5]});
 								test.equal(col_str,"dummy");
 								
-								//field params.fname added with default value params.value
-								test.notEqual(doc.a.b, undefined);
-								test.deepEqual( doc.a.b, params.value );
-								test.deepEqual(doc.a, {c:1,b:[4,5]});
-								
-								setTimeout(function(){ //db 500ms delay saving document																
+								setTimeout(function(){ //db 50ms delay retrieving document
 									
 									ret_handler(null,doc);
-								},500);	
+								},50);
+								
 							}
-		}}
+						 }	  
+		}
 	});
 	
-	api.remote.add(params,function(err,val){
+	sb.add_constraint("add","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("add","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("add","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("add","param_fname",sb.constraints.is_required("fname"))
+	  .add_constraint("add","param_value",sb.constraints.is_required("value"))
+	  .add_constraint("add","is_reserved",sb.constraints.is_reserved)
+	  .add_constraint("add","not_exists",sb.constraints.field_not_exists)
+	  .add_constraint("add","in_rcpts",sb.constraints.in_rcpts);
 		
-		test.equal(err,null);
-		test.equal(val,0);
-		test.expect(10);
-		test.done();
-		
-	});
-		
-}
-
-
-exports["api.remote.add: valid params, wid not found"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:[]}; //initialize field 'b' to an empty array.
-	var dbdocs = {};
-		
-		//document WITHOUT b field.
-		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115], uid:620793114};	
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for add procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								test.equal(dbdocs[id_str], undefined);																
-								
-								ret_handler(null,dbdocs[id_str]);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								flag = 0;	//should not reach this because wid not found.
-							}
-		}}
-	});
-	
-	api.remote.add(params,function(err,val){
-		
-		test.notEqual(err,null);
-		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
-		test.ok(flag);
-		test.expect(7);
-		test.done();
+	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:[4,5], catalog:"dummy"}; 	
+					
+	sb.execute("add", params, function(err,result){
+						
+						
+		test.equal(err,null);		
+		test.equal(result,1);	
+		test.expect(6);	
+		test.done();		
 		
 	});
 		
-}
-
-
-exports["api.remote.add: valid params, uid not joined"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793119, fname:"b", value:[]}; //initialize field 'b' to an empty array.
-	var dbdocs = {};
-				
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115], uid:620793114};	
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for add procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								test.notEqual(dbdocs[id_str], undefined);																
-								
-								ret_handler(null,dbdocs[id_str]);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								flag = 0;	//should not reach this because uid not joined
-							}
-		}}
-	});
-	
-	api.remote.add(params,function(err,val){
-		
-		test.notEqual(err,null);
-		test.equal(val,null);		
-		test.deepEqual(err,{ code: -3, message: "620793119 has no access @docs:50187f71556efcbb25000001, must join first" });
-		test.ok(flag);
-		test.expect(7);
-		test.done();
-		
-	});
-		
-}
-
-
-exports["api.remote.add: valid params, existing field"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b", value:[]};
-	var dbdocs = {};
-		
-		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:2, rcpts:[620793115], uid:620793114};	
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for add procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								test.notEqual(dbdocs[id_str], undefined);								
-								test.notEqual(dbdocs[id_str][params.fname], undefined);
-								
-								ret_handler(null,dbdocs[id_str]);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								flag = 0;	//should not reach this because wid not found.
-							}
-		}}
-	});
-	
-	api.remote.add(params,function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b' already exists @docs:50187f71556efcbb25000001"});
-		test.ok(flag);
-		test.expect(8);
-		test.done();
-		
-	});
-				
-}
-
-exports["api.remote.add: valid params, existing inner field"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"b.c", value:"default text"};
-	var dbdocs = {};
-		
-		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:{c:"my text"}, rcpts:[620793115], uid:620793114};	
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for add procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								test.notEqual(dbdocs[id_str], undefined);								
-								test.notEqual(dbdocs[id_str].b.c, undefined);
-								
-								ret_handler(null,dbdocs[id_str]);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								flag = 0;	//should not reach this because wid not found.
-							}
-		}}
-	});
-	
-	api.remote.add(params,function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,null);		
-		test.deepEqual(err,{code:-3, message:"Field 'b.c' already exists @docs:50187f71556efcbb25000001"});
-		test.ok(flag);
-		test.expect(8);
-		test.done();
-		
-	});
-				
 }
 
 
