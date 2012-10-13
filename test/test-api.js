@@ -26,22 +26,57 @@ exports["module exported functions"] = function(test){
 
 exports["api.remote.create: missing params"] = function(test){
 		
-	var api = require("../lib/api");
-		
-	//uid missing
-	var params = {miss_uid:620793114, doc:{test:"test doc"}};
-	api.remote.create(params, function(err,val){
-		
-		test.equal(err.code,-2);
-		test.equal(val,null);
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							save:function(col_str,doc,ret_handler){
+																
+								
+								//this function is not reached
+								//save document
+								doc._id = "50187f71556efcbb25000002";
+								ret_handler(null,doc);	
+							}
+						 }					 
+		}
 	});
 	
-	//doc missing
-	params = {uid:620793114, miss_doc:{test:"test doc"}};
-	api.remote.create(params, function(err,val){
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because constraint is not satisfied
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
+	});
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"));
 		
-		test.equal(err.code,-2);
-		test.equal(val,null);
+	//uid missing
+	var params = {miss_uid:620793114, doc:{test:"test doc 1"}};
+	sb.execute("create", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		
+	});
+		
+	
+	//doc missing
+	params = {uid:620793114, miss_doc:{test:"test doc 2"}};
+	sb.execute("create", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message: "doc parameter required"});
 		test.expect(4);
 		test.done();
 	}); 		
@@ -51,53 +86,138 @@ exports["api.remote.create: missing params"] = function(test){
 
 exports["api.remote.create: invalid params: catalog=='events'"] = function(test){
 	
-	var api = require("../lib/api");		
-	var params = {uid:620793114, doc:{test:"test doc"}, catalog:"events"};
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							save:function(col_str,doc,ret_handler){
+																
+								
+								//this function is not reached
+								//save document
+								doc._id = "50187f71556efcbb25000002";
+								ret_handler(null,doc);	
+							}
+						 }					 
+		}
+	});
 	
-	api.remote.create(params, function(err,val){
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because constraint is not satisfied
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
+	});
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"))
+	  .add_constraint("create","user_catalog",sb.constraints.user_catalog);
+	  
 		
-		test.notEqual(err,undefined);		
-		test.deepEqual(err,{code:-2, message:"Cannot write to events catalog"});
-		test.equal(val,null);
-		test.expect(3);
+	//uid missing
+	var params = {uid:620793114, doc:{test:"test doc 1"}, catalog:"events"};
+	sb.execute("create", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-2, message: "No access permission: system catalog"});
+		test.expect(2);
 		test.done();
-	});		
+	});
+				 		
 				
 }
 
 exports["api.remote.create: invalid params: doc!=object"] = function(test){
 	
-	var api = require("../lib/api");			
-	var params = {uid:620793114, doc:5};
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							save:function(col_str,doc,ret_handler){
+																
+								
+								//this function is not reached
+								//save document
+								doc._id = "50187f71556efcbb25000002";
+								ret_handler(null,doc);	
+							}
+						 }					 
+		}
+	});
 	
-	api.remote.create(params, function(err,val){
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because sandbox doesn't save document
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
+	});
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"))
+	  .add_constraint("create","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("create","param_type",sb.constraints.param_type("doc","object"));	  			
 		
-		test.notEqual(err,undefined);		
-		test.deepEqual(err,{code:-2, message:"Wrong parameter type doc: must be an object"});
-		test.equal(val,null);
-		test.expect(3);
+	
+	//doc wrong type
+	
+	var params = {uid:620793114, doc:6};
+	sb.execute("create", params, function(err,result){
+				
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message:"Wrong parameter type: doc not object" });		
+		
+	});
+	
+	var params2 = {uid:620793114, doc:{test:1}};
+	sb.execute("create", params2, function(err,result){
+				
+		test.ok(flag);		
+		test.equal(err, null);
+		test.expect(4);
 		test.done();
-	});		
+		
+	});
+	
+	
+	
 				
 }
 
 
 exports["api.emit:params, no explicit rcpts"] = function(test){
 	
-	var api = require("../lib/api");			
-	var emit_params = {foo:1, bar:5};
+	var api = require("../lib/api");				
+	var ctx = {params:{foo:1, bar:5}, doc:undefined};
 	
 	api.on("ev_dummy", function(msg, rcpts){
 		
 		test.equal(msg.ev_type, "ev_dummy");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(typeof msg.ev_tstamp, "number");
-		test.deepEqual(msg.ev_data, emit_params);
+		test.deepEqual(msg.ev_ctx, ctx);
 		test.equal(rcpts, undefined);
 		test.done();
 	});
 	
-	api.emit("ev_dummy", emit_params);
+	api.emit("ev_dummy", ctx);
 				
 }
 
@@ -105,7 +225,7 @@ exports["api.emit:params, no explicit rcpts"] = function(test){
 exports["api.emit:params, explicit rcpts"] = function(test){
 	
 	var api = require("../lib/api");			
-	var emit_params = {foo:1, bar:5};
+	var ctx = {params:{foo:1, bar:5}, doc:undefined};
 	var emit_rcpts = [1,2,3];
 	
 	api.on("ev_foo", function(msg, rcpts){
@@ -113,146 +233,181 @@ exports["api.emit:params, explicit rcpts"] = function(test){
 		test.equal(msg.ev_type, "ev_foo");
 		test.notEqual(msg.ev_tstamp, undefined);
 		test.equal(typeof msg.ev_tstamp, "number");
-		test.deepEqual(msg.ev_data, emit_params);
+		test.deepEqual(msg.ev_ctx, ctx);
 		test.deepEqual(rcpts, emit_rcpts);
 		test.done();
 	});
 	
-	api.emit("ev_foo", emit_params, emit_rcpts);
+	api.emit("ev_foo", ctx, emit_rcpts);
 				
 }
 
 
 
 exports["api.remote.create: valid params, non init.rcpts, default catalog"] = function(test){
+		
+	var params = {uid:620793114, doc:{test:"test"}};
 	
-	var params = {uid:620793114, doc:{test:"test"}};	    
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{
+		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
+																
 								
-								test.equal(col_str,"docs");								
+								test.equal( col_str, "docs" );								
 								test.equal( doc.test, params.doc.test );
 								test.equal( doc.uid, params.uid );
-								//beacause init.rcpts is null the initial rcpts list is [uid]
+								
+								//because init.rcpts is null the initial rcpts list is [uid]
 								test.deepEqual( doc.rcpts, [params.uid]);
+								
 								test.notEqual(doc.ctime, undefined);
-								test.equal(typeof doc.ctime, "number");											
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345, test:"test", uid:620793114, rcpts:[620793114]});	
+								test.equal(typeof doc.ctime, "number");	
+								test.equal(doc.catalog,"docs");
+								
+								doc._id = "50187f71556efcbb25000002";										
+								//save doc to db...
+								
+								ret_handler(null,doc);
+																								
 							}
-		}}
+						 }					 
+		}
 	});
-			
-	api.remote.create(params, function(err,val){
-		
+	
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because sandbox not saves document.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
+	});
+	
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"))
+	  .add_constraint("create","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("create","param_type",sb.constraints.param_type("doc","object"));
+	  	  		   
+				
+	sb.execute("create",params, function(err,val){
+				
+		test.ok(flag);		
 		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});
-		test.expect(8);
+		test.notEqual(val,null);
+		test.expect(10);
 		test.done();			
 	});
 		
 }
 
-/*
-exports["api.remote.create: valid params with ttl, non init.rcpts, default catalog"] = function(test){
-	
-	var params = {uid:620793114, doc:{test:"test"}, ttl:600};
-	var time = 	sandbox.require("../lib/time",{
-		requires:{"./db":{
-							save:function(col_str,doc,ret_handler){
-								console.log("save:"+col_str)
-								ret_handler();
-							},
-							remove: function(col_str, criteria, ret_handler){
-								console.log("remove:"+col_str);
-								ret_handler();
-							}
-						}
-				}		
-		});
-									    
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{
-							save:function(col_str,doc,ret_handler){
-								
-								if(col_str == "docs"){
-									
-									test.equal(col_str,"docs");								
-									test.equal( doc.test, params.doc.test );
-									test.equal( doc.uid, params.uid );
-									//beacause init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [params.uid]);
-									test.notEqual(doc.ctime, undefined);
-									test.equal(typeof doc.ctime, "number");		
-									test.equal(doc.etime, doc.ctime + params.ttl*1000);													
-									//save doc to db...returns with _id:12345
-									ret_handler(null,{_id:12345, test:"test", uid:620793114, ctime:doc.ctime, etime:doc.etime, rcpts:[620793114]});
-								}
-							},
-					"./time":time		
-							
-		}}
-	});
-			
-	api.remote.create(params, function(err,val){
-		
-		test.equal(err,null);		
-		test.deepEqual(val,{wid:"12345"});		
-					
-	});
-	test.expect(12);
-	test.done();	
-}
-*/
 
 exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = function(test){
 	
-
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};	    
+	
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
+	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{
+		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
+																
 								
-								test.equal(col_str, "dummy");								
-								test.deepEqual( doc.test, params.doc.test )
+								test.equal( col_str, "dummy" );								
+								test.equal( doc.test, params.doc.test );
 								test.equal( doc.uid, params.uid );
+								
+								//because init.rcpts is null the initial rcpts list is [uid]
 								test.equal( doc.rcpts, undefined);
 								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345, test:"test"});	
+								test.notEqual(doc.ctime, undefined);
+								test.equal(typeof doc.ctime, "number");	
+								test.equal(doc.catalog,"dummy");
+								
+								doc._id = "50187f71556efcbb25000002";										
+								//save doc to db...
+								
+								ret_handler(null,doc);
+																								
 							}
-		}}
+						 }					 
+		}
 	});
-					
 	
-	api.remote.create(params, function(err,val){
-		
-		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});
-		test.expect(6);	
-		test.done();		
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because sandbox not saves document.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
 	});
+	
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"))
+	  .add_constraint("create","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("create","param_type",sb.constraints.param_type("doc","object"));
+	  	  		   
+				
+	sb.execute("create",params, function(err,val){
+				
+		test.ok(flag);		
+		test.equal(err,null);
+		test.notEqual(val,null);
+		test.expect(10);
+		test.done();			
+	});	    
+	
 				
 }
 
 exports["api.remote.create: valid params, non init.rcpts, explicit catalog, notifiable true"] = function(test){
 	
+		
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy",notifiable:1};
 	var ircpts = [620793115];
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy", notifiable:1};	    
+	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{
+		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
+																
 								
-								test.equal(col_str, "dummy");								
-								test.deepEqual( doc.test, params.doc.test )
+								test.equal( col_str, "dummy" );								
+								test.equal( doc.test, params.doc.test );
 								test.equal( doc.uid, params.uid );
+																
 								test.deepEqual( doc.rcpts, [620793114, 620793115]);
 								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345, test:"test"});	
+								test.notEqual(doc.ctime, undefined);
+								test.equal(typeof doc.ctime, "number");	
+								test.equal(doc.catalog,"dummy");
+								
+								doc._id = "50187f71556efcbb25000002";										
+								//save doc to db...
+								
+								ret_handler(null,doc);
+																								
 							}
-		}}
+						 }					 
+		}
 	});
 	
 	api.rcpts = function(doc,ret_handler){
@@ -260,199 +415,230 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 		test.notEqual(doc,undefined);		
 		ret_handler(ircpts);
 	};
-					
-	
-	api.remote.create(params, function(err,val){
-		
-		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});
-		test.expect(7);	
-		test.done();		
-	});
-				
-}
-
-exports["api.remote.create: valid params, non init.rcpts, implicit catalog, notifiable false"] = function(test){
-	
-	var ircpts = [620793115];
-	var params = {uid:620793114, doc:{test:"test"}, notifiable:0};	    
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str, "docs");								
-								test.deepEqual( doc.test, params.doc.test )
-								test.equal( doc.uid, params.uid );
-								test.deepEqual( doc.rcpts, undefined);
-								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345, test:"test"});	
-							}
-		}}
-	});
 	
 	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because sandbox not saves document.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
+	});
+	
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"))
+	  .add_constraint("create","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("create","param_type",sb.constraints.param_type("doc","object"));
+	  	  		   
+				
+	sb.execute("create",params, function(err,val){
+				
+		test.ok(flag);		
+		test.equal(err,null);
+		test.notEqual(val,null);
+		test.expect(11);
+		test.done();			
+	});
+	
+					
+}
+
+exports["api.remote.create: valid params, non init.rcpts, default catalog, notifiable false"] = function(test){
+	
+	var params = {uid:620793114, doc:{test:"test"},notifiable:0};
+	var ircpts = [620793115];
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							save:function(col_str,doc,ret_handler){
+																
+								
+								test.equal( col_str, "docs" );								
+								test.equal( doc.test, params.doc.test );
+								test.equal( doc.uid, params.uid );
+																
+								test.equal( doc.rcpts, undefined);
+								
+								test.notEqual(doc.ctime, undefined);
+								test.equal(typeof doc.ctime, "number");	
+								test.equal(doc.catalog,"docs");
+								
+								doc._id = "50187f71556efcbb25000002";										
+								//save doc to db...
+								
+								ret_handler(null,doc);
+																								
+							}
+						 }					 
+		}
+	});
+	
+	var flag2 = 1;
 	api.rcpts = function(doc,ret_handler){
 		
-		flag = 0;
-		
+		flag2 = 0;	
+			
 		ret_handler(ircpts);
 	};
-					
 	
-	api.remote.create(params, function(err,val){
-		
-		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because sandbox not saves document.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
+	});
+	
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"))
+	  .add_constraint("create","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("create","param_type",sb.constraints.param_type("doc","object"));
+	  	  		   
+				
+	sb.execute("create",params, function(err,val){
+				
 		test.ok(flag);
-		test.expect(7);	
-		test.done();		
+		test.ok(flag2);		
+		test.equal(err,null);
+		test.notEqual(val,null);
+		test.expect(11);
+		test.done();			
 	});
 				
 }
 
 
 exports["api.remote.create: valid params, non init.rcpts, explicit&added catalog"] = function(test){
+		
 	
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};	    
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};	
+	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
+		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
+																
 								
-								test.equal(col_str,"dummy");								
+								test.equal( col_str, "dummy" );								
 								test.equal( doc.test, params.doc.test );
 								test.equal( doc.uid, params.uid );
-								test.deepEqual( doc.rcpts, [params.uid]);
 								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345});	
+								//because init.rcpts is null the initial rcpts list is [uid]
+								test.deepEqual( doc.rcpts, [620793114]);
+								
+								test.notEqual(doc.ctime, undefined);
+								test.equal(typeof doc.ctime, "number");	
+								test.equal(doc.catalog,"dummy");
+								
+								doc._id = "50187f71556efcbb25000002";										
+								//save doc to db...
+								
+								ret_handler(null,doc);
+																								
 							}
-		}}
-	});
+						 }					 
+		}
+	});	
 	
-		
 	api.config.add_create_handler(function(params){
 		
 		return params.catalog == "dummy";
-	});
-			
-	api.remote.create(params, function(err,val){
-		
-		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});
-		test.expect(6);
-		test.done();		
-	});
-		
-	
-}
-
-
-
-exports["api.remote.create: valid params, init.rcpts sync, docs catalog"] = function(test){
-	
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"docs"},
-	    ircpts = [620793115];
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"docs");								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-								test.deepEqual( doc.rcpts, [params.uid].concat(ircpts));
-								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345});	
-							}
-		}}
-	});
-	
-	
-	api.rcpts = function(doc,ret_handler){
-		
-		test.notEqual(doc,undefined);		
-		ret_handler(ircpts);
-	};
-	
-	api.remote.create(params, function(err,val){
-		
-		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});
-		test.expect(7);
-		test.done();		
-	});
-	
-}
-
-
-exports["api.remote.create: valid params, init.rcpts sync, added wrong catalog"] = function(test){
-	
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
-	    ircpts = [620793115];
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str,doc,ret_handler){
-								
-								test.equal(col_str,"dummy");								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-								test.equal( doc.rcpts, undefined);
-								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345});	
-							}
-		}}
-	});
+	});		
 	
 	var flag = 1;
-	api.rcpts = function(doc,ret_handler){
-		
-		flag = 0;	
-		ret_handler(ircpts);
-	};
-	api.config.add_create_handler(function(params){ 
-			return params.catalog == "dummy-wrong"; 
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because sandbox not saves document.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
 	});
-		
 	
-	api.remote.create(params, function(err,val){
-		
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"))
+	  .add_constraint("create","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("create","param_type",sb.constraints.param_type("doc","object"));
+	  	  		   
+				
+	sb.execute("create",params, function(err,val){
+				
+		test.ok(flag);				
 		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});	
-		test.ok(flag);
-		test.expect(7);
-		test.done();
-			
-	});
+		test.notEqual(val,null);
+		test.expect(10);
+		test.done();			
+	});	
+	
 			
 }
 
 
 exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_api_create triggered"] = function(test){
+			
+		
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};		
 	
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
-	    ircpts = [620793115];
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
+		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
 																
-								test.equal(col_str,"dummy");								
+								
+								test.equal( col_str, "dummy" );								
 								test.equal( doc.test, params.doc.test );
 								test.equal( doc.uid, params.uid );
-								test.deepEqual( doc.rcpts, [620793114, 620793115]);
 								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345});	
+								//because init.rcpts is null the initial rcpts list is [uid]
+								test.deepEqual( doc.rcpts, [620793114,620793115]);
+								
+								test.notEqual(doc.ctime, undefined);
+								test.equal(typeof doc.ctime, "number");	
+								test.equal(doc.catalog,"dummy");
+								
+								doc._id = "50187f71556efcbb25000002";										
+								//save doc to db...
+								
+								ret_handler(null,doc);
+																								
 							}
-		}}
-	});
-	
+						 }					 
+		}
+	});	
 	
 	api.rcpts = function(doc,ret_handler){
 			
-			test.notEqual(doc,undefined);			
-			setTimeout(function(){ret_handler(ircpts)},500);
+			test.notEqual(doc,undefined);	
+			ret_handler([620793115]);				
+			setTimeout(function(){ret_handler([620793115])},500);
 			
 	};
 	
@@ -461,113 +647,145 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 		return params.catalog == "dummy";
 	});
 	
-	var flag = 0;
 	api.on("ev_api_create", function(msg){
-		
+				
 		test.equal(msg.ev_type,"ev_api_create");
 		test.notEqual(msg.ev_tstamp,undefined);
-		test.notEqual(msg.ev_data,undefined);
-		flag = 1;
+		test.notEqual(msg.ev_ctx,undefined);		
 		
+	});			
+	
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+														
+								//this function is not reached because no wid is provided								
+								ret_handler(null,null);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because sandbox not saves document.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api	 
+		}
 	});
 	
-	api.remote.create(params, function(err,val){
-		
+	sb.add_constraint("create","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("create","param_doc",sb.constraints.is_required("doc"))
+	  .add_constraint("create","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("create","param_type",sb.constraints.param_type("doc","object"));
+	  	  		   
+				
+	sb.execute("create",params, function(err,val){
+			
+		test.ok(flag);				
 		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});		
-		test.ok(flag);
-		test.expect(11);
-		test.done();
+		test.notEqual(val,null);
+		test.expect(14);		
+		test.done();			
 	});
 		
 }
+
+
 
 exports["api.remote.dispose: missing params"] = function(test){
+		
 	
-	var api = require("../lib/api");	
-	
-	//wid missing
-	params = {miss_wid:"12345", uid:620793114};
-	api.remote.dispose(params, function(err,val){
-				
-		test.equal(val,null);
-		test.deepEqual(err,{code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
+	var flag = 1;
+	var doc = {_id:"50187f71556efcbb25000002",uid:620793114,ctime:1350094951092,catalog:"dummy",test:"test"};
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								ret_handler(null,doc);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because constraint is not satisfied
+								flag = 0;
+								ret_handler();	
+							}
+						 } 
+		}
 	});
-	
+	sb.add_constraint("dispose","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("dispose","param_uid",sb.constraints.is_required("uid"));
+		
 	//uid missing
-	params = {wid:"12345", miss_uid:620793114};
-	api.remote.join(params, function(err,val){
-				
-		test.equal(val,null);
-		test.deepEqual(err,{code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
+	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002"};
+	sb.execute("dispose", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		
 	});
-	
-	test.done();
-	
-}
-
-exports["api.remote.dispose: invalid params: wid not hexstr"] = function(test){
-	
-	var api = require("../lib/api");		
+		
 	
 	//wid missing
-	params = {wid:"wrongwid", uid:620793114};
-	api.remote.dispose(params, function(err,val){
+	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002"};
+	sb.execute("dispose", params, function(err,result){
 		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
-		test.done();				
-	});				
-	
-}
-
-exports["api.remote.dispose: invalid params, wid.length != 24"] = function(test){
-	
-	var api = require("../lib/api");		
-	
-	//wid missing
-	params = {wid:"50187f71556efcbb2500000", uid:620793114};
-	api.remote.dispose(params, function(err,val){
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.expect(4);
+		test.done();
+	}); 	
 		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
-		test.done();				
-	});					
 	
 }
 
 
-exports["api.remote.dispose: valid params, wid not found"] = function(test){
+exports["api.remote.dispose: valid params, wid not found, not owner"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
-	var dbdocs = {};//documents at db
-		dbdocs["1234"] = {_id:"1234",a:1,b:"test1234", rcpts:[620793114], uid:620793114},
-		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
-		
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								ret_handler(null,dbdocs[id_str]);								
-							}
-		}}
-	});
-		
 	
-	api.remote.dispose(params, function(err,val){
-				
-		test.equal(val,null);
-		test.notEqual(err,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });					
-				
-		test.expect(5);		
-		test.done();
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25006666"] = {_id:"50187f71556efcbb25006666",uid:620793114,ctime:1350094951092,catalog:"dummy",test:"test"};
 		
+				
+	var flag = 1;	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								ret_handler(null,dbdocs[id_str]);//return doc								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because document not found or constraint not satisfied
+								flag = 0;
+								ret_handler();	
+							}
+						 } 
+		}
+	});
+	sb.add_constraint("dispose","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("dispose","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("dispose","param_uid",sb.constraints.user_catalog)
+	  .add_constraint("dispose","param_uid",sb.constraints.is_owner);		
+	
+	//wid not found
+	var params = {uid:620793114, wid:"50187f71556efcbb25000002"};
+	sb.execute("dispose", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000002"});		
+		
+	}); 
+	
+	//not owner
+	params = {uid:620793115, wid:"50187f71556efcbb25006666"};
+	sb.execute("dispose", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-2, message: "No access permission: not owner"});
+		test.expect(4);
+		test.done();
 	});
 		
 }
