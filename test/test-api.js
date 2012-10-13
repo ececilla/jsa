@@ -1,4 +1,5 @@
 var sandbox = require("sandboxed-module");
+var async = require("async");
 	
 
 exports["module exported functions"] = function(test){
@@ -636,8 +637,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 	
 	api.rcpts = function(doc,ret_handler){
 			
-			test.notEqual(doc,undefined);	
-			ret_handler([620793115]);				
+			test.notEqual(doc,undefined);							
 			setTimeout(function(){ret_handler([620793115])},500);
 			
 	};
@@ -692,7 +692,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 }
 
 
-
+//dispose tests
 exports["api.remote.dispose: missing params"] = function(test){
 		
 	
@@ -766,8 +766,8 @@ exports["api.remote.dispose: valid params, wid not found, not owner"] = function
 	});
 	sb.add_constraint("dispose","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint("dispose","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint("dispose","param_uid",sb.constraints.user_catalog)
-	  .add_constraint("dispose","param_uid",sb.constraints.is_owner);		
+	  .add_constraint("dispose","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("dispose","is_owner",sb.constraints.is_owner);		
 	
 	//wid not found
 	var params = {uid:620793114, wid:"50187f71556efcbb25000002"};
@@ -791,187 +791,143 @@ exports["api.remote.dispose: valid params, wid not found, not owner"] = function
 }
 
 
-
+//
 exports["api.remote.dispose: valid params, default catalog"] = function(test){
 	
+	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
+	
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793114], uid:620793114},
-		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",uid:620793114,ctime:1350094951092,catalog:"docs",test:"test"};
 		
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
-							select: function(col_str, id_str, ret_handler){
+		requires:{"./db":{							
+							removeById:function(col_str,id_str,ret_handler){
+																
 								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								ret_handler(null,dbdocs[id_str]);
-								
-							},
-							removeById:function(col_str, id_str,ret_handler){
-								
-								test.equal(col_str,"docs");
-								test.equal(id_str, params.wid);
-								
-								//remove doc
-								delete dbdocs[id_str];
-								
-								ret_handler(null,1);																					
-									
+								test.equal( col_str, "docs" );																
+								test.equal( id_str, "50187f71556efcbb25000001");
+																						
+								delete dbdocs["50187f71556efcbb25000001"];
+																								
+								ret_handler(null,1);
+																								
 							}
-		}}
+						 }					 
+		}
 	});
 	
 	api.on("ev_api_dispose", function(msg, rcpts){
 		
 		test.equal( msg.ev_type, "ev_api_dispose");
-		test.deepEqual(msg.ev_data,{wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"} );
+		test.deepEqual(msg.ev_ctx.params,{wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"} );
 		
 	});
 	
-	
-	api.remote.dispose(params, function(err,val){
-				
-		test.equal(err,null);				
-		test.equal(val, 1);
-		test.equal(dbdocs["50187f71556efcbb25000001"], undefined);
-		test.expect(9);
-		
-		test.done();
-		
-	});
-		
-}
-
-
-exports["api.remote.dispose: valid params, default catalog, uid not owner"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793115};
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793114], uid:620793114},
-		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
-	
-	var flag = 1;	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
+	var flag = 1;				
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
-								
+																														
 								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
+								test.equal(id_str,"50187f71556efcbb25000001");
 								
-								ret_handler(null,dbdocs[id_str]);
-								
+								ret_handler(null,dbdocs[id_str]);//return doc								
 							},
-							removeById:function(col_str, id_str,ret_handler){
-								
-								flag = 0;																																				
-									
+							save:function(col_str,doc,ret_handler){
+															
+								flag = 0;
+								ret_handler();	
 							}
-		}}
+						 },
+				 "./api":api 
+		}
 	});
 	
+	sb.add_constraint("dispose","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("dispose","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("dispose","usercatalog",sb.constraints.user_catalog)
+	  .add_constraint("dispose","is_owner",sb.constraints.is_owner);		
 	
-	api.remote.dispose(params, function(err,val){
-							
-		test.ok(flag);
-		test.deepEqual(err, {code:-7, message:"Not allowed, not document owner: @docs" + ":" + params.wid} );					
-		test.equal(val, null);		
-		test.expect(5);
 		
-		test.done();
+	sb.execute("dispose", params, function(err,result){
 		
-	});
+		test.ok(flag);		
+		test.equal(result, 1);
+		test.expect(8);
+		test.done();		
 		
+	}); 
+	
+			
 }
-
-
-
 
 
 exports["api.remote.join: missing params"] = function(test){
 	
-	var api = require("../lib/api");	
-	
-	//wid missing
-	params = {miss_wid:"12345", uid:620793114};
-	api.remote.join(params, function(err,val){
-				
-		test.equal(val,null);
-		test.deepEqual(err,{code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
-	});
-	
-	//uid missing
-	params = {wid:"12345", miss_uid:620793114};
-	api.remote.join(params, function(err,val){
-				
-		test.equal(val,null);
-		test.deepEqual(err,{code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
-	});
-	
-	test.done();
-	
-}
-
-
-exports["api.remote.join: invalid params: wid not hexstr"] = function(test){
-	
-	var api = require("../lib/api");		
-	
-	//wid missing
-	params = {wid:"wrongwid", uid:620793114};
-	api.remote.join(params, function(err,val){
 		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
-		test.done();				
-	});				
+	var flag = 1;
+	var dbdocs = {};
+	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, catalog:"dummy", test:"test", rcpts:[620793114]};
 	
-}
-
-
-exports["api.remote.join: invalid params, wid.length != 24"] = function(test){
-	
-	var api = require("../lib/api");		
-	
-	//wid missing
-	params = {wid:"50187f71556efcbb2500000", uid:620793114};
-	api.remote.join(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
-		test.done();				
-	});					
-	
-}
-
-
-exports["api.remote.join: valid params, uid not in rcpts, default catalog, db async"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115]},
-		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
-	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								setTimeout(function(){//200ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},200);
-								
+																														
+								test.equal(col_str,"docs");
+								test.equal(id_str,"50187f71556efcbb25000002");
+								ret_handler(null,dbdocs["50187f71556efcbb25000002"]);								
 							},
 							save:function(col_str,doc,ret_handler){
-								
+															
+								//Not executed because constraint is not satisfied
+								flag = 0;
+								ret_handler();	
+							}
+						 } 
+		}
+	});
+	sb.add_constraint("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("join","param_uid",sb.constraints.is_required("uid"));
+		
+	//uid missing
+	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002"};
+	sb.execute("join", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		
+	});
+		
+	
+	//wid missing
+	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002"};
+	sb.execute("join", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.expect(6);
+		test.done();
+	}); 
+	
+	
+}
+
+
+
+exports["api.remote.join: valid params, default catalog, db async"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[620793115,620793117], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							save:function(col_str,doc,ret_handler){
+															
 								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793114]);
+								test.deepEqual(doc.rcpts, [620793115, 620793117, 620793114]);
 																
 								//save doc to db...returns with _id:12345
 								setTimeout(function(){//100ms delay saving document
@@ -982,401 +938,295 @@ exports["api.remote.join: valid params, uid not in rcpts, default catalog, db as
 		}}
 	});
 	
-	api.remote.join(params, function(err,val){//endpoint.js interface
-		
-		test.equal(err,null);
-		test.notEqual(val.doc, undefined);
-		test.equal(val.doc.rcpts, undefined);
-		test.equal(val.doc._id, undefined);		
-		test.equal(val.doc.wid, "50187f71556efcbb25000001");
-		test.equal(val.doc.a,1);
-		test.equal(val.doc.b,"test1234");		
-		test.expect(11);
-		test.done();
-		
-	});
-		
-}
-
-//
-exports["api.remote.join: valid params, uid in rcpts, default catalog"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115, 620793114]},
-		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
-	
 	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"docs");
+								test.equal(id_str,"50187f71556efcbb25000001");
 								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								ret_handler(null,dbdocs[id_str]);
-								
+								ret_handler(null,dbdocs["50187f71556efcbb25000001"]);								
 							},
 							save:function(col_str,doc,ret_handler){
-								
-								flag = 0; //should not reach this because uid in rcpts																					
-									
+															
+								//Not executed because join saves document itself
+								flag = 0;
+								ret_handler();	
 							}
-		}}
+						 },
+				 "./api" : api		  
+		}
 	});
 	
-	api.remote.join(params, function(err,val){
+	sb.add_constraint("join","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("join","param_uid",sb.constraints.is_required("uid"));
 		
-		test.ok(flag);
-		test.equal(err,null);				
-		test.equal(val.reach, 2);
-		test.expect(5);
-		test.done();
-		
-	});
-		
-}
-
-
-exports["api.remote.join: valid params, uid in rcpts, explicit catalog"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"dummy"};
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115, 620793114]},
-		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
-							select: function(col_str, id_str, ret_handler){
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001"};//uid not in rcpts
+	async.series(
+		[function(next){
+						
+			sb.execute("join", params, function(err,result){
 								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);
-								
-								ret_handler(null,dbdocs[id_str]);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-																
-								flag = 0;	//should not reach this because uid in rcpts.
-							}
-		}}
-	});
-	
-	api.remote.join(params, function(err,val){
-		
-		test.ok(flag);
-		test.equal(err,null);			
-		test.equal(val.reach, 2);
-		test.expect(5);
-		test.done();
-		
-	});
-	
-	
-}
-
-exports["api.remote.join: valid params, uid not in rcpts, default catalog, wid not found"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
-	var dbdocs = {};//documents at db
-		dbdocs["123"] = {_id:"1234",a:1,b:"test1234", rcpts:[620793115]},
-		dbdocs["456"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								ret_handler(null,dbdocs[id_str]);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								flag = 0; //should not be reached because doc not found.
-							}
-		}}
-	});
-	
-	api.remote.join(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });		
-		test.ok(flag);
+				test.ok(flag);				
+				test.equal(err,null);		
+				test.deepEqual(result.doc.rcpts, [620793115, 620793117, 620793114]);
+				test.equal(result.doc._id, undefined);		
+				test.equal(result.doc.wid, "50187f71556efcbb25000001");
+				test.equal(result.doc.catalog, "docs");		
+				test.equal(result.doc.a,1);
+				test.equal(result.doc.b,"test1234");		
+				next();		
 				
-		test.expect(6);
-		test.done();
-		
-	});
+			});
+			
+		},function(next){
+			params = {uid:620793117, wid:"50187f71556efcbb25000001"};//uid in rcpts
+						
+			sb.execute("join", params, function(err,result){
+								
+				test.ok(flag);	
+				test.equal(err,null);		
+				test.equal(result,1);
+				
+				test.expect(17);
+				test.done();
+				next();
+				
+			});
+			
+		}]);				
 		
 }
+
+
 
 exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793115, catalog:"dummy"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234",uid:620793114},
-		dbdocs["456"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115]};
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", catalog:"docs"};
+				
+	var flag = 1;	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"docs");
+								test.equal(id_str,"50187f71556efcbb25000001");
 								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);
-								
-								ret_handler(null,dbdocs[id_str]);
-								
+								ret_handler(null,dbdocs["50187f71556efcbb25000001"]);								
 							},
 							save:function(col_str,doc,ret_handler){
-								
-								flag = 0; //should not be reached because doc has no rcpts field.
+															
+								//Not executed because constraint joinable is not satisfied.
+								flag = 0;								
+								ret_handler();	
 							}
-		}}
+						 }		  
+		}
 	});
 	
-	api.remote.join(params, function(err,val){
+	sb.add_constraint("join","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("join","param_uid",sb.constraints.is_required("uid"));
 		
-		test.equal(val,null);
-		test.notEqual(err,null);
-		test.deepEqual(err,{ code: -7, message: "Not reportable document: @dummy:50187f71556efcbb25000001" });		
-		test.ok(flag);
+	
+	var params = {uid:620793118, wid:"50187f71556efcbb25000001"};//uid not in rcpts
+	
 				
-		test.expect(6);
-		test.done();
+	sb.execute("join", params, function(err,result){
+											
+		test.ok(flag);
+		test.deepEqual(err,{code:-2, message:"No access permission: not joinable/unjoinable"});		
+		
+		test.expect(4);
+		test.done();	
 		
 	});
-		
+					
 }
 
 exports["api.remote.unjoin: missing params"] = function(test){
 	
-	var api = require("../lib/api");	
-	
-	//wid missing
-	var params = {miss_wid:"12345", uid:620793114};
-	api.remote.unjoin(params, function(err,val){
+			
+	var flag = 1;
+	var dbdocs = {};
+	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, catalog:"dummy", test:"test", rcpts:[620793114,620793115]};
 		
-		test.equal(err.code,-2);
-		test.equal(val,null);
-	});
-	
-	//uid missing
-	params = {wid:"12345", miss_uid:620793114};
-	api.remote.unjoin(params, function(err,val){
-		
-		test.equal(err.code,-2);
-		test.equal(val,null);
-	});
-	
-	test.done();
-	
-}
-
-
-exports["api.remote.unjoin: invalid params: wid not hexstr"] = function(test){
-	
-	var api = require("../lib/api");		
-	
-	//wid missing
-	params = {wid:"wrongwid", uid:620793114};
-	api.remote.unjoin(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
-		test.done();				
-	});				
-	
-}
-
-
-exports["api.remote.unjoin: invalid params, wid.length != 24"] = function(test){
-	
-	var api = require("../lib/api");		
-	
-	//wid missing
-	params = {wid:"50187f71556efcbb2500000", uid:620793114};
-	api.remote.unjoin(params, function(err,val){
-		
-		test.equal(val,null);
-		test.notEqual(err,undefined);
-		test.deepEqual(err,{code:-2, message:"Identifier wid has wrong type"});
-		test.done();				
-	});					
-	
-}
-
-
-exports["api.remote.unjoin: valid params, uid in rcpts, explicit catalog, db async"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"dummy"};
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115,620793116,620793114]},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115]};
-	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
+																																						
+								test.equal(col_str,"docs");
+								test.equal(id_str,"50187f71556efcbb25000002");
+								ret_handler(null,dbdocs["50187f71556efcbb25000002"]);								
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because constraint is not satisfied
+								flag = 0;
+								ret_handler();	
+							}
+						 } 
+		}
+	});
+	
+	sb.add_constraint("unjoin","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("unjoin","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("unjoin","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("unjoin","is_joinable",sb.constraints.is_joinable)
+	  .add_constraint("unjoin","in_rcpts",sb.constraints.in_rcpts);
+	  
+		
+	//uid missing
+	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002"};
+	sb.execute("unjoin", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		
+	});
+		
+	
+	//wid missing
+	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002"};
+	sb.execute("unjoin", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-4, message: "wid parameter required"});		
+	}); 
+	
+	//not in rcpts
+	params = {uid:620793119, wid:"50187f71556efcbb25000002"};
+	sb.execute("unjoin", params, function(err,result){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-2, message:"No access permission: not in rcpts"});
+			
+	}); 
+	
+	//doc has no rcpts list
+	delete dbdocs["50187f71556efcbb25000002"].rcpts;
+	params = {uid:620793119, wid:"50187f71556efcbb25000002"};
+	sb.execute("unjoin", params, function(err,result){
+		
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-2, message:"No access permission: not joinable/unjoinable"});
+		
+		test.expect(14);
+		test.done();
+	});			
+	
+}
+
+
+
+exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db async"] = function(test){
+	
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[620793115,620793117], catalog:"docs"};
+				
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"docs");
+								test.equal(id_str,"50187f71556efcbb25000001");
 								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);																									
-								
-								setTimeout(function(){//100ms delay retrieving document
-								
-									ret_handler(null,dbdocs[id_str]);
-								},100);
-								
+								setTimeout(function(){//100ms delay saving document
+									
+									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+								},10);									
+																
 							},
 							save:function(col_str,doc,ret_handler){
 								
-								test.equal(col_str,"dummy");
-								test.deepEqual(doc.rcpts, [620793115, 620793116]);
-																
-								//save doc to db...returns with _id:1234
-								setTimeout(function(){//50ms timeout saving document								
+																															
+								test.equal(col_str,"docs");
+								test.deepEqual(doc.rcpts,[620793115]);
+								
+								setTimeout(function(){//100ms delay saving document
 									
 									ret_handler(null,doc);
-								},50);	
-							}
-		}}
-	});
-	
-	api.remote.unjoin(params, function(err,val){//endpoint.js interface
-		
-		test.equal(err,null);
-		test.equal(val,0);
-			
-		test.expect(6);
-		test.done();
-		
-	});
-		
-}
-
-
-exports["api.remote.unjoin: valid params, uid not in rcpts, explicit catalog"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793118, catalog:"dummy"};
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115,620793116,620793114]},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115]};
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);																									
-								ret_handler(null,dbdocs[id_str]);
-								
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								flag = 0;
+								},20);	
 									
 							}
-		}}
+						 }				 		  
+		}
 	});
 	
-	api.remote.unjoin(params, function(err,val){
+	sb.add_constraint("unjoin","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("unjoin","in_rcpts",sb.constraints.in_rcpts)	
+	  .add_constraint("unjoin","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("unjoin","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("unjoin","is_joinable",sb.constraints.is_joinable);
 		
-		test.notEqual(err,undefined);
-		test.equal(val,null);
-		test.deepEqual(err,{code:-9, message:"uid 620793118 not found: @dummy:50187f71556efcbb25000001.rcpts"});
-		test.ok(flag);	
+	
+	var params = {uid:620793117, wid:"50187f71556efcbb25000001"};//uid not in rcpts	
+				
+	sb.execute("unjoin", params, function(err,result){
+									
+		test.equal(err,null);		
+		test.equal(result,1);
+		
 		test.expect(6);
-		test.done();
+		test.done();		
 		
-	});
-		
-}
-
-
-
-exports["api.remote.unjoin: valid params, not rcpts, default catalog"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234"},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115]};
-	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure
-							select: function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);																									
-								ret_handler(null,dbdocs[id_str]);
-								
-								
-							},
-							save:function(col_str,doc,ret_handler){
-																																																															
-								flag = 0;//shoudnt get here because this doc has no rcpts
-							}
-		}}
-	});
-	
-	api.remote.unjoin(params, function(err,val){//endpoint.js interface
-		
-		test.notEqual(err,null);
-		test.deepEqual(err,{code:-8,message:"Document @docs:50187f71556efcbb25000001 has no rcpts"});
-		test.equal(val,null);
-		test.ok(flag);
-			
-		test.expect(6);
-		test.done();
-		
-	});
+	});				
 		
 }
 
 
 exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
-	var dbdocs = {};//documents at db.			
-		dbdocs["1234"] = {_id:"1234",a:1, rcpts:[620793115]};	
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002", uid:620793115, a:1, b:"test1234", rcpts:[620793115,620793117], catalog:"docs"};
+				
 	
-	var flag = 1;
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for add procedure
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"docs");
+								test.equal(id_str,"50187f71556efcbb25000001");
 								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								test.equal(dbdocs[id_str], undefined);																
-								
-								ret_handler(null,dbdocs[id_str]);
-								
-							},
-							save:function(col_str,doc,ret_handler){
-								
-								flag = 0;	//should not reach this because wid not found.
-							}
-		}}
+								setTimeout(function(){//100ms delay saving documentdoc not found
+									
+									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+								},10);									
+																
+							}							
+						 }				 		  
+		}
 	});
 	
-	api.remote.unjoin(params,function(err,val){
+	sb.add_constraint("unjoin","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint("unjoin","in_rcpts",sb.constraints.in_rcpts)	
+	  .add_constraint("unjoin","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint("unjoin","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint("unjoin","is_joinable",sb.constraints.is_joinable);
 		
-		test.notEqual(err,null);
-		test.equal(val,null);
-		test.deepEqual(err,{ code: -7, message: "Document not found: @docs:50187f71556efcbb25000001" });
-		test.ok(flag);
-		test.expect(7);
-		test.done();
+	
+	var params = {uid:620793117, wid:"50187f71556efcbb25000001"};//uid not in rcpts	
+				
+	sb.execute("unjoin", params, function(err,result){
+									
 		
-	});
+		test.deepEqual(err,{"code":-7,"message":"Document not found: #docs/50187f71556efcbb25000001"});		
+		test.equal(result,null);
+		
+		test.expect(4);
+		test.done();		
+		
+	});	
 }
+
 
 
 exports["api.remote.add: missing params"] = function(test){
