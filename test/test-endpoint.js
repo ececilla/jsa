@@ -90,23 +90,23 @@ exports["endpoint.rpc: method not found"] = function(test){
 
 exports["endpoint.rpc: method invocation: with result, no params"] = function(test){
 	
-	var ret_value = {test:1};
-		
 	var api = {	remote:{
-						test: function(params, ret_handler){
-															
-							ret_handler(null,ret_value);
+						test: function(ctx, ret_handler){
+							
+							ctx.config.save = 0;								
+							ret_handler(null,{test:1});
 							
 						}}
 			 };
 	
-	var srv = sandbox.require("../lib/server",{
-		requires:{	"./api":api}					 				
-	});			
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./api":api	}
+	});		
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{	"./api":api,
-					"./server":srv	 
+		requires:{	"./sandbox":sb,
+					"./api":api,
+					"./server":{api:{config:{primitives:{test:1}}}}	 
 				}
 	});
 	
@@ -120,7 +120,7 @@ exports["endpoint.rpc: method invocation: with result, no params"] = function(te
 			 		end: function( out_str ){
 			 	
 					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",result:ret_value, id:"123"},out_obj);					 	
+					 		test.deepEqual({jsonrpc:"2.0",result:{test:1}, id:"123"},out_obj);					 	
 					}		
 			} , req_str );
 			
@@ -137,21 +137,23 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 				"id":"123"};
 				
 	var api = {	remote:{
-						test: function(params, ret_handler){
+						test: function(ctx, ret_handler){
 							
-							test.deepEqual(params, req.params);								
-							ret_handler(null,params.x + params.y);
+							ctx.config.save = 0;
+							test.deepEqual(ctx.params, {x:1, y:2, catalog:"docs"});								
+							ret_handler(null,ctx.params.x + ctx.params.y);
 							
 						}}
 			 };
-	
-	var srv = sandbox.require("../lib/server",{
-		requires:{	"./api":api}					 				
-	});			
+			 
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./api":api}
+	});			 				
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{	"./api":api,
-					"./server":srv	 
+					"./sandbox":sb,		
+					"./server":{api:{config:{primitives:{test:1}}}}		 
 				}
 	});
 								
@@ -176,24 +178,23 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 
 
 exports["endpoint.rpc: method invocation: with error"] = function(test){
-
-	var err_value = {test:1};
-	
+		
 	var api = {	remote:{
-						test: function(params, ret_handler){
+						test: function(ctx, ret_handler){
 																				
-							ret_handler(err_value,null);
+							ret_handler({code:-1,message:"test error"},null);
 							
 						}}
 			 };
 	
-	var srv = sandbox.require("../lib/server",{
-		requires:{	"./api":api}					 				
-	});			
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./api":api}
+	});			 				
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{	"./api":api,
-					"./server":srv	 
+					"./sandbox":sb,		
+					"./server":{api:{config:{primitives:{test:1}}}}		 
 				}
 	});
 		
@@ -208,7 +209,7 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 			 		end: function( out_str ){
 			 	
 					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",error:err_value, id:"123"},out_obj);					 	
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-1, message:"test error"}, id:"123"},out_obj);					 	
 					}		
 			} , req_str );
 			
@@ -221,21 +222,23 @@ exports["endpoint.rpc: method invocation without id"] = function(test){
 	var flags = [0, 1, 1, 1];	
 	
 	var api = {	remote:{
-						test: function(params, ret_handler){
+						test: function(ctx, ret_handler){
 																				
-							flags[0] = 1;	//remote procedure gets executed.						
+							flags[0] = 1;	//remote procedure gets executed.
+							ctx.config.save = 0;						
 							ret_handler(null,{});
 							
 						}}
 			 };
 	
-	var srv = sandbox.require("../lib/server",{
-		requires:{	"./api":api}					 				
-	});			
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./api":api}
+	});			 				
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{	"./api":api,
-					"./server":srv	 
+					"./sandbox":sb,		
+					"./server":{api:{config:{primitives:{test:1}}}}		 
 				}
 	});
 			
