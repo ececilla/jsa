@@ -4,26 +4,37 @@ exports["module exported functions"] = function(test){
 	
 	var flags = [0,0];		
 	var _ = sandbox.require("../lib/constants");
-	var server = sandbox.require("../lib/server",
-		{
-			requires:{"./api":{	//db mock module
-								remote:{
-									remote_func: function(){
-														
-										flags[0] = 1;								
-									}
-								},									
-								config:{
-									config_func: function(){
-										
-										flags[1] = 1;
-									}
-								}	
-							 
-							}
-					}
-		});
 	
+	var api = {	
+				remote:{
+					remote_func: function(){
+										
+						flags[0] = 1;								
+					}
+				},									
+				config:{
+					config_func: function(){
+						
+						flags[1] = 1;
+					}
+				}	
+			 
+		};
+	
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+					"./api":api,
+					"./server":{api:{config:{primitives:{remote_func:1}}}}										
+				}
+		
+	});
+	
+	var server = sandbox.require("../lib/server",{
+		
+			requires:{"./api":api, "./sandbox":sb}
+		});
+		
 	test.notEqual( server.settings, undefined );
 	test.notEqual( server.start, undefined );
 	test.notEqual( server.stop, undefined );
@@ -139,16 +150,16 @@ exports["server.init.execute: init scripts"] = function(test){
 exports["server.events.on: custom server events"] = function(test){
 	
 	var server = require("../lib/server");
-	var params = {test:1};
+	var ctx = {params:{test:1}};
 	var rcpts = [1,2,3,4];
-	server.events.on("ev_srv_start", function( _params, _rcpts){
+	server.events.on("ev_srv_start", function( _ctx, _rcpts){
 		
-		test.deepEqual(_params.ev_data, {test:1});
+		test.deepEqual(_ctx.ev_ctx.params, {test:1});
 		test.deepEqual(_rcpts,[1,2,3,4]);
 		test.done();
 	});
 	
-	server.events.emit("ev_srv_start", params, rcpts );	
+	server.events.emit("ev_srv_start", ctx, rcpts );	
 	
 }
 
@@ -171,20 +182,18 @@ exports["server.eq.events.on: custom eq events"] = function(test){
 exports["server.api.events.on: custom api events"] = function(test){
 	
 	var server = require("../lib/server");
-	var params = {test:1};
+	var ctx = {params:{test:1}};	
 	var rcpts = [1,2,3,4];
-	server.api.events.on("ev_api_dummyop", function( _params, _rcpts){
+	server.api.events.on("ev_api_dummyop", function( _msg, _rcpts ){
 		
-		test.deepEqual(_params.ev_data, {test:1});
+		test.deepEqual(_msg.ev_ctx.params, {test:1});
 		test.deepEqual(_rcpts,[1,2,3,4]);
 		test.done();
 	});
 	
-	server.api.events.emit("ev_api_dummyop", params, rcpts );	
+	server.api.events.emit("ev_api_dummyop", ctx, rcpts );	
 	
 }
-
-
 
 
 exports["server.api.create: internal api events, default catalog"] = function(test){
@@ -196,42 +205,49 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 							save:function(col_str,doc,ret_handler){
 																
 								test.equal(col_str,"docs");								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
+								test.equal( doc.test, "test" );
+								test.equal( doc.uid,  620793114);
 								test.deepEqual( doc.rcpts, [620793114]);
+								test.equal(typeof doc.ctime, "number");								
 								
 								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345});	
+								doc._id = "50187f71556efcbb25000001";
+								ret_handler(null,doc);	
 							}
 		}}
-	});				
-	var server = sandbox.require("../lib/server",{
+	});	
+	
+	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./api":api}
+		
+	});
+				
+	var server = sandbox.require("../lib/server",{
+		requires:{"./sandbox":sb,"./api":api}
 		
 	});
 	
 	//two ev_api_create handlers.				
 	server.api.events
 				.on("ev_api_create", function(msg){
-		
+							
 					test.equal(msg.ev_type,"ev_api_create");
-					test.equal(msg.ev_data.uid, params.uid);
-					test.equal(msg.ev_data.catalog, "docs");
-					test.notEqual(msg.ev_data.doc.uid, undefined);
-					test.notEqual(msg.ev_data.doc.rcpts, undefined);				
+					test.equal(msg.ev_ctx.params.uid, 620793114);
+					test.equal(msg.ev_ctx.params.catalog, "docs");
+					//console.log(msg.ev_ctx.doc);				
 				})				
 				.on("ev_api_create",function(msg){
+										
 					test.equal(msg.ev_type,"ev_api_create");
 					
 				});
 	
 	server.api.create(params, function(err,val){
-		
-		test.equal(err,undefined);
-		test.notEqual(val);
-		test.deepEqual(val,{wid:"12345"});					
 				
-		test.expect(13);		
+		test.equal(err,undefined);
+		test.notEqual(val, undefined);								
+				
+		test.expect(11);		
 		test.done();
 	});
 					
@@ -243,21 +259,27 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 	var params = {uid:620793114, doc:{test:"test"}};
 	    
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
+		requires:{"./db":{	
 							save:function(col_str,doc,ret_handler){
 																
 								test.equal(col_str,"docs");								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
+								test.equal( doc.test, "test" );
+								test.equal( doc.uid, 620793114 );
 								test.deepEqual( doc.rcpts, [620793114]);
 								
 								//save doc to db...returns with _id:12345
 								ret_handler({message:"some db error"},null);	
 							}
 		}}
-	});				
-	var server = sandbox.require("../lib/server",{
+	});	
+	
+	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./api":api}
+		
+	});
+				
+	var server = sandbox.require("../lib/server",{
+		requires:{"./api":api,"./sandbox":sb}
 		
 	});
 	
@@ -276,44 +298,53 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	    
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	
-							save:function(col_str,doc,ret_handler){
+		requires:{"./db":{	//db mock module for create procedure
+							save:function(col_str, doc, ret_handler){
 																
 								test.equal(col_str,"dummy");								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-								test.equal( doc.rcpts, undefined); //No rcpt defined because this catalog is not notifiyable.
+								test.equal( doc.test, "test" );
+								test.equal( doc.uid,  620793114);
+								test.deepEqual( doc.rcpts, undefined);
+								test.equal(typeof doc.ctime, "number");								
 								
 								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345});	
+								doc._id = "50187f71556efcbb25000001";
+								ret_handler(null,doc);	
 							}
 		}}
-	}),			
+	});	
 	
-	server = sandbox.require("../lib/server",{
+	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./api":api}
 		
 	});
-	
-					
-	server.api.events.on("ev_api_create", function(msg){
-		
-		test.equal(msg.ev_type,"ev_api_create");
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.catalog, "dummy");
-		test.notEqual(msg.ev_data.doc.uid, undefined);
-		test.equal(msg.ev_data.doc.rcpts, undefined);
-		
+				
+	var server = sandbox.require("../lib/server",{
+		requires:{"./sandbox":sb,"./api":api}
 		
 	});
 	
+	//two ev_api_create handlers.				
+	server.api.events
+				.on("ev_api_create", function(msg){
+							
+					test.equal(msg.ev_type,"ev_api_create");
+					test.equal(msg.ev_ctx.params.uid, 620793114);
+					test.equal(msg.ev_ctx.params.catalog, "dummy");
+					//console.log(msg.ev_ctx.doc);				
+				})				
+				.on("ev_api_create",function(msg){
+										
+					test.equal(msg.ev_type,"ev_api_create");
+					
+				});
+	
 	server.api.create(params, function(err,val){
-		
-		test.equal(err,undefined);
-		test.notEqual(val);
-		test.deepEqual(val,{wid:"12345"});					
 				
-		test.expect(12);		
+		test.equal(err,undefined);
+		test.notEqual(val, undefined);								
+				
+		test.expect(11);		
 		test.done();
 	});
 						
@@ -322,31 +353,39 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 
 exports["server.api.create: internal events, explicit&added catalog"] = function(test){
 	
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
+	
+		var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc ,ret_handler){
+							save:function(col_str, doc, ret_handler){
 																
 								test.equal(col_str,"dummy");								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-								test.deepEqual( doc.rcpts, [620793114,620793115]);
+								test.equal( doc.test, "test" );
+								test.equal( doc.uid,  620793114);
+								test.deepEqual( doc.rcpts, [620793114, 620793115]);
+								test.equal(typeof doc.ctime, "number");								
 								
 								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345});	
+								doc._id = "50187f71556efcbb25000001";
+								ret_handler(null,doc);	
 							}
 		}}
-	}),			
+	});	
 	
-	server = sandbox.require("../lib/server",{
+	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./api":api}
+		
+	});
+				
+	var server = sandbox.require("../lib/server",{
+		requires:{"./sandbox":sb,"./api":api}
 		
 	});
 	
 	server.api.config.add_create_handler(function(params){
 			
-		return params.doc.test == "test";	
+		return params.catalog == "dummy";	
 	});
 	
 	
@@ -356,27 +395,31 @@ exports["server.api.create: internal events, explicit&added catalog"] = function
 		test.notEqual(doc,undefined);		
 		ret_handler([620793115]);
 	});
+	
+	//two ev_api_create handlers.				
+	server.api.events
+				.on("ev_api_create", function(msg){
+							
+					test.equal(msg.ev_type,"ev_api_create");
+					test.equal(msg.ev_ctx.params.uid, 620793114);
+					test.equal(msg.ev_ctx.params.catalog, "dummy");
+					//console.log(msg.ev_ctx.doc);				
+				})				
+				.on("ev_api_create",function(msg){
+										
+					test.equal(msg.ev_type,"ev_api_create");
 					
-	server.api.events.on("ev_api_create", function(msg){
-		
-		test.equal(msg.ev_type,"ev_api_create");
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.catalog, "dummy");
-		test.equal(msg.ev_data.doc.uid, params.uid);
-		test.notEqual(msg.ev_data.doc.rcpts, undefined);
-				
-	});
+				});
+	
 	
 	server.api.create(params, function(err,val){
-		
-		test.equal(err,undefined);
-		test.notEqual(val,undefined);
-		test.deepEqual(val,{wid:"12345"});					
 				
-		test.expect(13);		
+		test.equal(err,undefined);
+		test.notEqual(val, undefined);								
+				
+		test.expect(12);		
 		test.done();
-	});
-					
+	});								
 	
 }
 
@@ -385,18 +428,21 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 	
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	var dbdocs = {};//documents at db	
-		dbdocs["1234"] = {_id:"1234",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
-		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
+		dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	var db = {	
 							save:function(col_str, doc ,ret_handler){
 																
 								test.equal(col_str,"dummy");								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
+								test.equal( doc.test, "test" );
+								test.equal( doc.uid, 620793114 );
 								test.deepEqual( doc.rcpts, [620793114,620793115]);
 								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:"56ff8"});	
+								
+								//save doc to db...
+								doc._id = "50187f71556efcbb25000666";
+								dbdocs["50187f71556efcbb25000666"] = doc;
+								ret_handler(null,doc);	
 							},
 							
 							select:function(col_str, id_str, ret_handler){
@@ -411,16 +457,20 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 		    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":db}
-	}),			
+	});	
 	
-	server = sandbox.require("../lib/server",{
-		requires:{"./api":api,"./db":db}
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./api":api}
+	});			
+	
+	var server = sandbox.require("../lib/server",{
+		requires:{"./api":api,"./db":db,"./sandbox":sb}
 		
 	});
 	
 	server.api.config.add_create_handler(function(params){
 			
-		return params.doc.test == "test";	
+		return params.catalog == "dummy";	
 	});
 	
 	
@@ -429,7 +479,7 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 		
 		test.notEqual(doc,undefined);
 		
-		server.db.select("dummy","5678",function(err,val){
+		server.db.select("dummy","50187f71556efcbb25000002",function(err,val){
 			
 			test.equal(val.a,2);			
 			ret_handler([val.uid]);
@@ -440,20 +490,17 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 	server.api.events.on("ev_api_create", function(msg){
 		
 		test.equal(msg.ev_type,"ev_api_create");
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.catalog, "dummy");
-		test.equal(msg.ev_data.doc.uid, params.uid);
-		test.notEqual(msg.ev_data.doc.rcpts, undefined);
+		test.equal(msg.ev_ctx.params.uid, 620793114);
+		test.equal(msg.ev_ctx.params.catalog, "dummy");			
 				
 	});
 	
 	server.api.create(params, function(err,val){
 		
 		test.equal(err,undefined);
-		test.notEqual(val,undefined);
-		test.deepEqual(val,{wid:"56ff8"});					
+		test.notEqual(val,undefined);						
 				
-		test.expect(14);		
+		test.expect(11);		
 		test.done();
 	});
 					
@@ -469,35 +516,44 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793114], uid:620793114},
 		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115], uid:620793115};
 	    
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							removeById:function(col_str, id_str, ret_handler){
-																
-								test.equal(col_str,"docs");																								
-								test.deepEqual( id_str, "50187f71556efcbb25000001");
-								
-								//save doc to db...returns number of removed objects
-								setTimeout(function(){//100ms delay deleting document.
-									
-									ret_handler(null,1);
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),				
-	server = sandbox.require("../lib/server",{
+	var db = {	//db mock module for create procedure
+				removeById:function(col_str, id_str, ret_handler){
+													
+					test.equal(col_str,"docs");																								
+					test.equal( id_str, "50187f71556efcbb25000001");
+					
+					delete dbdocs["50187f71556efcbb25000001"];
+					//save doc to db...returns number of removed objects
+					setTimeout(function(){//100ms delay deleting document.
+						
+						ret_handler(null,1);
+					},100);	
+				},
+				
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "docs");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
 		
-		requires:{"./api":api}		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":db}
+	});	
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		
+		requires:{"./api":api,"./db":db}		
+	});
+				
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
 	});
 	
 						
@@ -505,10 +561,9 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 		
 		test.equal(msg.ev_type,"ev_api_dispose");		
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "docs");					
-		test.deepEqual(msg.ev_data.uid, 620793114);
+		test.equal(msg.ev_ctx.params.uid, 620793114);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "docs");							
 									
 	});
 				
@@ -516,12 +571,12 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 	server.api.dispose(params, function(err,val){
 		
 		test.equal(err,undefined);
-		test.deepEqual(val,1);						
+		test.equal(val,1);						
 				
-		test.expect(12);		
+		test.expect(11);		
 		test.done();
 	});
-						
+							
 }
 
 
@@ -529,40 +584,47 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 exports["server.api.join: internal events, default catalog"] = function(test){
 	
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
-	var dbdocs = {};//documents at db
 	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115], uid:620793115},
-		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115], uid:620793115};
-	    
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115], uid:620793115, catalog:"docs"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115], uid:620793115, catalog:"docs"};
+	
+	var db =  {	
+				save:function(col_str, doc, ret_handler){
+													
+					test.equal(col_str,"docs");																								
+					test.deepEqual( doc.rcpts, [620793115, 620793114]);
+										
+					setTimeout(function(){
+						
+						ret_handler(null,doc);
+					},50);	
+				},
+				
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "docs");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
+	   
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"docs");																								
-								test.deepEqual( doc.rcpts, [620793115, 620793114]);
-								
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,{_id:12345});
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),				
-	server = sandbox.require("../lib/server",{
+		requires:{"./db":db}
+	});
+	
+	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api}		
+		requires:{"./api":api, "./db":db}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
 	});
 	
 						
@@ -570,17 +632,17 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 		
 		test.equal(msg.ev_type,"ev_api_join");
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "docs");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115]);							
+		test.equal(msg.ev_ctx.params.uid, params.uid);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "docs");					
+		test.deepEqual(msg.ev_ctx.doc.rcpts, [620793115,620793114]);							
 	});
 				
 	
 	server.api.join(params, function(err,val){
 		
 		test.equal(err,undefined);
-		test.deepEqual(val,{doc:{a:1, b:"test1234", uid:620793115, wid:"50187f71556efcbb25000001"}});						
+		test.notEqual(val,undefined);						
 				
 		test.expect(12);		
 		test.done();
@@ -590,42 +652,49 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 
 
 exports["server.api.unjoin: internal events, default catalog"] = function(test){
-	
+	  
 	var params = {wid:"50187f71556efcbb25000001", uid:620793116};
-	var dbdocs = {};//documents at db
 	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
-		dbdocs["5678"] = {_id:"5678",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
-	    
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"docs"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"docs"};
+	
+	var db =  {	
+				save:function(col_str, doc, ret_handler){
+													
+					test.equal(col_str,"docs");																								
+					test.deepEqual( doc.rcpts, [620793115]);
+										
+					setTimeout(function(){
+						
+						ret_handler(null,doc);
+					},50);	
+				},
+				
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "docs");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
+	   
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"docs");																								
-								test.deepEqual( doc.rcpts, [620793115]); //params.uid removed from rcpts
-								
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,0);
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),				
-	server = sandbox.require("../lib/server",{
+		requires:{"./db":db}
+	});
+	
+	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api}		
+		requires:{"./api":api, "./db":db}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
 	});
 	
 						
@@ -633,17 +702,17 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 		
 		test.equal(msg.ev_type,"ev_api_unjoin");
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "docs");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115]);							
+		test.equal(msg.ev_ctx.params.uid, params.uid);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "docs");					
+		test.deepEqual(msg.ev_ctx.doc.rcpts, [620793115]);							
 	});
 				
 	
 	server.api.unjoin(params, function(err,val){
 		
 		test.equal(err,undefined);
-		test.equal(val,0);						
+		test.notEqual(val,undefined);						
 				
 		test.expect(12);		
 		test.done();
@@ -652,245 +721,264 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 }
 
 
-exports["server.api.add: internal events, default catalog, wrong ev handler"] = function(test){
+exports["server.api.add: internal events, default catalog"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"c", value:[]};
-	var dbdocs = {};//documents at db
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"c", value:[]};	
 	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
-	    
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"docs"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"docs"};
+	
+	var db =  {	
+				save:function(col_str, doc, ret_handler){
+													
+					test.equal(col_str,"docs");																								
+					test.deepEqual( doc.rcpts, [620793115, 620793116]);
+					test.deepEqual(doc.c,[]);
+										
+					setTimeout(function(){
+						
+						ret_handler(null,doc);
+					},50);	
+				},
+				
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "docs");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
+	   
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"docs");																								
-								test.deepEqual( doc.c, []); //field added to doc
-								
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,0);
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "docs");
-								test.equal(id_str, params.wid);
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),				
-	server = sandbox.require("../lib/server",{
-		
-		requires:{"./api":api}		
+		requires:{"./db":db}
 	});
+	
+	var sb = sandbox.require("../lib/sandbox",{
 		
-	var flag = 1;					
+		requires:{"./api":api, "./db":db}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
+	});
+	
+						
 	server.api.events.on("ev_api_add", function(msg){
 		
 		test.equal(msg.ev_type,"ev_api_add");
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "docs");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
-	}).on("ev_api_unjoin",function(msg){
-		
-		flag = 0; //should not reach this point because ev_api_unjoin is never triggered
+		test.equal(msg.ev_ctx.params.uid, params.uid);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "docs");													
 	});
 				
 	
 	server.api.add(params, function(err,val){
 		
 		test.equal(err,undefined);
-		test.equal(val,0);						
-		test.ok(flag);		
-		test.expect(13);		
+		test.equal(val,1);						
+				
+		test.expect(12);		
 		test.done();
-	});
-						
+	});					
 }
 
 
-exports["server.api.remove: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.remove: internal events, explicit catalog"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"b", catalog:"dummy"};
-	var dbdocs = {};//documents at db
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"b", catalog:"dummy"};		
 	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
-	    
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
+	
+	var db =  {	
+				save:function(col_str, doc, ret_handler){
+													
+					test.equal(col_str,"dummy");																								
+					test.deepEqual( doc.rcpts, [620793115, 620793116]);
+					test.equal(doc.b,undefined);
+										
+					setTimeout(function(){
+						
+						ret_handler(null,doc);
+					},50);	
+				},
+				
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "dummy");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
+	   
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"dummy");																								
-								test.equal( doc.b, undefined ); //field removed from doc
-								
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,0);
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);								
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),				
-	server = sandbox.require("../lib/server",{
-		
-		requires:{"./api":api}		
+		requires:{"./db":db}
 	});
+	
+	var sb = sandbox.require("../lib/sandbox",{
 		
-	var flag = 1;					
-	server.api.events.on("ev_api_rem", function(msg){
+		requires:{"./api":api, "./db":db}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
 		
-		test.equal(msg.ev_type,"ev_api_rem");
+		requires:{"./api":api,"./sandbox":sb}		
+	});
+	
+						
+	server.api.events.on("ev_api_remove", function(msg){
+		
+		test.equal(msg.ev_type,"ev_api_remove");
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "dummy");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
-	}).on("ev_api_create",function(msg){
-		
-		flag = 0; //should not reach this point because ev_api_unjoin is never triggered
+		test.equal(msg.ev_ctx.params.uid, 620793116);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "dummy");													
 	});
 				
 	
 	server.api.remove(params, function(err,val){
 		
 		test.equal(err,undefined);
-		test.equal(val,0);						
-		test.ok(flag);		
-		test.expect(13);		
+		test.equal(val,1);						
+				
+		test.expect(12);		
 		test.done();
-	});
+	});	
 						
 }
 
 
 
 
-exports["server.api.set: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.set: internal events, explicit catalog"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", value:5, catalog:"dummy"};
-	var dbdocs = {};//documents at db
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", value:5, catalog:"dummy"};			
 	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
-	    
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
+	
+	var db =  {	
+				save:function(col_str, doc, ret_handler){
+													
+					test.equal(col_str,"dummy");																								
+					test.deepEqual( doc.rcpts, [620793115, 620793116]);
+					test.equal(doc.a,5);
+										
+					setTimeout(function(){
+						
+						ret_handler(null,doc);
+					},50);	
+				},
+				
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "dummy");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					test.equal(dbdocs[id_str].a,1);
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
+	   
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"dummy");																								
-								test.equal( doc.a, 5 ); //field 'a' set to number 5
-								
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,0);
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);								
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),				
-	server = sandbox.require("../lib/server",{
-		
-		requires:{"./api":api}		
+		requires:{"./db":db}
 	});
+	
+	var sb = sandbox.require("../lib/sandbox",{
 		
+		requires:{"./api":api, "./db":db}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
 		
-	var flag = 1;					
+		requires:{"./api":api,"./sandbox":sb}		
+	});
+	
+						
 	server.api.events.on("ev_api_set", function(msg){
 		
 		test.equal(msg.ev_type,"ev_api_set");
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "dummy");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);							
-	}).on("ev_api_create",function(msg){
-		
-		flag = 0; //should not reach this point because ev_api_create is never triggered
-	});					
+		test.equal(msg.ev_ctx.params.uid, 620793116);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "dummy");													
+	});
+				
 	
 	server.api.set(params, function(err,val){
 		
 		test.equal(err,undefined);
-		test.equal(val,0);						
-		test.ok(flag);		
+		test.equal(val,1);						
+				
 		test.expect(13);		
 		test.done();
-	});
-						
+	});						
 }
 
 
 
-exports["server.api.push: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.push: internal events, explicit catalog"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", value:9, catalog:"dummy"};
-	var dbdocs = {};//documents at db
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", value:9, catalog:"dummy"};			
 	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:[4,6], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
-	    
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"dummy");																								
-								test.deepEqual( doc.a, [4,6,9] ); //field 'a' has value [4,6,9]
-								
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,0);
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);																
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),	
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[4,6], b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
+	
+	var db =  {	
+				save:function(col_str, doc, ret_handler){
+													
+					test.equal(col_str,"dummy");																								
+					test.deepEqual( doc.rcpts, [620793115, 620793116]);
+					test.deepEqual(doc.a,[4,6,9]);
+										
+					setTimeout(function(){
+						
+						ret_handler(null,doc);
+					},50);	
+				},
 				
-	server = sandbox.require("../lib/server",{
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "dummy");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					test.deepEqual(dbdocs[id_str].a,[4,6]);
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
+	   
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":db}
+	});
+	
+	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api}		
+		requires:{"./api":api, "./db":db}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
 	});
 	
 	var flag = 1;					
@@ -898,154 +986,160 @@ exports["server.api.push: internal events, explicit catalog, wrong ev handler"] 
 		
 		test.equal(msg.ev_type,"ev_api_push");
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "dummy");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
-								
-	}).on("ev_api_decr",function(msg){
+		test.equal(msg.ev_ctx.params.uid, 620793116);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "dummy");													
+	}).on("ev_api_set",function(msg){
 		
-		flag = 0; //should not reach this point because ev_api_decr is never triggered
-	});	
+		flag = 0;
+	});
+				
 	
 	server.api.push(params, function(err,val){
 		
+		test.ok(flag);
 		test.equal(err,undefined);
-		test.equal(val,0);						
-		test.ok(flag);		
-		test.expect(13);		
+		test.equal(val,1);						
+				
+		test.expect(14);		
 		test.done();
-	});
+	});	
 						
 }
 
-exports["server.api.pop: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.pop: internal events, explicit catalog"] = function(test){	
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
-	var dbdocs = {};//documents at db
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};			
 	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:[-4,"foo",3], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
-	    
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"dummy");																								
-								test.deepEqual( doc.a, [-4,"foo"] ); //field 'a' has value [-4,"foo"]
-								
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,0);
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);																
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),	
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[-4,"foo",6], b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
+	
+	var db =  {	
+				save:function(col_str, doc, ret_handler){
+													
+					test.equal(col_str,"dummy");																								
+					test.deepEqual( doc.rcpts, [620793115, 620793116]);
+					test.deepEqual(doc.a,[-4,"foo"]);
+										
+					setTimeout(function(){
+						
+						ret_handler(null,doc);
+					},50);	
+				},
 				
-	server = sandbox.require("../lib/server",{
-		
-		requires:{"./api":api}		
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "dummy");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					test.deepEqual(dbdocs[id_str].a,[-4,"foo",6]);
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
+	   
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":db}
 	});
 	
-	var flag = 1;					
+	var sb = sandbox.require("../lib/sandbox",{
+		
+		requires:{"./api":api, "./db":db}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
+	});
+							
 	server.api.events.on("ev_api_pop", function(msg){
 		
 		test.equal(msg.ev_type,"ev_api_pop");
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "dummy");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
-								
-	}).on("ev_api_push",function(msg){
-		
-		flag = 0; //should not reach this point because ev_api_push is never triggered
-	});	
+		test.equal(msg.ev_ctx.params.uid, 620793116);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "dummy");													
+	});
+				
 	
 	server.api.pop(params, function(err,val){
-		
+				
 		test.equal(err,undefined);
-		test.equal(val,0);						
-		test.ok(flag);		
+		test.equal(val,1);						
+				
 		test.expect(13);		
 		test.done();
-	});
+	});	
 						
 }
 
 
-exports["server.api.shift: internal events, explicit catalog, wrong ev handler"] = function(test){
+exports["server.api.shift: internal events, explicit catalog"] = function(test){
 	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};
-	var dbdocs = {};//documents at db
+	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"a", catalog:"dummy"};			
 	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", a:[-4,"foo",3], b:"test1234", rcpts:[620793115, 620793116], uid:620793115},
-		dbdocs["5678"] = {_id:"5678", a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
-	    
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for create procedure
-							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"dummy");																								
-								test.deepEqual( doc.a, ["foo",3] ); //field 'a' has value ["foo",3]
-								
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,0);
-								},100);	
-							},
-							
-							select:function(col_str, id_str, ret_handler){
-								
-								test.equal(col_str, "dummy");
-								test.equal(id_str, params.wid);																
-								
-								setTimeout(function(){//50ms delay retrieving document
-									
-									ret_handler(null,dbdocs[id_str]);
-								},50);	
-							}
-		}}
-	}),	
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[-4,"foo",6], b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
+	
+	var db =  {	
+				save:function(col_str, doc, ret_handler){
+													
+					test.equal(col_str,"dummy");																								
+					test.deepEqual( doc.rcpts, [620793115, 620793116]);
+					test.deepEqual(doc.a,["foo",6]);
+										
+					setTimeout(function(){
+						
+						ret_handler(null,doc);
+					},50);	
+				},
 				
-	server = sandbox.require("../lib/server",{
-		
-		requires:{"./api":api}		
+				select:function(col_str, id_str, ret_handler){
+					
+					test.equal(col_str, "dummy");
+					test.equal(id_str, "50187f71556efcbb25000001");
+					test.deepEqual(dbdocs[id_str].a,[-4,"foo",6]);
+					
+					setTimeout(function(){//50ms delay retrieving document
+						
+						ret_handler(null,dbdocs[id_str]);
+					},50);	
+				}
+	};
+	   
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":db}
 	});
 	
-	var flag = 1;					
+	var sb = sandbox.require("../lib/sandbox",{
+		
+		requires:{"./api":api, "./db":db}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
+	});
+							
 	server.api.events.on("ev_api_shift", function(msg){
 		
 		test.equal(msg.ev_type,"ev_api_shift");
 		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_data.uid, params.uid);
-		test.equal(msg.ev_data.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_data.catalog, "dummy");					
-		test.deepEqual(msg.ev_data.doc.rcpts, [620793115, 620793116]);	
-								
-	}).on("ev_api_pop",function(msg){
-		
-		flag = 0; //should not reach this point because ev_api_pop is never triggered
-	});	
+		test.equal(msg.ev_ctx.params.uid, 620793116);
+		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
+		test.equal(msg.ev_ctx.params.catalog, "dummy");													
+	});
+				
 	
 	server.api.shift(params, function(err,val){
-		
+				
 		test.equal(err,undefined);
-		test.equal(val,0);						
-		test.ok(flag);		
+		test.equal(val,1);						
+				
 		test.expect(13);		
 		test.done();
 	});
@@ -1056,17 +1150,17 @@ exports["server.api.shift: internal events, explicit catalog, wrong ev handler"]
 exports["server.api.events.emit"] = function(test){
 	
 	var server = require("../lib/server");
-	var myparams = {foo:1, bar:"bar"},
-		myrcpts = [1,2,3];
+	var ctx = {params:{foo:1,bar:"bar"}};	
+	var	myrcpts = [1,2,3];
 	
-	server.api.events.on("ev_bar", function(params, rcpts){
+	server.api.events.on("ev_bar", function(msg, rcpts){
 		
-		test.deepEqual( params.ev_data, myparams );
-		test.equal( rcpts, myrcpts );
+		test.deepEqual( msg.ev_ctx.params, ctx.params );
+		test.equal( rcpts, myrcpts );		
 		test.done();	
 	});
 	
-	server.api.events.emit("ev_bar", myparams, myrcpts);	
+	server.api.events.emit("ev_bar", ctx, myrcpts);	
 	
 }
 
@@ -1074,39 +1168,43 @@ exports["server.api.events.emit"] = function(test){
 
 exports["server.api.config.newop: invocation"] = function(test){
 	
-	var server = require("../lib/server");
-	var api = require("../lib/api");	
-		
+	var server = require("../lib/server");	
+	var api = require("../lib/api");			
 	var myparams = {foo:1, bar:"test"};
+			
+	server.api.config.newop("newop", function(ctx, ret_handler){
 		
-	
-	server.api.config.newop("newop", function(params, ret_handler){
-		
-		test.deepEqual(params, myparams);		
+			
+		ctx.config.save = 0;
+		test.deepEqual(ctx.params, myparams);
+		test.deepEqual(ctx.doc,{});		
+		server.api.events.emit("ev_api_newop", ctx);		
 		ret_handler(null,1);
 	});
 	
 	test.notEqual(server.api.newop, undefined);
-	
-	//ev_newop will be emitted by default.
-	server.api.events.on("ev_api_newop", function(params, rcpts){
-		
-		test.deepEqual( params.ev_data, myparams );
-		test.equal( rcpts, undefined );
-		test.expect(7);
-		test.done();		
-	});
-	
-	
-	
 	test.notEqual( api.remote["newop"], undefined );
-	api.remote["newop"](myparams, function(err,val){
+	
+	
+	server.api.events.on("ev_api_newop", function(msg, rcpts){
 		
-		test.equal(err,null);
-		test.ok(val);
+		
+		test.deepEqual(msg.ev_ctx.params, myparams);
+		test.equal( rcpts, undefined );
+					
 	});
+				
+	//make invocation
+	server.api.newop( myparams, function(err,val){
 	
-	
+		
+		test.equal(val,1);
+		test.equal(err,null);	
+		
+		test.expect(8);
+		test.done();
+	});
+		
 }
 
 
