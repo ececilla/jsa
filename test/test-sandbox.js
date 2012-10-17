@@ -192,7 +192,9 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] 
 							 ret_handler( null, 1 );
 						  }
 				}
-		}
+		},
+		"./server":{api:{config:{primitives:{dummy:1}}}}
+	
 	}
 	});
 	
@@ -223,7 +225,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] 
 	sb.execute("dummy", params, function(err,result){
 		
 		test.ok(flag);
-		test.deepEqual(result,1);
+		test.equal(result,1);
 		test.expect(11);
 		test.done();
 	});
@@ -711,7 +713,7 @@ exports["sandbox.add_constraint: ctx.config.emit:1"] = function(test){
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
 	
-	var api = require("../lib/api");
+	var api = sandbox.require("../lib/api");
 	
 	api.remote.set = function(ctx, ret_handler){
 		
@@ -755,6 +757,24 @@ exports["sandbox.add_constraint: ctx.config.emit:1"] = function(test){
 		test.ok(flag);
 		test.equal(err,undefined);
 		test.expect(5);									
+		test.done();
+	});
+		
+}
+
+
+
+exports["sandbox.add_constraint: method not found"] = function(test){
+	
+	
+	var api = require("../lib/api");	
+	var sb = sandbox.require("../lib/sandbox",{requires:{"./api":api}});				
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
+		
+		
+	sb.execute("foooooo", params, function(err,result){
+						
+		test.deepEqual(err,{ code: -32600, message: "Method not found." });									
 		test.done();
 	});
 		

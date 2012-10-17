@@ -216,12 +216,13 @@ exports["evqueue.on: custom event, explicit rcpts, subscription"] = function(tes
 	eq.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
 	eq.on("ev_eq_push", function(msg, rcpt){
 		
-		test.equal(msg.ev_type, "ev_eq_push");
-		test.deepEqual(msg.ev_data.ev_data, rpc_params);		
+		test.equal(msg.ev_type, "ev_eq_push");		
+		var out = JSON.parse( msg.ev_data.msg_str);
+		test.deepEqual(out.ev_data, rpc_params);		
 		test.equal(rcpt,620793115);
 		
 	});
-	var ctx = {doc:undefined,params:rpc_params};
+	var ctx = {doc:undefined,params:rpc_params};//payload a emitir
 	api.emit("ev_dummy", ctx, rcpts);
 	
 	test.equal(counter,2);

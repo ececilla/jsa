@@ -24,7 +24,7 @@ exports["endpoint.rpc: incorrect jsonstring"] = function(test){
 			 		end: function( out_str ){
 			 	
 					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",err:{code:-32700,message:"Parse error."}, id:null},out_obj);					 		
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32700,message:"Parse error."}, id:null},out_obj);					 		
 					}		
 			} , req_str );
 			
@@ -46,7 +46,7 @@ exports["endpoint.rpc: incorrect json-rpc version"] = function(test){
 			 		end: function( out_str ){
 			 	
 					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",err:{code:-32604,message:"Version not supported."}, id:null},out_obj);
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32604,message:"Version not supported."}, id:null},out_obj);
 					 		
 					}		
 			} , req_str );
@@ -57,15 +57,25 @@ exports["endpoint.rpc: incorrect json-rpc version"] = function(test){
 
 exports["endpoint.rpc: method not found"] = function(test){
 	
+	var api = {remote:{
+						create: function(params, ret_handler){
+							
+							
+							ret_handler(null,{wid:"1234"});
+							
+						}					
+			 }
+	};
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+				"./api":api,
+				"./server":{api:{config:{primitives:{create:1}}}}
+				}
+	});
+	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{"./api":{	remote:{
-							create: function(params, ret_handler){
-								
-								
-								ret_handler(null,{wid:"1234"});
-								
-							}}
-		}}
+		requires:{"./sandbox":sb } 
 	});
 	
 	var req_str = '{"jsonrpc":"2.0","method":"nonexisting","id":123}';
@@ -78,7 +88,7 @@ exports["endpoint.rpc: method not found"] = function(test){
 			 		end: function( out_str ){
 			 	
 					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",err:{code:-32600,message:"Method not found."}, id:"123"},out_obj);
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32600,message:"Method not found."}, id:123},out_obj);
 					 		
 					}		
 			} , req_str );
@@ -100,13 +110,16 @@ exports["endpoint.rpc: method invocation: with result, no params"] = function(te
 			 };
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api	}
+		requires:{
+					"./api":api,
+					"./server":{api:{config:{primitives:{test:1}}}}
+		
+			}
 	});		
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{	"./sandbox":sb,
-					"./api":api,
-					"./server":{api:{config:{primitives:{test:1}}}}	 
+		requires:{	
+					"./sandbox":sb,											 
 				}
 	});
 	
@@ -147,14 +160,13 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 			 };
 			 
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api}
+		requires:{
+					"./api":api,
+					"./server":{api:{config:{primitives:{test:1}}}}}
 	});			 				
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{	"./api":api,
-					"./sandbox":sb,		
-					"./server":{api:{config:{primitives:{test:1}}}}		 
-				}
+		requires:{"./sandbox":sb}
 	});
 								
 	
@@ -185,17 +197,17 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 							ret_handler({code:-1,message:"test error"},null);
 							
 						}}
-			 };
+	};
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api}
+		requires:{
+					"./api":api,
+					"./server":{api:{config:{primitives:{test:1}}}}
+		}
 	});			 				
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{	"./api":api,
-					"./sandbox":sb,		
-					"./server":{api:{config:{primitives:{test:1}}}}		 
-				}
+		requires:{"./sandbox":sb}
 	});
 		
 	
@@ -232,14 +244,14 @@ exports["endpoint.rpc: method invocation without id"] = function(test){
 			 };
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api}
+		requires:{
+					"./api":api,
+					"./server":{api:{config:{primitives:{test:1}}}}
+					}
 	});			 				
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{	"./api":api,
-					"./sandbox":sb,		
-					"./server":{api:{config:{primitives:{test:1}}}}		 
-				}
+		requires:{"./sandbox":sb}
 	});
 			
 	
