@@ -303,7 +303,7 @@ exports["sandbox.add_constraint: no wid"] = function(test){
 		},
 		"./api":{remote:{ create:function( ctx, ret_handler){
 							 
-							 test.equal(ctx.doc, undefined);
+							 test.deepEqual(ctx.doc, {});
 							 test.deepEqual(ctx.params, {uid:620793116,doc:{test:1},catalog:"docs"});
 							 ctx.config.save = 0;
 							 ret_handler(null, {wid:"5074b135d03a0ac443000001"} );
@@ -318,7 +318,7 @@ exports["sandbox.add_constraint: no wid"] = function(test){
 	sb.add_constraint("create","params",function( ctx ){
 		
 		test.deepEqual(ctx.params, {uid:620793116,doc:{test:1},catalog:"docs"});
-		test.equal(ctx.doc, undefined);
+		test.deepEqual(ctx.doc, {});
 		
 		if(!ctx.params || !(ctx.params.uid && ctx.params.doc ) ){
 						
@@ -362,7 +362,7 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints, no wid "] = function
 	sb.add_constraint("create","params",function( ctx ){
 				
 		test.deepEqual(ctx.params, {uid:620793116,doc:"not an object",catalog:"docs"});
-		test.equal(ctx.doc, undefined);
+		test.deepEqual(ctx.doc, {});
 		
 		if(!ctx.params || !(ctx.params.uid && ctx.params.doc ) ){
 						
