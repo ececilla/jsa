@@ -154,7 +154,7 @@ exports["server.events.on: custom server events"] = function(test){
 	var rcpts = [1,2,3,4];
 	server.events.on("ev_srv_start", function( _ctx, _rcpts){
 		
-		test.deepEqual(_ctx.ev_ctx.params, {test:1});
+		test.deepEqual(_ctx.ev_data.params, {test:1});
 		test.deepEqual(_rcpts,[1,2,3,4]);
 		test.done();
 	});
