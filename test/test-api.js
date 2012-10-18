@@ -1477,7 +1477,7 @@ exports["api.remote.add: valid params, non existing inner field, explicit catalo
 }
 
 //remove tests
-exports["api.remote.remove: missing & wrong params"] = function(test){
+exports["api.remote.remove: missing & wrong params, anonymous constraints"] = function(test){
 	
 
 	var dbdocs = {};
@@ -1499,9 +1499,9 @@ exports["api.remote.remove: missing & wrong params"] = function(test){
 	sb.add_constraint("remove","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint("remove","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint("remove","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint("remove","param_fname",sb.constraints.is_required("fname"))	  
+	  .add_constraint("remove",sb.constraints.is_required("fname"))	//anonymous constraint  
 	  .add_constraint("remove","is_reserved",sb.constraints.is_reserved)
-	  .add_constraint("remove","exists",sb.constraints.field_exists)
+	  .add_constraint("remove",sb.constraints.field_exists)//anonymous constraint
 	  .add_constraint("remove","in_rcpts",sb.constraints.in_rcpts);
 			
 			
