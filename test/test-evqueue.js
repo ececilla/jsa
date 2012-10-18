@@ -223,6 +223,7 @@ exports["evqueue.on: custom event, explicit rcpts, subscription"] = function(tes
 		
 	});
 	var ctx = {doc:undefined,params:rpc_params};//payload a emitir
+	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 	
 	test.equal(counter,2);
@@ -340,7 +341,7 @@ exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpt
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 		
-	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:0}};
+	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:1}};
 	api.remote.create(ctx, function(err,val){
 		
 		test.equal(err,null);
@@ -409,7 +410,7 @@ exports["evqueue.on: ev_api_create, unreportable document, subscribed"] = functi
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 		
-	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:0}};
+	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:1}};
 	api.remote.create(ctx, function(err,val){
 		
 		test.ok(subs_flags[2]);
@@ -491,7 +492,8 @@ exports["evqueue.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:0}};
+		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}};
+		
 		api.remote.dispose(ctx, function(err,val){
 			
 			test.equal(err,null);			
@@ -574,7 +576,7 @@ exports["evqueue.on: ev_api_join, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:0}};
+		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}};
 		api.remote.join(ctx, function(err,val){
 			
 			test.equal(err,null);
@@ -646,7 +648,7 @@ exports["evqueue.on: ev_api_join, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	
-	var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:0}};				
+	var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}};				
 	api.remote.join(ctx, function(err,val){
 		
 		test.equal(err,null);
@@ -702,7 +704,8 @@ exports["evqueue.on: ev_api_join autolistening, explicit rcpts"] = function(test
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:0}};		
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}};		
+	ctx.payload = ctx.params;
 	api.emit("ev_api_join", ctx, rcpts);
 	test.equal(counter,2);					
 	
@@ -770,6 +773,7 @@ exports["evqueue.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
 	setTimeout(function(){
 		
 		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		ctx.payload = ctx.params;
 		api.emit("ev_api_unjoin", ctx );
 	},500);
 		
@@ -869,7 +873,9 @@ exports["evqueue.on: ev_api_unjoin autolistening, explicit rcpts"] = function(te
 	});
 				
 	var ctx = {params:rpc_params, doc:doc};		
+	ctx.payload = ctx.params;
 	api.emit("ev_api_unjoin", ctx, rcpts);
+	
 	test.equal(counter,2);					
 	
 	test.done();
@@ -934,6 +940,7 @@ exports["evqueue.on: ev_api_add, subscribed in rcpts"] = function(test){
 	setTimeout(function(){
 		
 		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		ctx.payload = ctx.params;
 		api.emit("ev_api_add",ctx);
 		test.expect(9);
 		test.done();
@@ -990,6 +997,7 @@ exports["evqueue.on: ev_api_add, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[1]);
 	
 	var ctx =  {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	ctx.payload = ctx.params;
 	api.emit("ev_api_add", ctx);				
 	test.expect(5);
 	test.done();
@@ -1036,7 +1044,8 @@ exports["evqueue.on: ev_api_add autolistening, explicit rcpts"] = function(test)
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc};		
+	var ctx = {params:rpc_params, doc:doc};	
+	ctx.payload = ctx.params;	
 	api.emit("ev_api_add", ctx, rcpts);
 	test.equal(counter,2);					
 	
@@ -1103,6 +1112,7 @@ exports["evqueue.on: ev_api_rem, subscribed in rcpts"] = function(test){
 	setTimeout(function(){
 		
 		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		ctx.payload = ctx.params;
 		api.emit("ev_api_rem",ctx);
 		test.done();
 		
@@ -1157,6 +1167,7 @@ exports["evqueue.on: ev_api_rem, subscribed not  in rcpts"] = function(test){
 	test.ok(subs_flags[1]);
 	
 	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	ctx.payload = ctx.params;
 	api.emit("ev_api_rem",ctx);				
 	
 	test.expect(5);
@@ -1204,7 +1215,8 @@ exports["evqueue.on: ev_api_rem autolistening, explicit rcpts"] = function(test)
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc };		
+	var ctx = {params:rpc_params, doc:doc };	
+	ctx.payload = ctx.params;	
 	api.emit("ev_api_rem", ctx, rcpts);
 	test.equal(counter,2);					
 	
@@ -1271,6 +1283,7 @@ exports["evqueue.on: ev_api_set, subscribed in rcpts"] = function(test){
 	setTimeout(function(){
 		
 		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		ctx.payload = ctx.params;
 		api.emit("ev_api_set",ctx);
 		test.expect(9);
 		test.done();
@@ -1325,6 +1338,7 @@ exports["evqueue.on: ev_api_set, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[1]);
 	
 	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	ctx.payload = ctx.params;
 	
 	api.emit("ev_api_set",ctx);					
 	test.expect(5);
@@ -1372,7 +1386,8 @@ exports["evqueue.on: ev_api_set autolistening, explicit rcpts"] = function(test)
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc};		
+	var ctx = {params:rpc_params, doc:doc};	
+	ctx.payload = ctx.params;	
 	api.emit("ev_api_set", ctx, rcpts);
 	test.equal(counter,2);					
 	test.expect(11);	
@@ -1441,7 +1456,7 @@ exports["evqueue.on: ev_api_push, subscribed in rcpts"] = function(test){
 	setTimeout(function(){
 		
 		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
-		
+		ctx.payload = ctx.params;
 		api.emit("ev_api_push",ctx);		
 		test.expect(9);
 		test.done();
@@ -1496,6 +1511,7 @@ exports["evqueue.on: ev_api_push, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	ctx.payload = ctx.params;
 	api.emit("ev_api_push", ctx);
 	
 	test.expect(5);
@@ -1543,7 +1559,8 @@ exports["evqueue.on: ev_api_push autolistening, explicit rcpts"] = function(test
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc};		
+	var ctx = {params:rpc_params, doc:doc};	
+	ctx.payload = ctx.params;	
 	api.emit("ev_api_push", ctx, rcpts);
 	test.equal(counter,2);					
 	
@@ -1609,6 +1626,7 @@ exports["evqueue.on: ev_api_pop, subscribed in rcpts"] = function(test){
 	setTimeout(function(){
 		
 		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		ctx.payload = ctx.params;
 		api.emit("ev_api_pop",ctx);
 		test.expect(9);
 		test.done();
@@ -1662,6 +1680,7 @@ exports["evqueue.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[1]);
 	
 	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	ctx.payload = ctx.params;
 	api.emit("ev_api_pop",ctx);
 	test.expect(5);
 	test.done();
@@ -1709,7 +1728,8 @@ exports["evqueue.on: ev_api_pop autolistening, explicit rcpts"] = function(test)
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc};		
+	var ctx = {params:rpc_params, doc:doc};	
+	ctx.payload = ctx.params;	
 	api.emit("ev_api_pop", ctx, rcpts);
 	test.equal(counter,2);					
 	
@@ -1775,6 +1795,7 @@ exports["evqueue.on: ev_api_shift, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+		ctx.payload = ctx.params;
 		api.emit("ev_api_shift",ctx);
 		
 		test.expect(9);
@@ -1828,6 +1849,7 @@ exports["evqueue.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[1]);
 	
 	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"]};
+	ctx.payload = ctx.params;
 	api.emit("ev_api_shift",ctx);	
 	test.expect(5);
 	test.done();						
@@ -1877,7 +1899,8 @@ exports["evqueue.on: ev_api_shift autolistening, explicit rcpts"] = function(tes
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc};		
+	var ctx = {params:rpc_params, doc:doc};	
+	ctx.payload = ctx.params;	
 	api.emit("ev_api_shift", ctx, rcpts);
 	test.equal(counter,2);					
 	
