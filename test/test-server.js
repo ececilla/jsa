@@ -1208,149 +1208,119 @@ exports["server.api.config.newop: invocation"] = function(test){
 }
 
 
-exports["server.api.config.newop: cancel default event"] = function(test){
-	
-	
-	var server = require("../lib/server");
-	var api = require("../lib/api");	
-	var myparams = {foo:1, bar:"test"};
-	
-	server.api.config.newop("dummy", function(params, ret_handler){
-				
-		test.deepEqual(params, myparams);
-		server.api.events.cancel_default_event();
-		ret_handler(null,1);
-		
-	});
-		
-	server.api.events.on("ev_api_dummy", function(params, rcpts){
-				
-		test.ok(false);		
-	});
-		
-	
-	test.notEqual( api.remote["dummy"], undefined );
-	test.notEqual( server.api["dummy"], undefined );
-	server.api["dummy"](myparams, function(err,val){
-		
-		test.equal(err,null);
-		test.ok(val);		
-	});
-	
-	test.expect(5);
-	test.done();
-}
-
-
 exports["server.api.config.newop: event custom params"] = function(test){
 	
 	var nevents = 0;
 	var rcpts = [5,6,7,8];
+	var myparams = {foo:1, bar:"test"};
 	var db = {
 				
-		save:function(col_str, doc, ret_handler){
-						
-			test.equal(doc.ev_rcpt, rcpts[nevents++] );
-			test.equal(col_str,"events");																
-			test.equal( doc.ev_msg.ev_type, "ev_api_dummy");
-			test.deepEqual( doc.ev_msg.ev_data, {test:1});
+		save:function(col_str, msg, ret_handler){
 			
-			//save doc to db...returns with _id:12345			
-			ret_handler(null,doc);	
+			console.log("eq save")			
+			test.equal(msg.ev_rcpt, rcpts[nevents++] );
+			test.equal(col_str,"events");																
+			test.equal(msg.ev_msg.ev_type, "ev_api_dummy");
+			test.deepEqual( msg.ev_msg.ev_data, {foo:1, bar:"test"});
+			
+			//save doc to db & return object					
+			ret_handler(null,msg);	
 		}	
 		
 	};
-	
-	var api = sandbox.require("../lib/api");
+					
+	var api = require("../lib/api");
 	
 	var eq = sandbox.require("../lib/evqueue",{
 		requires:{ "./db":db, "./api":api }
 	});
-	
-	var server = sandbox.require("../lib/server",{
-		requires:{ "./evqueue":eq, "./api":api }
+		
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{ "./server":{api:{config:{primitives:{dummy:1}}}},"./api":api }
 	});
 	
-		
-		
-	var myparams = {foo:1, bar:"test"};
+	var server = sandbox.require("../lib/server",{
+		requires:{ "./evqueue":eq, "./sandbox":sb, "./api":api }
+	});						
 	
-	server.api.config.newop("dummy", function(params, ret_handler){
+	server.api.config.newop("dummy", function(ctx, ret_handler){
 		
-				
-		test.deepEqual(params, myparams);
-		server.api.events.ev_api_dummy.params = {test:1};
-		server.api.events.ev_api_dummy.rcpts = rcpts;
+		ctx.config.save = 0;		
+		test.deepEqual(ctx.params, {foo:1, bar:"test", catalog:"docs"});		
+		server.api.events.emit(ctx, rcpts);
+		
 		ret_handler(null,1);
 		
 	});
-		
+	
+	//eq.on is firstly executed before this event handler.	
 	server.api.events.on("ev_api_dummy", function(params, rcpts){
 		
+		console.log("ev_api_dummy");
 		test.equal(nevents,4);
 		test.deepEqual(params.ev_data,{test:1});
 		test.deepEqual(rcpts,[5,6,7,8]);				
-		test.done();			
+					
 	});
 		
-	
-	test.notEqual( api.remote["dummy"], undefined );
+	test.notEqual( api.remote["dummy"], undefined );	
 	test.notEqual( server.api["dummy"], undefined );
 	server.api["dummy"](myparams, function(err,val){
 		
 		test.equal(err,null);
-		test.ok(val);		
+		test.equal(val,1);
+		test.expect(19);
+		test.done();		
 	});
-	
-	
-	
+			
 }
 
 
 
 exports["server.api.config.newop: create based op"] = function(test){
 	
-	var myparams = {uid:620793114, doc:{test:"test"}};	    
+	var myparams = {uid:620793114, doc:{test:"test"}};
+		    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{
 							save:function(col_str, doc, ret_handler){
-								
-								test.equal(col_str,"docs");								
+								console.log("save")
+								test.equal(col_str,"docs");	
+															
 								test.equal( doc.test, myparams.doc.test );
 								test.equal( doc.uid, myparams.uid );
 								//beacause init.rcpts is null the initial rcpts list is [uid]
 								test.deepEqual( doc.rcpts, [myparams.uid]);
 								
-								//save doc to db...returns with _id:12345
-								ret_handler(null,{_id:12345, test:"test", uid:620793114, rcpts:[620793114]});	
+								doc._id="50187f71556efcbb25000001"
+								ret_handler(null,doc);	
 							}
 		}}
 	});
 	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./api":api,"./server":{api:{config:{primitives:{newop1:1,create:1}}}}}
+	});
+	
 	var server = sandbox.require("../lib/server",{
-		requires:{"./api":api}
+		requires:{"./api":api,"./sandbox":sb}
 	});
 			
-	//Registation of two custom operations, one of them calls the primitive operation 'create'.
-	server.api.config.newop("newop2", function(params, ret_handler){
-		
-		server.api.events.cancel_default_event();
-		server.api.events.emit("ev_api_newop2");
-		ret_handler();
-	});
-	test.notEqual( api.remote["newop2"], undefined );
-	test.notEqual( server.api.newop2, undefined );
 	
-	server.api.config.newop("newop1", function(params, ret_handler){
+	
+	server.api.config.newop("newop1", function(ctx, ret_handler){
 				
-		test.deepEqual(params, myparams);	
-								
-		//call primitive function
+		console.log("newop1() executed")
+		test.deepEqual(ctx.params, myparams);
+		test.deepEqual(ctx.doc, {});	
+										
+		ctx.doc.y = 1;//this value will be overwritten by params.doc
+		ctx.params.another = 5;			
+		ctx.config.emit = 0;
+					
+		server.api.create( ctx, function(err, val){
 							
-		server.api.create( params, function(err, val){
-							
-			server.api.events.ev_api_newop1.params = {dummy:1};	
-			server.api.events.ev_api_newop1.rcpts = [620793114];
+			server.api.events.emit("ev_api_newop1",ctx);
 			ret_handler(err,val);				
 		});	
 						
@@ -1358,37 +1328,32 @@ exports["server.api.config.newop: create based op"] = function(test){
 	test.notEqual( api.remote["newop1"], undefined );
 	test.notEqual( server.api.newop1, undefined );		
 	
-	//ev_newop1 will be emitted by default.
-	server.api.events.on("ev_api_newop1", function(params, rcpts){
+	var flag = 1;
+	server.api.events.on("ev_api_newop1", function(msg, rcpts){
 					
-		test.deepEqual( params.ev_data, {dummy:1} );
-		test.deepEqual( rcpts, [620793114] );
-		test.expect(17);
-		test.done();	
+		console.log("ev_api_newop1")
+		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5} );		
+				
 			
 	}).on("ev_api_create", function(params, rcpts){
 				
-		test.equal(rcpts, undefined);
-		
-		test.equal(params.ev_data.uid, 620793114);
-		test.equal(params.ev_data.catalog, "docs");
-		test.notEqual(params.ev_data.doc, undefined);
+		flag = 0;
 	});
 	
 	
-	
-	api.remote["newop2"]({},function(){});
-	
-	api.remote["newop1"](myparams, function(err,val){
-				
-		test.equal(err,null);
-		test.deepEqual(val,{wid:"12345"});
-	});
+	server.api.newop1(myparams, function(err,val){
 		
+		console.log("ret_handler")
+		test.ok(flag);
+		test.equal(err,undefined);
+		console.log(val);
+		test.done();	
+	});
+					
 }
 
 
-
+/*
 exports["server.api.config.newop: db raw access based op"] = function(test){
 	
 	var myparams = {uid:620793114, catalog:"users"};	
@@ -1559,7 +1524,7 @@ exports["server.api.config.newop: wid based op"] = function(test){
 		
 }
 
-
+*/
 
 
 
