@@ -1217,11 +1217,11 @@ exports["server.api.config.newop: event custom params"] = function(test){
 				
 		save:function(col_str, msg, ret_handler){
 			
-			console.log("eq save")			
+					
 			test.equal(msg.ev_rcpt, rcpts[nevents++] );
 			test.equal(col_str,"events");																
 			test.equal(msg.ev_msg.ev_type, "ev_api_dummy");
-			test.deepEqual( msg.ev_msg.ev_data, {foo:1, bar:"test"});
+			test.deepEqual( msg.ev_msg.ev_data, {foo:1, bar:"test",catalog:"docs"});
 			
 			//save doc to db & return object					
 			ret_handler(null,msg);	
@@ -1246,19 +1246,19 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	server.api.config.newop("dummy", function(ctx, ret_handler){
 		
 		ctx.config.save = 0;		
-		test.deepEqual(ctx.params, {foo:1, bar:"test", catalog:"docs"});		
-		server.api.events.emit(ctx, rcpts);
+		test.deepEqual(ctx.params, {foo:1, bar:"test", catalog:"docs"});
+		ctx.payload = ctx.params;		
+		server.api.events.emit("ev_api_dummy",ctx, rcpts);
 		
 		ret_handler(null,1);
 		
 	});
 	
 	//eq.on is firstly executed before this event handler.	
-	server.api.events.on("ev_api_dummy", function(params, rcpts){
-		
-		console.log("ev_api_dummy");
+	server.api.events.on("ev_api_dummy", function(msg, rcpts){
+				
 		test.equal(nevents,4);
-		test.deepEqual(params.ev_data,{test:1});
+		test.deepEqual(msg.ev_ctx.payload,msg.ev_ctx.params);
 		test.deepEqual(rcpts,[5,6,7,8]);				
 					
 	});
@@ -1269,7 +1269,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 		
 		test.equal(err,null);
 		test.equal(val,1);
-		test.expect(19);
+		test.expect(24);
 		test.done();		
 	});
 			
@@ -1284,7 +1284,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{
 							save:function(col_str, doc, ret_handler){
-								console.log("save")
+								
 								test.equal(col_str,"docs");	
 															
 								test.equal( doc.test, myparams.doc.test );
@@ -1310,7 +1310,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	
 	server.api.config.newop("newop1", function(ctx, ret_handler){
 				
-		console.log("newop1() executed")
+		
 		test.deepEqual(ctx.params, myparams);
 		test.deepEqual(ctx.doc, {});	
 										
@@ -1320,6 +1320,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 					
 		server.api.create( ctx, function(err, val){
 							
+			ctx.payload = ctx.doc;
 			server.api.events.emit("ev_api_newop1",ctx);
 			ret_handler(err,val);				
 		});	
@@ -1331,7 +1332,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	var flag = 1;
 	server.api.events.on("ev_api_newop1", function(msg, rcpts){
 					
-		console.log("ev_api_newop1")
+		
 		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5} );		
 				
 			
@@ -1343,10 +1344,11 @@ exports["server.api.config.newop: create based op"] = function(test){
 	
 	server.api.newop1(myparams, function(err,val){
 		
-		console.log("ret_handler")
+		
 		test.ok(flag);
 		test.equal(err,undefined);
-		console.log(val);
+		test.notEqual(val.doc, undefined)
+		test.expect(12);
 		test.done();	
 	});
 					
