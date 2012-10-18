@@ -389,6 +389,44 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints, no wid "] = function
 }
 
 
+exports["sandbox.add_constraint: anonymous constraints.is_owner"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 flag = 0;							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		},
+		"./server":{api:{config:{primitives:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
+	
+	sb.add_constraint("test",sb.constraints.is_owner)
+	  .add_constraint("test","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("test", params, function(err,result){
+		
+		test.ok(flag);
+		test.deepEqual(err,{code:-2, message:"No access permission: not owner"});										
+		test.expect(2);
+		test.done();
+	});
+		
+}
+
 exports["sandbox.add_constraint: constraints.is_owner"] = function(test){
 	
 	var  dbdocs = {};
