@@ -4,7 +4,7 @@ var sandbox = require("sandboxed-module");
 exports["module exported function"] = function(test){
 	
 	var sb = require("../lib/sandbox");
-	test.notEqual(sb.add_constraint,undefined);
+	test.notEqual(sb.add_constraint_post,undefined);
 	test.notEqual(sb.execute,undefined);
 	test.notEqual(sb.constraints.is_owner,undefined);
 	test.notEqual(sb.constraints.in_rcpts,undefined);
@@ -17,7 +17,7 @@ exports["module exported function"] = function(test){
 	
 }
 
-exports["sandbox.add_constraint: 1/2 satisfied constraints"] = function(test){
+exports["sandbox.add_constraint_post: non satisfied constraints"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -52,7 +52,7 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints"] = function(test){
 	});
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
-	sb.add_constraint("join","params",function( ctx ){
+	sb.add_constraint_post("join","params",function( ctx ){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
 		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
@@ -62,7 +62,7 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints"] = function(test){
 			return {code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"};
 			
 		}
-	}).add_constraint("join","is owner",function(ctx){
+	}).add_constraint_post("join","is owner",function(ctx){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
 		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
@@ -85,7 +85,68 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: 2/2 satisfied constraints"] = function(test){
+
+exports["sandbox.add_constraint_pre: non satisfied anonymous constraints"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
+	
+	var flags = [1,1,1,1];
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){
+										
+								flags[0] = 0;
+								ret_handler(null,dbdocs[id_str]);		
+							},
+							save: function(col_str, doc,ret_handler){
+								
+								flags[1] = 0;								
+								ret_handler(null,{wid:"5074b135d03a0ac443000001",reach:2});
+							}
+		},
+		"./api":{remote:{ join:function( ctx, ret_handler){
+							 							 
+							 flags[2] = 0;							 
+							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.
+							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {miss_uid:620793116,wid:"5074b135d03a0ac443000001"};
+	sb.add_constraint_pre("join",function( ctx ){
+						
+		test.equal(ctx.doc, undefined);
+		
+		if( !(ctx.params.wid && ctx.params.uid) ){
+				
+			return {code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"};
+			
+		}
+	}).add_constraint_post("join",function(ctx){
+		
+		flags[3] = 0;
+	});
+	
+	sb.execute("join", params, function(err,result){
+		
+		test.ok(flags[0]);
+		test.ok(flags[1]);
+		test.ok(flags[2]);
+		test.ok(flags[3]);
+		test.deepEqual(err, {code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"});
+		test.expect(6);
+		test.done();
+	});
+		
+}
+
+
+exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -128,7 +189,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
-	sb.add_constraint("join","wid.length",function(ctx){
+	sb.add_constraint_post("join","wid.length",function(ctx){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
 		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
@@ -138,7 +199,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints"] = function(test){
 			return {code:-2, message:"Identifier wid has wrong type"};
 			
 		}
-	}).add_constraint("join","params",function( ctx ){
+	}).add_constraint_post("join","params",function( ctx ){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
 		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
@@ -160,7 +221,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints"] = function(test){
 }
 
 
-exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] = function(test){
+exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not executed"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -200,7 +261,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] 
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
-	sb.add_constraint("dummy","wid.length",function(ctx){
+	sb.add_constraint_post("dummy","wid.length",function(ctx){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
 		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
@@ -210,7 +271,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] 
 			return {code:-2, message:"Identifier wid has wrong type"};
 			
 		}
-	}).add_constraint("dummy","params",function( ctx ){
+	}).add_constraint_post("dummy","params",function( ctx ){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
 		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
@@ -234,7 +295,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] 
 
 
 
-exports["sandbox.add_constraint: wid not found"] = function(test){
+exports["sandbox.add_constraint_post: wid not found"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -262,7 +323,7 @@ exports["sandbox.add_constraint: wid not found"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000002"}; //wid not found
 	
-	sb.add_constraint("join","params",function( ctx ){ //executed constraint
+	sb.add_constraint_post("join","params",function( ctx ){ //executed constraint
 				
 		
 		if( !(params.wid && params.uid) ){
@@ -270,7 +331,7 @@ exports["sandbox.add_constraint: wid not found"] = function(test){
 			return {code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"};
 					
 		}
-	}).add_constraint("join","wid.length",function(params,doc){ //executed constraint 
+	}).add_constraint_post("join","wid.length",function(params,doc){ //executed constraint 
 													
 		
 		if( params.wid.length != 24 ){
@@ -289,7 +350,7 @@ exports["sandbox.add_constraint: wid not found"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: no wid"] = function(test){
+exports["sandbox.add_constraint_post: no wid"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:12345, test:"test", uid:620793114, rcpts:[620793114] };
@@ -315,7 +376,7 @@ exports["sandbox.add_constraint: no wid"] = function(test){
 	
 	var params = {uid:620793116,doc:{test:1}};
 		
-	sb.add_constraint("create","params",function( ctx ){
+	sb.add_constraint_post("create","params",function( ctx ){
 		
 		test.deepEqual(ctx.params, {uid:620793116,doc:{test:1},catalog:"docs"});
 		test.deepEqual(ctx.doc, {});
@@ -335,7 +396,7 @@ exports["sandbox.add_constraint: no wid"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: 1/2 satisfied constraints, no wid "] = function(test){
+exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:12345, test:"test", uid:620793114, rcpts:[620793114] };
@@ -359,7 +420,7 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints, no wid "] = function
 	
 	var params = {uid:620793116,doc:"not an object"};
 		
-	sb.add_constraint("create","params",function( ctx ){
+	sb.add_constraint_post("create","params",function( ctx ){
 				
 		test.deepEqual(ctx.params, {uid:620793116,doc:"not an object",catalog:"docs"});
 		test.deepEqual(ctx.doc, {});
@@ -368,7 +429,7 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints, no wid "] = function
 						
 			return {code:-2, message:"Missing parameters:{uid:,doc:,(optional)catalog:}"};						
 		}
-	}).add_constraint("create","typeof",function( ctx ){
+	}).add_constraint_post("create","typeof",function( ctx ){
 				
 		
 		if( typeof ctx.params.doc !== "object"){
@@ -389,7 +450,7 @@ exports["sandbox.add_constraint: 1/2 satisfied constraints, no wid "] = function
 }
 
 
-exports["sandbox.add_constraint: anonymous constraints.is_owner"] = function(test){
+exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -414,8 +475,8 @@ exports["sandbox.add_constraint: anonymous constraints.is_owner"] = function(tes
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
-	sb.add_constraint("test",sb.constraints.is_owner)
-	  .add_constraint("test","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("test",sb.constraints.is_owner)
+	  .add_constraint_post("test","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("test", params, function(err,result){
 		
@@ -427,7 +488,7 @@ exports["sandbox.add_constraint: anonymous constraints.is_owner"] = function(tes
 		
 }
 
-exports["sandbox.add_constraint: constraints.is_owner"] = function(test){
+exports["sandbox.add_constraint_post: constraints.is_owner"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -451,8 +512,8 @@ exports["sandbox.add_constraint: constraints.is_owner"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
-	sb.add_constraint("join","is_owner",sb.constraints.is_owner)
-	  .add_constraint("join","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("join","is_owner",sb.constraints.is_owner)
+	  .add_constraint_post("join","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("join", params, function(err,result){
 		
@@ -462,7 +523,7 @@ exports["sandbox.add_constraint: constraints.is_owner"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: constraints.in_rcpts"] = function(test){
+exports["sandbox.add_constraint_post: constraints.in_rcpts"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114, 620793115] };
@@ -486,7 +547,7 @@ exports["sandbox.add_constraint: constraints.in_rcpts"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
-	sb .add_constraint("join","in_rcpts",sb.constraints.in_rcpts);
+	sb .add_constraint_post("join","in_rcpts",sb.constraints.in_rcpts);
 	
 	sb.execute("join", params, function(err,result){
 		
@@ -496,7 +557,7 @@ exports["sandbox.add_constraint: constraints.in_rcpts"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: constraints.user_catalog"] = function(test){
+exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -520,7 +581,7 @@ exports["sandbox.add_constraint: constraints.user_catalog"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"timers"};
 	
-	sb .add_constraint("join","user_catalog",sb.constraints.user_catalog);
+	sb .add_constraint_post("join","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("join", params, function(err,result){
 		
@@ -530,7 +591,7 @@ exports["sandbox.add_constraint: constraints.user_catalog"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: constraints.is_joinable"] = function(test){
+exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -554,8 +615,8 @@ exports["sandbox.add_constraint: constraints.is_joinable"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
-	sb.add_constraint("join","is_joinable",sb.constraints.is_joinable)
-	  .add_constraint("join","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("join","is_joinable",sb.constraints.is_joinable)
+	  .add_constraint_post("join","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("join", params, function(err,result){
 		
@@ -565,7 +626,7 @@ exports["sandbox.add_constraint: constraints.is_joinable"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: constraints.is_reserved"] = function(test){
+exports["sandbox.add_constraint_post: constraints.is_reserved"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -589,8 +650,8 @@ exports["sandbox.add_constraint: constraints.is_reserved"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"_id", value:4};
 	
-	sb.add_constraint("set","is_reserved",sb.constraints.is_reserved)
-	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("set","is_reserved",sb.constraints.is_reserved)
+	  .add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("set", params, function(err,result){
 		
@@ -600,7 +661,7 @@ exports["sandbox.add_constraint: constraints.is_reserved"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: constraints.field_exists"] = function(test){
+exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", notest:"test", uid:620793114, rcpts:[620793114] };
@@ -624,8 +685,8 @@ exports["sandbox.add_constraint: constraints.field_exists"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:4};
 	
-	sb.add_constraint("set","field_exists",sb.constraints.field_exists)
-	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("set","field_exists",sb.constraints.field_exists)
+	  .add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("set", params, function(err,result){
 		
@@ -636,7 +697,7 @@ exports["sandbox.add_constraint: constraints.field_exists"] = function(test){
 }
 
 
-exports["sandbox.add_constraint: constraints.field_not_exists"] = function(test){
+exports["sandbox.add_constraint_post: constraints.field_not_exists"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -660,8 +721,8 @@ exports["sandbox.add_constraint: constraints.field_not_exists"] = function(test)
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:4};
 	
-	sb.add_constraint("add","field_not_exists",sb.constraints.field_not_exists)
-	  .add_constraint("add","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("add","field_not_exists",sb.constraints.field_not_exists)
+	  .add_constraint_post("add","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("add", params, function(err,result){
 		
@@ -672,7 +733,7 @@ exports["sandbox.add_constraint: constraints.field_not_exists"] = function(test)
 }
 
 
-exports["sandbox.add_constraint: constraints.field_type"] = function(test){
+exports["sandbox.add_constraint_post: constraints.field_type"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -696,8 +757,8 @@ exports["sandbox.add_constraint: constraints.field_type"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 	
-	sb.add_constraint("set","field_type",sb.constraints.field_type("object"))
-	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("set","field_type",sb.constraints.field_type("object"))
+	  .add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("set", params, function(err,result){
 		
@@ -707,7 +768,7 @@ exports["sandbox.add_constraint: constraints.field_type"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint: constraints.is_required"] = function(test){
+exports["sandbox.add_constraint_post: constraints.is_required"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", notest:"test", uid:620793114, rcpts:[620793114] };
@@ -731,11 +792,11 @@ exports["sandbox.add_constraint: constraints.is_required"] = function(test){
 	
 	var params = {uid:620793116, fname:"test", value:4};
 		
-	sb.add_constraint("set","param_required_uid",sb.constraints.is_required("uid"))
-	  .add_constraint("set","param_required_wid",sb.constraints.is_required("wid"))
-	  .add_constraint("set","param_required_fname",sb.constraints.is_required("fname"))
-	  .add_constraint("set","param_required_value",sb.constraints.is_required("value"))
-	  .add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("set","param_required_uid",sb.constraints.is_required("uid"))
+	  .add_constraint_post("set","param_required_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("set","param_required_fname",sb.constraints.is_required("fname"))
+	  .add_constraint_post("set","param_required_value",sb.constraints.is_required("value"))
+	  .add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("set", params, function(err,result){
 										
@@ -746,7 +807,7 @@ exports["sandbox.add_constraint: constraints.is_required"] = function(test){
 }
 
 
-exports["sandbox.add_constraint: ctx.config.emit:1"] = function(test){
+exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -788,7 +849,7 @@ exports["sandbox.add_constraint: ctx.config.emit:1"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 		
-	sb.add_constraint("set","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
 	
 	sb.execute("set", params, function(err,result){
 		
@@ -802,7 +863,7 @@ exports["sandbox.add_constraint: ctx.config.emit:1"] = function(test){
 
 
 
-exports["sandbox.add_constraint: method not found"] = function(test){
+exports["sandbox.add_constraint_post: method not found"] = function(test){
 	
 	
 	var api = require("../lib/api");	
