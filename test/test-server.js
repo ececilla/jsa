@@ -25,7 +25,7 @@ exports["module exported functions"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{primitives:{remote_func:1}}}}										
+					"./server":{api:{config:{procedures:{remote_func:1}}}}										
 				}
 		
 	});
@@ -42,8 +42,8 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.events.emit, undefined );	
 	test.notEqual( server.api.remote_func, undefined  );	
 	test.notEqual( server.api.config, undefined );
-	test.notEqual( server.api.config.enable_primitives, undefined );
-	test.notEqual( server.api.config.disable_primitives, undefined );
+	test.notEqual( server.api.config.enable_procedures, undefined );
+	test.notEqual( server.api.config.disable_procedures, undefined );
 	test.notEqual( server.api.config.newop, undefined );
 	test.notEqual( server.api.config.config_func, undefined  );
 	test.notEqual( server.api.events, undefined );
@@ -71,46 +71,46 @@ exports["module exported functions"] = function(test){
 	test.done();
 }
 
-exports["server.api.config.disable/enable_primitives"] = function(test){
+exports["server.api.config.disable/enable_procedures"] = function(test){
 	
 	var server = require("../lib/server");
 	//default values
-	test.ok( server.api.config.primitives.create );
-	test.ok( server.api.config.primitives.join );
-	test.ok( server.api.config.primitives.unjoin );
-	test.ok( server.api.config.primitives.add );
-	test.ok( server.api.config.primitives.remove );
-	test.ok( server.api.config.primitives.set );
-	test.ok( server.api.config.primitives.push );
-	test.ok( server.api.config.primitives.pop );
-	test.ok( server.api.config.primitives.shift );
-	test.ok( server.api.config.primitives.ack );
+	test.ok( server.api.config.procedures.create );
+	test.ok( server.api.config.procedures.join );
+	test.ok( server.api.config.procedures.unjoin );
+	test.ok( server.api.config.procedures.add );
+	test.ok( server.api.config.procedures.remove );
+	test.ok( server.api.config.procedures.set );
+	test.ok( server.api.config.procedures.push );
+	test.ok( server.api.config.procedures.pop );
+	test.ok( server.api.config.procedures.shift );
+	test.ok( server.api.config.procedures.ack );
 	
-	//disable primitives
-	server.api.config.disable_primitives();
-	test.equal( server.api.config.primitives.create,0 );
-	test.equal( server.api.config.primitives.join,0 );
-	test.equal( server.api.config.primitives.unjoin,0 );
-	test.equal( server.api.config.primitives.add,0 );
-	test.equal( server.api.config.primitives.remove,0 );
-	test.equal( server.api.config.primitives.set,0 );
-	test.equal( server.api.config.primitives.push,0 );
-	test.equal( server.api.config.primitives.pop,0 );
-	test.equal( server.api.config.primitives.shift,0 );
-	test.equal( server.api.config.primitives.ack,0 );
-	server.api.config.enable_primitives();
+	//disable procedures
+	server.api.config.disable_procedures();
+	test.equal( server.api.config.procedures.create,0 );
+	test.equal( server.api.config.procedures.join,0 );
+	test.equal( server.api.config.procedures.unjoin,0 );
+	test.equal( server.api.config.procedures.add,0 );
+	test.equal( server.api.config.procedures.remove,0 );
+	test.equal( server.api.config.procedures.set,0 );
+	test.equal( server.api.config.procedures.push,0 );
+	test.equal( server.api.config.procedures.pop,0 );
+	test.equal( server.api.config.procedures.shift,0 );
+	test.equal( server.api.config.procedures.ack,0 );
+	server.api.config.enable_procedures();
 	
-	//enable primitives
-	test.ok( server.api.config.primitives.create );
-	test.ok( server.api.config.primitives.join );
-	test.ok( server.api.config.primitives.unjoin );
-	test.ok( server.api.config.primitives.add );
-	test.ok( server.api.config.primitives.remove );
-	test.ok( server.api.config.primitives.set );
-	test.ok( server.api.config.primitives.push );
-	test.ok( server.api.config.primitives.pop );
-	test.ok( server.api.config.primitives.shift );
-	test.ok( server.api.config.primitives.ack );
+	//enable procedures
+	test.ok( server.api.config.procedures.create );
+	test.ok( server.api.config.procedures.join );
+	test.ok( server.api.config.procedures.unjoin );
+	test.ok( server.api.config.procedures.add );
+	test.ok( server.api.config.procedures.remove );
+	test.ok( server.api.config.procedures.set );
+	test.ok( server.api.config.procedures.push );
+	test.ok( server.api.config.procedures.pop );
+	test.ok( server.api.config.procedures.shift );
+	test.ok( server.api.config.procedures.ack );
 	
 	test.expect(30);
 	test.done();
@@ -1236,7 +1236,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	});
 		
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{ "./server":{api:{config:{primitives:{dummy:1}}}},"./api":api }
+		requires:{ "./server":{api:{config:{procedures:{dummy:1}}}},"./api":api }
 	});
 	
 	var server = sandbox.require("../lib/server",{
@@ -1299,7 +1299,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	});
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api,"./server":{api:{config:{primitives:{newop1:1,create:1}}}}}
+		requires:{"./api":api,"./server":{api:{config:{procedures:{newop1:1,create:1}}}}}
 	});
 	
 	var server = sandbox.require("../lib/server",{

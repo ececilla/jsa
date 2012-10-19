@@ -193,7 +193,7 @@ exports["sandbox.add_constraint: 2/2 satisfied constraints, save not executed"] 
 						  }
 				}
 		},
-		"./server":{api:{config:{primitives:{dummy:1}}}}
+		"./server":{api:{config:{procedures:{dummy:1}}}}
 	
 	}
 	});
@@ -408,7 +408,7 @@ exports["sandbox.add_constraint: anonymous constraints.is_owner"] = function(tes
 						  }
 				}
 		},
-		"./server":{api:{config:{primitives:{test:1}}}}
+		"./server":{api:{config:{procedures:{test:1}}}}
 	}
 	});
 	

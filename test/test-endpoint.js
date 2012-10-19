@@ -70,7 +70,7 @@ exports["endpoint.rpc: method not found"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 				"./api":api,
-				"./server":{api:{config:{primitives:{create:1}}}}
+				"./server":{api:{config:{procedures:{create:1}}}}
 				}
 	});
 	
@@ -112,7 +112,7 @@ exports["endpoint.rpc: method invocation: with result, no params"] = function(te
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{primitives:{test:1}}}}
+					"./server":{api:{config:{procedures:{test:1}}}}
 		
 			}
 	});		
@@ -162,7 +162,7 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{primitives:{test:1}}}}}
+					"./server":{api:{config:{procedures:{test:1}}}}}
 	});			 				
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
@@ -202,7 +202,7 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{primitives:{test:1}}}}
+					"./server":{api:{config:{procedures:{test:1}}}}
 		}
 	});			 				
 	
@@ -246,7 +246,7 @@ exports["endpoint.rpc: method invocation without id"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{primitives:{test:1}}}}
+					"./server":{api:{config:{procedures:{test:1}}}}
 					}
 	});			 				
 	
