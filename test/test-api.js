@@ -1050,7 +1050,7 @@ exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(
 					
 }
 
-exports["api.remote.unjoin: missing params"] = function(test){
+exports["api.remote.unjoin: missing & wrong params"] = function(test){
 	
 			
 	var flag = 1;
