@@ -1079,7 +1079,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 	  .add_constraint_post("unjoin","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("unjoin","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("unjoin","is_joinable",sb.constraints.is_joinable)
-	  .add_constraint_post("unjoin","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("unjoin","has_joined",sb.constraints.has_joined);
 	  
 		
 	//uid missing
@@ -1105,7 +1105,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 	sb.execute("unjoin", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-2, message:"No access permission: not in rcpts"});
+		test.deepEqual(err, {code:-2, message:"No access permission: not joined"});
 			
 	}); 
 	
@@ -1162,7 +1162,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 	});
 	
 	sb.add_constraint_post("unjoin","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_post("unjoin","in_rcpts",sb.constraints.in_rcpts)	
+	  .add_constraint_post("unjoin","has_joined",sb.constraints.has_joined)	
 	  .add_constraint_post("unjoin","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("unjoin","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("unjoin","is_joinable",sb.constraints.is_joinable);
@@ -1207,7 +1207,7 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 	});
 	
 	sb.add_constraint_post("unjoin","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_post("unjoin","in_rcpts",sb.constraints.in_rcpts)	
+	  .add_constraint_post("unjoin","has_joined",sb.constraints.has_joined)	
 	  .add_constraint_post("unjoin","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("unjoin","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("unjoin","is_joinable",sb.constraints.is_joinable);
@@ -1253,7 +1253,7 @@ exports["api.remote.add: missing & wrong params"] = function(test){
 	  .add_constraint_post("add","param_value",sb.constraints.is_required("value"))
 	  .add_constraint_post("add","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("add","not_exists",sb.constraints.field_not_exists)
-	  .add_constraint_post("add","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("add","has_joined",sb.constraints.has_joined);
 		
 	//uid missing
 	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002", fname:"a", value:5};
@@ -1332,7 +1332,7 @@ exports["api.remote.add: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"a", value:5};
 	sb.execute("add", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not in rcpts"});		
+		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -1392,7 +1392,7 @@ exports["api.remote.add: valid params, non existing field, default catalog, db a
 	  .add_constraint_post("add","param_value",sb.constraints.is_required("value"))
 	  .add_constraint_post("add","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("add","not_exists",sb.constraints.field_not_exists)
-	  .add_constraint_post("add","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("add","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a", value:5};
@@ -1460,7 +1460,7 @@ exports["api.remote.add: valid params, non existing inner field, explicit catalo
 	  .add_constraint_post("add","param_value",sb.constraints.is_required("value"))
 	  .add_constraint_post("add","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("add","not_exists",sb.constraints.field_not_exists)
-	  .add_constraint_post("add","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("add","has_joined",sb.constraints.has_joined);
 		
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a.b", value:[4,5], catalog:"dummy"}; 	
 					
@@ -1502,7 +1502,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	  .add_constraint_post("remove",sb.constraints.is_required("fname"))	//anonymous constraint  
 	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("remove",sb.constraints.field_exists)//anonymous constraint
-	  .add_constraint_post("remove","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined);
 			
 			
 	//uid missing
@@ -1577,7 +1577,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not in rcpts"});		
+		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -1636,7 +1636,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"))	  
 	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("remove","exists",sb.constraints.field_exists)
-	  .add_constraint_post("remove","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};
@@ -1697,7 +1697,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"))	  
 	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("remove","exists",sb.constraints.field_exists)
-	  .add_constraint_post("remove","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};
@@ -1759,7 +1759,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"))	  
 	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("remove","exists",sb.constraints.field_exists)
-	  .add_constraint_post("remove","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", index:1, catalog:"dummy"};
@@ -1820,7 +1820,7 @@ exports["api.remote.remove: valid params, non existing array index, explicit cat
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"))	  
 	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("remove","exists",sb.constraints.field_exists)
-	  .add_constraint_post("remove","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", index:1, catalog:"dummy"};
@@ -1865,7 +1865,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	  .add_constraint_post("set","param_value",sb.constraints.is_required("value"))	  
 	  .add_constraint_post("set","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("set","exists",sb.constraints.field_exists)
-	  .add_constraint_post("set","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("set","has_joined",sb.constraints.has_joined);
 			
 			
 	//uid missing
@@ -1948,7 +1948,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not in rcpts"});		
+		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -2007,7 +2007,7 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 	  .add_constraint_post("set","param_value",sb.constraints.is_required("value"))  
 	  .add_constraint_post("set","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("set","exists",sb.constraints.field_exists)
-	  .add_constraint_post("set","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("set","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b",value:5, catalog:"dummy"};
@@ -2070,7 +2070,7 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 	  .add_constraint_post("set","param_value",sb.constraints.is_required("value"))  
 	  .add_constraint_post("set","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("set","exists",sb.constraints.field_exists)
-	  .add_constraint_post("set","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("set","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b",value:5, catalog:"dummy"};
@@ -2133,7 +2133,7 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 	  .add_constraint_post("set","param_value",sb.constraints.is_required("value"))  
 	  .add_constraint_post("set","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("set","exists",sb.constraints.field_exists)
-	  .add_constraint_post("set","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("set","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b",value:5, index:1, catalog:"dummy"};
@@ -2194,7 +2194,7 @@ exports["api.remote.set: valid params,non existing inner array field, explicit c
 	  .add_constraint_post("set","param_value",sb.constraints.is_required("value"))  
 	  .add_constraint_post("set","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("set","exists",sb.constraints.field_exists)
-	  .add_constraint_post("set","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("set","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.c",value:5, index:1, catalog:"dummy"};
@@ -2239,7 +2239,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	  .add_constraint_post("push","param_value",sb.constraints.is_required("value"))	  
 	  .add_constraint_post("push","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("push","exists",sb.constraints.field_exists)
-	  .add_constraint_post("push","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("push","has_joined",sb.constraints.has_joined);
 			
 			
 	//uid missing
@@ -2322,7 +2322,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not in rcpts"});		
+		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -2398,7 +2398,7 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 	  .add_constraint_post("push","param_value",sb.constraints.is_required("value"))	  
 	  .add_constraint_post("push","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("push","exists",sb.constraints.field_exists)
-	  .add_constraint_post("push","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("push","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b",value:9, catalog:"dummy"};
@@ -2460,7 +2460,7 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 	  .add_constraint_post("push","param_value",sb.constraints.is_required("value"))	  
 	  .add_constraint_post("push","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("push","exists",sb.constraints.field_exists)
-	  .add_constraint_post("push","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("push","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b",value:9, catalog:"dummy"};
@@ -2503,7 +2503,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"))	    
 	  .add_constraint_post("pop","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("pop","exists",sb.constraints.field_exists)
-	  .add_constraint_post("pop","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined);
 			
 			
 	//uid missing
@@ -2577,7 +2577,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not in rcpts"});		
+		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -2652,7 +2652,7 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"))	  
 	  .add_constraint_post("pop","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("pop","exists",sb.constraints.field_exists)
-	  .add_constraint_post("pop","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};
@@ -2713,7 +2713,7 @@ exports["api.remote.pop: valid params, existing inner field as array, explicit c
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"))	  	  
 	  .add_constraint_post("pop","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("pop","exists",sb.constraints.field_exists)
-	  .add_constraint_post("pop","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};
@@ -2757,7 +2757,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	  .add_constraint_post("shift","param_fname",sb.constraints.is_required("fname"))	    
 	  .add_constraint_post("shift","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("shift","exists",sb.constraints.field_exists)
-	  .add_constraint_post("shift","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("shift","has_joined",sb.constraints.has_joined);
 			
 			
 	//uid missing
@@ -2831,7 +2831,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not in rcpts"});		
+		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -2907,7 +2907,7 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 	  .add_constraint_post("shift","param_fname",sb.constraints.is_required("fname"))	  
 	  .add_constraint_post("shift","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("shift","exists",sb.constraints.field_exists)
-	  .add_constraint_post("shift","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("shift","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};
@@ -2968,7 +2968,7 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 	  .add_constraint_post("shift","param_fname",sb.constraints.is_required("fname"))	  	  
 	  .add_constraint_post("shift","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("shift","exists",sb.constraints.field_exists)
-	  .add_constraint_post("shift","in_rcpts",sb.constraints.in_rcpts);
+	  .add_constraint_post("shift","has_joined",sb.constraints.has_joined);
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};

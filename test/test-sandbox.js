@@ -7,7 +7,8 @@ exports["module exported function"] = function(test){
 	test.notEqual(sb.add_constraint_post,undefined);
 	test.notEqual(sb.execute,undefined);
 	test.notEqual(sb.constraints.is_owner,undefined);
-	test.notEqual(sb.constraints.in_rcpts,undefined);
+	test.notEqual(sb.constraints.has_joined,undefined);
+	test.notEqual(sb.constraints.not_joined,undefined);
 	test.notEqual(sb.constraints.user_catalog,undefined);
 	test.notEqual(sb.constraints.is_joinable,undefined);
 	test.notEqual(sb.constraints.is_reserved,undefined);
@@ -523,7 +524,7 @@ exports["sandbox.add_constraint_post: constraints.is_owner"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint_post: constraints.in_rcpts"] = function(test){
+exports["sandbox.add_constraint_post: constraints.has_joined"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114, 620793115] };
@@ -547,11 +548,11 @@ exports["sandbox.add_constraint_post: constraints.in_rcpts"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
-	sb .add_constraint_post("join","in_rcpts",sb.constraints.in_rcpts);
+	sb .add_constraint_post("join","has_joined",sb.constraints.has_joined);
 	
 	sb.execute("join", params, function(err,result){
 		
-		test.deepEqual(err,{code:-2, message:"No access permission: not in rcpts"});										
+		test.deepEqual(err,{code:-2, message:"No access permission: not joined"});										
 		test.done();
 	});
 		
