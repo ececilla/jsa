@@ -1171,20 +1171,36 @@ exports["server.api.config.newop: invocation"] = function(test){
 	var server = require("../lib/server");	
 	var api = require("../lib/api");			
 	var myparams = {foo:1, bar:"test"};
-			
+	
+	var flag = 0;		
 	server.api.config.newop("newop", function(ctx, ret_handler){
 		
 			
 		ctx.config.save = 0;
+		//As sandbox does not save it's not necessary to assign ctx.config.emit.		
 		test.deepEqual(ctx.params, myparams);
 		test.deepEqual(ctx.doc,{});		
 		server.api.events.emit("ev_api_newop", ctx);		
 		ret_handler(null,1);
 	});
+	server.api.config.newop("echo_x",function(ctx, ret_handler){
+		
+		ctx.config.save = 0;
+		ctx.config.emit = 0;
+		ret_handler(null,ctx.params.x);//echo param x
+		
+	}).add_constraint_pre(function(ctx){
+		
+		ctx.params.x = 5;//fake param x=1 with param x=5
+	}).add_constraint_pre(function(ctx){
+		
+		flag = 1;
+	});
 	
 	test.notEqual(server.api.newop, undefined);
 	test.notEqual( api.remote["newop"], undefined );
-	
+	test.notEqual(server.api.echo_x, undefined);
+	test.notEqual( api.remote["echo_x"], undefined );
 	
 	server.api.events.on("ev_api_newop", function(msg, rcpts){
 		
@@ -1200,10 +1216,17 @@ exports["server.api.config.newop: invocation"] = function(test){
 		
 		test.equal(val,1);
 		test.equal(err,null);	
-		
-		test.expect(8);
-		test.done();
+				
 	});
+	
+	server.api.echo_x({x:1},function(err,val){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(val,5);
+		test.expect(13);
+		test.done();
+	})
 		
 }
 
