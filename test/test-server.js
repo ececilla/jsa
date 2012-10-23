@@ -2,23 +2,16 @@ var sandbox = require("sandboxed-module");
 
 exports["module exported functions"] = function(test){
 	
-	var flags = [0,0];		
+	var flag = 0		
 	var _ = sandbox.require("../lib/constants");
 	
 	var api = {	
 				remote:{
 					remote_func: function(){
 										
-						flags[0] = 1;								
+						flag  = 1;								
 					}
-				},									
-				config:{
-					config_func: function(){
-						
-						flags[1] = 1;
-					}
-				}	
-			 
+				}			 
 		};
 	
 	
@@ -44,8 +37,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.config, undefined );
 	test.notEqual( server.api.config.enable_procedures, undefined );
 	test.notEqual( server.api.config.disable_procedures, undefined );
-	test.notEqual( server.api.config.newop, undefined );
-	test.notEqual( server.api.config.config_func, undefined  );
+	test.notEqual( server.api.config.newop, undefined );	
 	test.notEqual( server.api.events, undefined );
 	test.notEqual( server.api.events.on, undefined );
 	test.notEqual( server.api.events.emit, undefined );
@@ -59,15 +51,13 @@ exports["module exported functions"] = function(test){
 	
 	//check exported functions can be invoked.
 	server.api.remote_func();
-	test.ok(flags[0]);
-	
-	server.api.config.config_func();	
-	test.ok(flags[1]);
+	test.ok(flag);
+				
 	
 	server.settings();
 	test.notEqual( server.config.app, undefined);
 	
-	test.expect(21);	
+	test.expect(19);	
 	test.done();
 }
 
@@ -221,6 +211,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		requires:{"./api":api}
 		
 	});
+	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./sandbox":sb,"./api":api}
@@ -277,6 +268,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 		requires:{"./api":api}
 		
 	});
+	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
@@ -351,10 +343,10 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 }
 
 
-exports["server.api.create: internal events, explicit&added catalog"] = function(test){
+exports["server.api.create: internal events, added catalog"] = function(test){
 	
 	
-		var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for create procedure
@@ -377,24 +369,18 @@ exports["server.api.create: internal events, explicit&added catalog"] = function
 		requires:{"./api":api}
 		
 	});
+	sb.add_plugin("create",sb.plugins.notifying_catalog("dummy"))
+	  .add_plugin("create", function(ctx,end_handler){
+	  		
+	  		ctx.params.rcpts.push(620793115);
+	  		end_handler();
+	  });
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./sandbox":sb,"./api":api}
 		
 	});
-	
-	server.api.config.add_create_handler(function(params){
-			
-		return params.catalog == "dummy";	
-	});
-	
-	
-	server.api.config.rcpts(function(doc,ret_handler){
-	
 		
-		test.notEqual(doc,undefined);		
-		ret_handler([620793115]);
-	});
 	
 	//two ev_api_create handlers.				
 	server.api.events
@@ -417,14 +403,14 @@ exports["server.api.create: internal events, explicit&added catalog"] = function
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(12);		
+		test.expect(11);		
 		test.done();
 	});								
 	
 }
 
 
-exports["server.api.create: internal events, explicit&added catalog, ro db"] = function(test){
+exports["server.api.create: internal events, added catalog, ro db"] = function(test){
 	
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};
 	var dbdocs = {};//documents at db	
@@ -461,31 +447,23 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./api":api}
-	});			
+	});	
+	sb.add_plugin("create",sb.plugins.notifying_catalog("dummy"))
+	  .add_plugin("create", function(ctx,end_handler){
+	  			  		
+	  		server.db.select("dummy","50187f71556efcbb25000002",function(err,val){
+			
+				test.equal(val.a,2);			
+				ctx.params.rcpts.push(val.uid);				
+				end_handler();
+			});	  		
+	  });		
 	
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./db":db,"./sandbox":sb}
 		
 	});
-	
-	server.api.config.add_create_handler(function(params){
 			
-		return params.catalog == "dummy";	
-	});
-	
-	
-	server.api.config.rcpts(function(doc,ret_handler){
-	
-		
-		test.notEqual(doc,undefined);
-		
-		server.db.select("dummy","50187f71556efcbb25000002",function(err,val){
-			
-			test.equal(val.a,2);			
-			ret_handler([val.uid]);
-		});		
-		
-	});
 					
 	server.api.events.on("ev_api_create", function(msg){
 		
@@ -500,7 +478,7 @@ exports["server.api.create: internal events, explicit&added catalog, ro db"] = f
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(11);		
+		test.expect(10);		
 		test.done();
 	});
 					
@@ -1324,6 +1302,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./api":api,"./server":{api:{config:{procedures:{newop1:1,create:1}}}}}
 	});
+	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
 	
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
@@ -1356,7 +1335,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	server.api.events.on("ev_api_newop1", function(msg, rcpts){
 					
 		
-		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5} );		
+		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[620793114]} );		
 				
 			
 	}).on("ev_api_create", function(params, rcpts){

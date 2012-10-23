@@ -297,7 +297,8 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
 	  .add_constraint_post("create","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"));
+	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
+	  .add_plugin("create",sb.plugins.notifying_doc);
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -383,8 +384,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 exports["api.remote.create: valid params, non init.rcpts, explicit catalog, notifiable true"] = function(test){
 	
 		
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy",notifiable:1};
-	var ircpts = [620793115];
+	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy",notifiable:1};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{							
@@ -410,12 +410,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 						 }					 
 		}
 	});
-	
-	api.rcpts = function(doc,ret_handler){
 		
-		test.notEqual(doc,undefined);		
-		ret_handler(ircpts);
-	};
 	
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
@@ -439,7 +434,12 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
 	  .add_constraint_post("create","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"));
+	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
+	  .add_plugin("create",function(ctx,end_handler){
+	  		
+	  		ctx.params.rcpts = [ctx.params.uid, 620793115];
+	  		end_handler();
+	  });
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -447,7 +447,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(11);
+		test.expect(10);
 		test.done();			
 	});
 	
@@ -483,14 +483,7 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog, notif
 						 }					 
 		}
 	});
-	
-	var flag2 = 1;
-	api.rcpts = function(doc,ret_handler){
 		
-		flag2 = 0;	
-			
-		ret_handler(ircpts);
-	};
 	
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
@@ -514,23 +507,23 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog, notif
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
 	  .add_constraint_post("create","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"));
+	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
+	  .add_plugin("create", sb.plugins.notifying_doc);
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
 				
-		test.ok(flag);
-		test.ok(flag2);		
+		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(11);
+		test.expect(10);
 		test.done();			
 	});
 				
 }
 
 
-exports["api.remote.create: valid params, non init.rcpts, explicit&added catalog"] = function(test){
+exports["api.remote.create: valid params, non init.rcpts, added catalog"] = function(test){
 		
 	
 	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};	
@@ -560,11 +553,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit&added catalog
 						 }					 
 		}
 	});	
-	
-	api.config.add_create_handler(function(params){
 		
-		return params.catalog == "dummy";
-	});		
 	
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
@@ -588,7 +577,8 @@ exports["api.remote.create: valid params, non init.rcpts, explicit&added catalog
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
 	  .add_constraint_post("create","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"));
+	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
+	  .add_plugin("create", sb.plugins.notifying_catalog("dummy"));
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -633,19 +623,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 							}
 						 }					 
 		}
-	});	
-	
-	api.rcpts = function(doc,ret_handler){
-			
-			test.notEqual(doc,undefined);							
-			setTimeout(function(){ret_handler([620793115])},500);
-			
-	};
-	
-	api.config.add_create_handler(function(params){
-		
-		return params.catalog == "dummy";
-	});
+	});			
 	
 	api.on("ev_api_create", function(msg){
 				
@@ -677,7 +655,13 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
 	  .add_constraint_post("create","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"));
+	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
+	  .add_plugin("create",sb.plugins.notifying_catalog("dummy"))
+	  .add_plugin("create",function(ctx,end_handler){
+	  		
+	  		ctx.params.rcpts.push(620793115);
+	  		setTimeout(end_handler,500);
+	  });
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -685,7 +669,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 		test.ok(flag);				
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(14);		
+		test.expect(13);		
 		test.done();			
 	});
 		

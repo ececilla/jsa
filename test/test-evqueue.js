@@ -266,7 +266,7 @@ exports["evqueue.on: listening custom event, wrong event emitted"] = function(te
 
 exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpts"] = function(test){
 		
-	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"},
+	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy", rcpts:[620793114, 620793115, 620793119]},
 	    ircpts = [620793115, 620793119];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module
@@ -297,19 +297,7 @@ exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpt
 					}
 		}
 	});
-	
-	
-	api.rcpts = function(doc,ret_handler){
-			
-			test.notEqual(doc,undefined);									
-			setTimeout(function(){ret_handler(ircpts)},500);
-			
-	};
-	
-	api.config.add_create_handler(function(params){
 		
-		return params.catalog == "dummy";
-	});
 	
 	
 	/*
@@ -346,7 +334,7 @@ exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpt
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);	
-		test.expect(17);
+		test.expect(16);
 		test.done();				
 		
 	});
