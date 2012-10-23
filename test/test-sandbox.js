@@ -5,15 +5,19 @@ exports["module exported function"] = function(test){
 	
 	var sb = require("../lib/sandbox");
 	test.notEqual(sb.add_constraint_post,undefined);
+	test.notEqual(sb.add_constraint_pre,undefined);
+	test.notEqual(sb.add_plugin,undefined);
 	test.notEqual(sb.execute,undefined);
 	test.notEqual(sb.constraints.is_owner,undefined);
 	test.notEqual(sb.constraints.has_joined,undefined);
 	test.notEqual(sb.constraints.not_joined,undefined);
 	test.notEqual(sb.constraints.user_catalog,undefined);
 	test.notEqual(sb.constraints.is_joinable,undefined);
-	test.notEqual(sb.constraints.is_reserved,undefined);
-	test.notEqual(sb.constraints.field_exists,undefined);
+	test.notEqual(sb.constraints.is_reserved,undefined);	
 	test.notEqual(sb.constraints.field_not_exists,undefined);
+	test.notEqual(sb.constraints.field_exists,undefined);
+	test.notEqual(sb.constraints.param_type,undefined);
+	test.notEqual(sb.constraints.is_required,undefined);
 	test.done();
 	
 }
@@ -445,6 +449,57 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 		test.ok(flags[1]);
 		test.deepEqual(err,{code:-2, message:"Wrong parameter type doc: must be an object"});
 		test.expect(5);
+		test.done();
+	});
+		
+}
+
+
+exports["sandbox.add_plugin: modify ctx"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	var flag = 0;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 flag = 1;
+							 ctx.config.save = 0;
+							 test.deepEqual(ctx.params.rcpts,[620793114,620793119]);							 
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
+	
+	sb.add_constraint_post("test",sb.constraints.is_owner)
+	  .add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)
+	  .add_plugin("test",function(ctx, end_handler){
+	  			
+	  		  			  		
+	  		setTimeout(function(){
+	  			ctx.params.rcpts = [620793114,620793119];		  			
+	  			end_handler();	
+	  		},500);
+	  		
+	  });
+	
+	sb.execute("test", params, function(err,result){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(result,1)										
+		test.expect(4);
 		test.done();
 	});
 		
