@@ -13,8 +13,7 @@ exports["module exported function"] = function(test){
 	test.notEqual(sb.constraints.not_joined,undefined);
 	test.notEqual(sb.constraints.user_catalog,undefined);
 	test.notEqual(sb.constraints.is_joinable,undefined);
-	test.notEqual(sb.constraints.is_reserved,undefined);	
-	test.notEqual(sb.constraints.field_not_exists,undefined);
+	test.notEqual(sb.constraints.is_reserved,undefined);		
 	test.notEqual(sb.constraints.field_exists,undefined);
 	test.notEqual(sb.constraints.param_type,undefined);
 	test.notEqual(sb.constraints.is_required,undefined);
@@ -697,43 +696,7 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 	
 	sb.execute("set", params, function(err,result){
 		
-		test.deepEqual(err,{code:-3, message:"Not exists: #" + params.catalog + "/" + params.wid + "[" + params.fname + "]"});										
-		test.done();
-	});
-		
-}
-
-
-exports["sandbox.add_constraint_post: constraints.field_not_exists"] = function(test){
-	
-	var  dbdocs = {};
-		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
-	
-	var sb = sandbox.require("../lib/sandbox",{requires:{
-		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
-								
-								ret_handler(null,dbdocs[id_str]);		
-							}
-		},
-		"./api":{remote:{ add:function( ctx, ret_handler){
-							 														 							
-							 ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
-							 ret_handler( null, ctx.doc );
-						  }
-				}
-		}
-	}
-	});
-	
-	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:4};
-	
-	sb.add_constraint_post("add","field_not_exists",sb.constraints.field_not_exists)
-	  .add_constraint_post("add","user_catalog",sb.constraints.user_catalog);
-	
-	sb.execute("add", params, function(err,result){
-		
-		test.deepEqual(err,{code:-3, message:"Already exists: #" + params.catalog + "/" + params.wid + "[" + params.fname + "]"});										
+		test.deepEqual(err,{code:-3, message:"Not exists: #" + params.catalog + "/" + params.wid + ":" + params.fname});										
 		test.done();
 	});
 		
@@ -769,7 +732,7 @@ exports["sandbox.add_constraint_post: constraints.field_type"] = function(test){
 	
 	sb.execute("set", params, function(err,result){
 		
-		test.deepEqual(err,{code:-4, message:"Wrong type: #" + params.catalog + "/" + params.wid + "[" + params.fname + "] not object"});										
+		test.deepEqual(err,{code:-4, message:"Wrong type: #" + params.catalog + "/" + params.wid + ":" + params.fname + " not object"});										
 		test.done();
 	});
 		
