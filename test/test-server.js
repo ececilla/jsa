@@ -67,8 +67,7 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	//default values
 	test.ok( server.api.config.procedures.create );
 	test.ok( server.api.config.procedures.join );
-	test.ok( server.api.config.procedures.unjoin );
-	test.ok( server.api.config.procedures.add );
+	test.ok( server.api.config.procedures.unjoin );	
 	test.ok( server.api.config.procedures.remove );
 	test.ok( server.api.config.procedures.set );
 	test.ok( server.api.config.procedures.push );
@@ -80,8 +79,7 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	server.api.config.disable_procedures();
 	test.equal( server.api.config.procedures.create,0 );
 	test.equal( server.api.config.procedures.join,0 );
-	test.equal( server.api.config.procedures.unjoin,0 );
-	test.equal( server.api.config.procedures.add,0 );
+	test.equal( server.api.config.procedures.unjoin,0 );	
 	test.equal( server.api.config.procedures.remove,0 );
 	test.equal( server.api.config.procedures.set,0 );
 	test.equal( server.api.config.procedures.push,0 );
@@ -93,8 +91,7 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	//enable procedures
 	test.ok( server.api.config.procedures.create );
 	test.ok( server.api.config.procedures.join );
-	test.ok( server.api.config.procedures.unjoin );
-	test.ok( server.api.config.procedures.add );
+	test.ok( server.api.config.procedures.unjoin );	
 	test.ok( server.api.config.procedures.remove );
 	test.ok( server.api.config.procedures.set );
 	test.ok( server.api.config.procedures.push );
@@ -102,7 +99,7 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	test.ok( server.api.config.procedures.shift );
 	test.ok( server.api.config.procedures.ack );
 	
-	test.expect(30);
+	test.expect(27);
 	test.done();
 	
 }
@@ -696,75 +693,6 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 		test.done();
 	});
 						
-}
-
-
-exports["server.api.add: internal events, default catalog"] = function(test){
-	
-	var params = {wid:"50187f71556efcbb25000001", uid:620793116, fname:"c", value:[]};	
-	
-	var dbdocs = {};//documents at db	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"docs"},
-		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"docs"};
-	
-	var db =  {	
-				save:function(col_str, doc, ret_handler){
-													
-					test.equal(col_str,"docs");																								
-					test.deepEqual( doc.rcpts, [620793115, 620793116]);
-					test.deepEqual(doc.c,[]);
-										
-					setTimeout(function(){
-						
-						ret_handler(null,doc);
-					},50);	
-				},
-				
-				select:function(col_str, id_str, ret_handler){
-					
-					test.equal(col_str, "docs");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					
-					setTimeout(function(){//50ms delay retrieving document
-						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				}
-	};
-	   
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":db}
-	});
-	
-	var sb = sandbox.require("../lib/sandbox",{
-		
-		requires:{"./api":api, "./db":db}		
-	});
-					
-	var server = sandbox.require("../lib/server",{
-		
-		requires:{"./api":api,"./sandbox":sb}		
-	});
-	
-						
-	server.api.events.on("ev_api_add", function(msg){
-		
-		test.equal(msg.ev_type,"ev_api_add");
-		test.notEqual(msg.ev_tstamp, undefined);
-		test.equal(msg.ev_ctx.params.uid, params.uid);
-		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
-		test.equal(msg.ev_ctx.params.catalog, "docs");													
-	});
-				
-	
-	server.api.add(params, function(err,val){
-		
-		test.equal(err,undefined);
-		test.equal(val,1);						
-				
-		test.expect(12);		
-		test.done();
-	});					
 }
 
 
