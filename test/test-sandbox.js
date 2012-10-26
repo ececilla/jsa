@@ -15,6 +15,7 @@ exports["module exported function"] = function(test){
 	test.notEqual(sb.constraints.is_joinable,undefined);
 	test.notEqual(sb.constraints.is_reserved,undefined);		
 	test.notEqual(sb.constraints.field_exists,undefined);
+	test.notEqual(sb.constraints.field_type,undefined);
 	test.notEqual(sb.constraints.param_type,undefined);
 	test.notEqual(sb.constraints.is_required,undefined);
 	test.done();
@@ -703,7 +704,7 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 }
 
 
-exports["sandbox.add_constraint_post: constraints.field_type"] = function(test){
+exports["sandbox.add_constraint_post: constraints.field_type object"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
@@ -737,6 +738,44 @@ exports["sandbox.add_constraint_post: constraints.field_type"] = function(test){
 	});
 		
 }
+
+
+exports["sandbox.add_constraint_post: constraints.field_type array"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:{x:1}, uid:620793114, rcpts:[620793114] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ push:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc[ctx.params.fname].push(ctx.params.value);							 							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:5};
+	
+	sb.add_constraint_pre("push","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint_post("push","field_type",sb.constraints.field_type("array"));
+	  
+	
+	sb.execute("push", params, function(err,result){
+		
+		test.deepEqual(err,{code:-4, message:"Wrong type: #" + params.catalog + "/" + params.wid + ":" + params.fname + " not array"});										
+		test.done();
+	});
+		
+}
+
 
 exports["sandbox.add_constraint_post: constraints.is_required"] = function(test){
 	
