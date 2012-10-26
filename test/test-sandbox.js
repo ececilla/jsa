@@ -945,6 +945,138 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 
 
 
+exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
+	var flag = 0;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 flag = 1;
+							 ctx.config.save = 0;
+							 test.equal(ctx.params.catalog, "docs");
+							 test.equal(ctx.params.wid,"5074b135d03a0ac443000001");
+							 test.equal(ctx.params.fname,"a.b.3.c");							 
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:a.b.3.c"};
+	
+	sb.add_constraint_post("test",sb.constraints.is_owner)
+	  .add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)
+	  .add_plugin("test",sb.plugins.url_transform);
+	
+	sb.execute("test", params, function(err,result){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(result,1)										
+		test.expect(6);
+		test.done();
+	});		
+		
+}
+
+
+exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
+	var flag = 0;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 flag = 1;
+							 ctx.config.save = 0;
+							 test.equal(ctx.params.catalog, "docs");
+							 test.equal(ctx.params.wid,"5074b135d03a0ac443000001");	
+							 test.equal(ctx.params.fname, undefined);						 							 
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:"};
+	
+	sb.add_constraint_post("test",sb.constraints.is_owner)
+	  .add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)
+	  .add_plugin("test",sb.plugins.url_transform);
+	
+	sb.execute("test", params, function(err,result){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(result,1)										
+		test.expect(6);
+		test.done();
+	});		
+		
+}
+
+exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
+	var flag = 0;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 flag = 1;
+							 ctx.config.save = 0;
+							 test.equal(ctx.params.catalog, "docs");
+							 test.equal(ctx.params.wid,undefined);	
+							 test.equal(ctx.params.fname, undefined);						 							 
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793115, url:"#docs/"};
+	
+	sb.add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)	  	  	  
+	  .add_plugin("test",sb.plugins.url_transform);
+	
+	sb.execute("test", params, function(err,result){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(result,1)										
+		test.expect(6);
+		test.done();
+	});		
+		
+}
+
 
 
 
