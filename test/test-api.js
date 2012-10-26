@@ -2725,3 +2725,162 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 			
 }
 
+exports["api.remote.get: missing & wrong params"] = function(test){
+
+	var dbdocs = {};
+	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, test:[4,5,6], z:{y:1}, rcpts:[620793114,620793115]};
+		
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																																						
+								if(col_str == "docs")								
+									ret_handler(null,dbdocs[id_str]);
+								else
+									ret_handler(null,null);								
+							}
+						 } 
+		}
+	});
+	
+	sb.add_constraint_pre("get","user_catalog",sb.constraints.user_catalog)	
+	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"))	  	  	    	  
+	  .add_constraint_post("get","exists",sb.constraints.field_exists);
+	  	  							
+	//user catalog
+	var params = {catalog:"timers", wid:"50187f71556efcbb25000002"};
+	sb.execute("get", params, function(err,result){
+					
+		test.deepEqual(err, {code:-2, message:"No access permission: system catalog"});
+				
+	});
+	
+	//wid missing
+	params = {miss_wid:"50187f71556efcbb25000002"};
+	sb.execute("get", params, function(err,result){
+					
+		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+				
+	});
+			
+			
+	//field exists
+	params = {wid:"50187f71556efcbb25000002", fname:"notexists"};
+	sb.execute("get", params, function(err,result){
+					
+		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
+			
+	});
+	
+	//inner field exists
+	params = {wid:"50187f71556efcbb25000002", fname:"z.notexists"};
+	sb.execute("get", params, function(err,result){
+					
+		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
+		
+	});			
+	
+	//document exists
+	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"test"};
+	sb.execute("get", params, function(err,result){
+					
+		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000005"});				
+		test.done();
+	});				
+
+	
+}
+
+
+exports["api.remote.get: valid params, existing doc, explicit catalog, db async"] = function(test){
+	
+	
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"};
+		
+				
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"dummy");
+								test.equal(id_str,"50187f71556efcbb25000001");								
+								
+								setTimeout(function(){ //db 50ms delay retrieving document
+									
+									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+								},50);
+																
+							}
+						 }	  
+		}
+	});
+	
+	sb.add_constraint_pre("get","user_catalog",sb.constraints.user_catalog)	
+	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"))	  	  	    	  
+	  .add_constraint_post("get","exists",sb.constraints.field_exists)
+	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+		
+	
+	var params = {url:"#dummy/50187f71556efcbb25000001"};
+
+						
+	sb.execute("get", params, function(err,result){
+						
+						
+		test.equal(err,null);		
+		test.deepEqual(result,{wid:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"});	
+		test.expect(4);	
+		test.done();		
+		
+	});
+		
+	
+}
+
+exports["api.remote.get: valid params, existing inner field, explicit catalog, db async"] = function(test){
+	
+	
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"docs"};
+		
+				
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"dummy");
+								test.equal(id_str,"50187f71556efcbb25000001");								
+								
+								setTimeout(function(){ //db 50ms delay retrieving document
+									
+									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+								},50);
+																
+							}
+						 }	  
+		}
+	});
+	
+	sb.add_constraint_pre("get","user_catalog",sb.constraints.user_catalog)	
+	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"))	  	  	    	  
+	  .add_constraint_post("get","exists",sb.constraints.field_exists)
+	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+		
+	
+	var params = {url:"#dummy/50187f71556efcbb25000001:b"};
+
+						
+	sb.execute("get", params, function(err,result){
+						
+						
+		test.equal(err,null);		
+		test.deepEqual(result,[4,5,6]);	
+		test.expect(4);	
+		test.done();		
+		
+	});
+		
+	
+}
+
