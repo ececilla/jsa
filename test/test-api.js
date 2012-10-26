@@ -2239,7 +2239,8 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"))	    
 	  .add_constraint_post("pop","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("pop","exists",sb.constraints.field_exists)
-	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined);
+	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined)
+	  .add_constraint_post("pop","field_type",sb.constraints.field_type("array"));
 			
 			
 	//uid missing
@@ -2449,7 +2450,8 @@ exports["api.remote.pop: valid params, existing inner field as array, explicit c
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"))	  	  
 	  .add_constraint_post("pop","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("pop","exists",sb.constraints.field_exists)
-	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined);
+	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined)
+	  .add_constraint_post("pop","field_type",sb.constraints.field_type("array"));
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};
@@ -2493,7 +2495,8 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	  .add_constraint_post("shift","param_fname",sb.constraints.is_required("fname"))	    
 	  .add_constraint_post("shift","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("shift","exists",sb.constraints.field_exists)
-	  .add_constraint_post("shift","has_joined",sb.constraints.has_joined);
+	  .add_constraint_post("shift","has_joined",sb.constraints.has_joined)
+	  .add_constraint_post("shift","field_type",sb.constraints.field_type("array"));
 			
 			
 	//uid missing
