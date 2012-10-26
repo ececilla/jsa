@@ -956,12 +956,12 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 								
 				test.ok(flag);				
 				test.equal(err,null);		
-				test.deepEqual(result.doc.rcpts, [620793115, 620793117, 620793114]);
-				test.equal(result.doc._id, undefined);		
-				test.equal(result.doc.wid, "50187f71556efcbb25000001");
-				test.equal(result.doc.catalog, "docs");		
-				test.equal(result.doc.a,1);
-				test.equal(result.doc.b,"test1234");		
+				test.deepEqual(result.rcpts, [620793115, 620793117, 620793114]);
+				test.equal(result._id, undefined);		
+				test.equal(result.wid, "50187f71556efcbb25000001");
+				test.equal(result.catalog, "docs");		
+				test.equal(result.a,1);
+				test.equal(result.b,"test1234");		
 				next();		
 				
 			});
@@ -1974,7 +1974,8 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	  .add_constraint_post("push","param_value",sb.constraints.is_required("value"))	  
 	  .add_constraint_post("push","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("push","exists",sb.constraints.field_exists)
-	  .add_constraint_post("push","has_joined",sb.constraints.has_joined);
+	  .add_constraint_post("push","has_joined",sb.constraints.has_joined)
+	  .add_constraint_post("push","field_type",sb.constraints.field_type("array"));
 			
 			
 	//uid missing
