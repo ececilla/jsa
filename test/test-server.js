@@ -1277,7 +1277,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 		
 		test.ok(flag);
 		test.equal(err,undefined);
-		test.notEqual(val.doc, undefined)
+		test.notEqual(val, undefined)
 		test.expect(12);
 		test.done();	
 	});
