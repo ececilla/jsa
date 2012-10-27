@@ -66,7 +66,7 @@ exports["api.remote.create: missing params"] = function(test){
 	sb.execute("create", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});
 		
 	});
 		
@@ -76,7 +76,7 @@ exports["api.remote.create: missing params"] = function(test){
 	sb.execute("create", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message: "doc parameter required"});
+		test.deepEqual(err, {code:-12, message: "doc parameter required"});
 		test.expect(4);
 		test.done();
 	}); 		
@@ -128,7 +128,7 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 	sb.execute("create", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-2, message: "No access permission: system catalog"});
+		test.deepEqual(err, {code:-5, message: "No access permission: system catalog"});
 		test.expect(2);
 		test.done();
 	});
@@ -182,7 +182,7 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 	sb.execute("create", params, function(err,result){
 				
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message:"Wrong parameter type: doc not object" });		
+		test.deepEqual(err, {code:-11, message:"Wrong parameter type: doc not object" });		
 		
 	});
 	
@@ -704,7 +704,7 @@ exports["api.remote.dispose: missing params"] = function(test){
 	sb.execute("dispose", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});
 		
 	});
 		
@@ -714,7 +714,7 @@ exports["api.remote.dispose: missing params"] = function(test){
 	sb.execute("dispose", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 		test.expect(4);
 		test.done();
 	}); 	
@@ -757,7 +757,7 @@ exports["api.remote.dispose: valid params, wid not found, not owner"] = function
 	sb.execute("dispose", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000002"});		
+		test.deepEqual(err, {code:-1, message: "Document not found: #docs/50187f71556efcbb25000002"});		
 		
 	}); 
 	
@@ -878,7 +878,7 @@ exports["api.remote.join: missing params"] = function(test){
 	sb.execute("join", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});
 		
 	});
 		
@@ -888,7 +888,7 @@ exports["api.remote.join: missing params"] = function(test){
 	sb.execute("join", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 		test.expect(6);
 		test.done();
 	}); 
@@ -1024,7 +1024,7 @@ exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(
 	sb.execute("join", params, function(err,result){
 											
 		test.ok(flag);
-		test.deepEqual(err,{code:-2, message:"No access permission: not joinable/unjoinable"});		
+		test.deepEqual(err,{code:-7, message:"No access permission: not joinable/unjoinable"});		
 		
 		test.expect(4);
 		test.done();	
@@ -1070,7 +1070,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 	sb.execute("unjoin", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});
 		
 	});
 		
@@ -1080,7 +1080,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 	sb.execute("unjoin", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});		
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});		
 	}); 
 	
 	//not in rcpts
@@ -1088,7 +1088,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 	sb.execute("unjoin", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-2, message:"No access permission: not joined"});
+		test.deepEqual(err, {code:-3, message:"No access permission: not joined"});
 			
 	}); 
 	
@@ -1099,7 +1099,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 		
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-2, message:"No access permission: not joinable/unjoinable"});
+		test.deepEqual(err, {code:-7, message:"No access permission: not joinable/unjoinable"});
 		
 		test.expect(14);
 		test.done();
@@ -1201,7 +1201,7 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 	sb.execute("unjoin", params, function(err,result){
 									
 		
-		test.deepEqual(err,{"code":-7,"message":"Document not found: #docs/50187f71556efcbb25000001"});		
+		test.deepEqual(err,{"code":-1,"message":"Document not found: #docs/50187f71556efcbb25000001"});		
 		test.equal(result,null);
 		
 		test.expect(4);
@@ -1244,7 +1244,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});		
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});		
 		
 	});
 	
@@ -1253,7 +1253,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 			
 	});
 	
@@ -1262,7 +1262,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", miss_fname:"test"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "fname parameter required"});
+		test.deepEqual(err, {code:-12, message: "fname parameter required"});
 		
 	}); 
 		
@@ -1271,7 +1271,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"_id"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: _id"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: _id"});
 			
 	});
 	
@@ -1279,7 +1279,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"uid"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: uid"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: uid"});
 			
 	});
 	
@@ -1287,7 +1287,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"rcpts"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: rcpts"});		
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: rcpts"});		
 			
 	});
 	
@@ -1295,7 +1295,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"notexists"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
 			
 	});
 	
@@ -1303,7 +1303,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.notexists", value:5};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
 		
 	});
 	
@@ -1312,7 +1312,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
+		test.deepEqual(err, {code:-3, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -1320,7 +1320,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"test"};
 	sb.execute("remove", params, function(err,result){
 					
-		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000005"});		
+		test.deepEqual(err, {code:-1, message: "Document not found: #docs/50187f71556efcbb25000005"});		
 		test.done();
 		
 	});
@@ -1564,7 +1564,7 @@ exports["api.remote.remove: valid params, non existing array index, explicit cat
 	sb.execute("remove", params, function(err,result){
 						
 						
-		test.deepEqual(err,{code:-3, message: "Not exists: #dummy/50187f71556efcbb25000001:a.b.1"});		
+		test.deepEqual(err,{code:-9, message: "Not exists: #dummy/50187f71556efcbb25000001:a.b.1"});		
 		test.equal(result,null);	
 		test.expect(5);	
 		test.done();		
@@ -1607,7 +1607,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002", fname:"test", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});		
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});		
 		
 	});
 	
@@ -1616,7 +1616,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002", fname:"test", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 				
 	});
 	
@@ -1625,7 +1625,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", miss_fname:"test", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "fname parameter required"});
+		test.deepEqual(err, {code:-12, message: "fname parameter required"});
 		
 	}); 
 	
@@ -1634,7 +1634,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"test", miss_value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "value parameter required"});
+		test.deepEqual(err, {code:-12, message: "value parameter required"});
 		
 	}); 	
 	
@@ -1642,7 +1642,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"_id", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: _id"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: _id"});
 			
 	});
 	
@@ -1650,7 +1650,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"uid", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: uid"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: uid"});
 			
 	});
 	
@@ -1658,7 +1658,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"rcpts", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: rcpts"});		
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: rcpts"});		
 			
 	});
 	
@@ -1666,7 +1666,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"notexists", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
 			
 	});
 	
@@ -1674,7 +1674,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.notexists", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
 		
 	});
 	
@@ -1683,7 +1683,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
+		test.deepEqual(err, {code:-3, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -1691,7 +1691,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"test", value:5};
 	sb.execute("set", params, function(err,result){
 					
-		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000005"});		
+		test.deepEqual(err, {code:-1, message: "Document not found: #docs/50187f71556efcbb25000005"});		
 		test.done();
 		
 	});
@@ -1938,7 +1938,7 @@ exports["api.remote.set: valid params,non existing inner array field, explicit c
 	sb.execute("set", params, function(err,result){
 						
 						
-		test.deepEqual(err,{code:-3,message:"Not exists: #dummy/50187f71556efcbb25000001:a.c.1"});		
+		test.deepEqual(err,{code:-9, message:"Not exists: #dummy/50187f71556efcbb25000001:a.c.1"});		
 		test.equal(result,null);	
 		test.expect(5);	
 		test.done();		
@@ -1982,7 +1982,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002", fname:"test", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});		
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});		
 		
 	});
 	
@@ -1991,7 +1991,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002", fname:"test", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 				
 	});
 	
@@ -2000,7 +2000,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", miss_fname:"test", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "fname parameter required"});
+		test.deepEqual(err, {code:-12, message: "fname parameter required"});
 		
 	}); 
 	
@@ -2009,7 +2009,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"test", miss_value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "value parameter required"});
+		test.deepEqual(err, {code:-12, message: "value parameter required"});
 		
 	}); 	
 	
@@ -2017,7 +2017,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"_id", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: _id"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: _id"});
 			
 	});
 	
@@ -2025,7 +2025,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"uid", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: uid"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: uid"});
 			
 	});
 	
@@ -2033,7 +2033,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"rcpts", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: rcpts"});		
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: rcpts"});		
 			
 	});
 	
@@ -2041,7 +2041,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"notexists", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
 			
 	});
 	
@@ -2049,7 +2049,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.notexists", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
 		
 	});
 	
@@ -2058,7 +2058,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
+		test.deepEqual(err, {code:-3, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -2066,7 +2066,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"test", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000005"});				
+		test.deepEqual(err, {code:-1, message: "Document not found: #docs/50187f71556efcbb25000005"});				
 		
 	});
 	
@@ -2074,7 +2074,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "Wrong type: #docs/50187f71556efcbb25000002:z not array"});				
+		test.deepEqual(err, {code:-10, message: "Wrong type: #docs/50187f71556efcbb25000002:z not array"});				
 		
 	});
 	
@@ -2082,7 +2082,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.y", value:5};
 	sb.execute("push", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "Wrong type: #docs/50187f71556efcbb25000002:z.y not array"});		
+		test.deepEqual(err, {code:-10, message: "Wrong type: #docs/50187f71556efcbb25000002:z.y not array"});		
 		test.done();
 		
 	});
@@ -2247,7 +2247,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});		
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});		
 		
 	});
 	
@@ -2256,7 +2256,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 				
 	});
 	
@@ -2265,7 +2265,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", miss_fname:"test"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "fname parameter required"});
+		test.deepEqual(err, {code:-12, message: "fname parameter required"});
 		
 	}); 		
 	
@@ -2273,7 +2273,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"_id"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: _id"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: _id"});
 			
 	});
 	
@@ -2281,7 +2281,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"uid"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: uid"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: uid"});
 			
 	});
 	
@@ -2289,7 +2289,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"rcpts"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: rcpts"});		
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: rcpts"});		
 			
 	});
 	
@@ -2297,7 +2297,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"notexists"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
 			
 	});
 	
@@ -2305,7 +2305,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.notexists"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
 		
 	});
 	
@@ -2314,7 +2314,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
+		test.deepEqual(err, {code:-3, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -2322,7 +2322,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"test"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000005"});				
+		test.deepEqual(err, {code:-1, message: "Document not found: #docs/50187f71556efcbb25000005"});				
 		
 	});
 	
@@ -2330,7 +2330,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "Wrong type: #docs/50187f71556efcbb25000002:z not array"});				
+		test.deepEqual(err, {code:-10, message: "Wrong type: #docs/50187f71556efcbb25000002:z not array"});				
 		
 	});
 	
@@ -2338,7 +2338,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.y"};
 	sb.execute("pop", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "Wrong type: #docs/50187f71556efcbb25000002:z.y not array"});		
+		test.deepEqual(err, {code:-10, message: "Wrong type: #docs/50187f71556efcbb25000002:z.y not array"});		
 		test.done();
 		
 	});
@@ -2503,7 +2503,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "uid parameter required"});		
+		test.deepEqual(err, {code:-12, message: "uid parameter required"});		
 		
 	});
 	
@@ -2512,7 +2512,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 				
 	});
 	
@@ -2521,7 +2521,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", miss_fname:"test"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "fname parameter required"});
+		test.deepEqual(err, {code:-12, message: "fname parameter required"});
 		
 	}); 		
 	
@@ -2529,7 +2529,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"_id"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: _id"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: _id"});
 			
 	});
 	
@@ -2537,7 +2537,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"uid"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: uid"});
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: uid"});
 			
 	});
 	
@@ -2545,7 +2545,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"rcpts"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Reserved word not allowed as field name: rcpts"});		
+		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: rcpts"});		
 			
 	});
 	
@@ -2553,7 +2553,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"notexists"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
 			
 	});
 	
@@ -2561,7 +2561,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.notexists"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
 		
 	});
 	
@@ -2570,7 +2570,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message: "No access permission: not joined"});		
+		test.deepEqual(err, {code:-3, message: "No access permission: not joined"});		
 		
 	});
 	
@@ -2578,7 +2578,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"test"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000005"});				
+		test.deepEqual(err, {code:-1, message: "Document not found: #docs/50187f71556efcbb25000005"});				
 		
 	});
 	
@@ -2586,7 +2586,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "Wrong type: #docs/50187f71556efcbb25000002:z not array"});				
+		test.deepEqual(err, {code:-10, message: "Wrong type: #docs/50187f71556efcbb25000002:z not array"});				
 		
 	});
 	
@@ -2594,7 +2594,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.y"};
 	sb.execute("shift", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "Wrong type: #docs/50187f71556efcbb25000002:z.y not array"});		
+		test.deepEqual(err, {code:-10, message: "Wrong type: #docs/50187f71556efcbb25000002:z.y not array"});		
 		test.done();
 		
 	});
@@ -2751,7 +2751,7 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 	var params = {catalog:"timers", wid:"50187f71556efcbb25000002"};
 	sb.execute("get", params, function(err,result){
 					
-		test.deepEqual(err, {code:-2, message:"No access permission: system catalog"});
+		test.deepEqual(err, {code:-5, message:"No access permission: system catalog"});
 				
 	});
 	
@@ -2759,7 +2759,7 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 	params = {miss_wid:"50187f71556efcbb25000002"};
 	sb.execute("get", params, function(err,result){
 					
-		test.deepEqual(err, {code:-4, message: "wid parameter required"});
+		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 				
 	});
 			
@@ -2768,7 +2768,7 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 	params = {wid:"50187f71556efcbb25000002", fname:"notexists"};
 	sb.execute("get", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
 			
 	});
 	
@@ -2776,7 +2776,7 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 	params = {wid:"50187f71556efcbb25000002", fname:"z.notexists"};
 	sb.execute("get", params, function(err,result){
 					
-		test.deepEqual(err, {code:-3, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
 		
 	});			
 	
@@ -2784,7 +2784,7 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"test"};
 	sb.execute("get", params, function(err,result){
 					
-		test.deepEqual(err, {code:-7, message: "Document not found: #docs/50187f71556efcbb25000005"});				
+		test.deepEqual(err, {code:-1, message: "Document not found: #docs/50187f71556efcbb25000005"});				
 		test.done();
 	});				
 

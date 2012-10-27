@@ -348,7 +348,7 @@ exports["sandbox.add_constraint_post: wid not found"] = function(test){
 	
 	sb.execute("join", params, function(err,result){
 		
-		test.deepEqual(err, { code: -7, message: 'Document not found: #docs/5074b135d03a0ac443000002' });
+		test.deepEqual(err, { code: -1, message: 'Document not found: #docs/5074b135d03a0ac443000002' });
 		test.expect(3);
 		test.done();
 	});
@@ -439,7 +439,7 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 		
 		if( typeof ctx.params.doc !== "object"){
 					
-			return {code:-2, message:"Wrong parameter type doc: must be an object"};			
+			return {code:-11, message:"Wrong parameter type doc: must be an object"};			
 		}
 	});
 	
@@ -447,7 +447,7 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 		
 		test.ok(flags[0]);
 		test.ok(flags[1]);
-		test.deepEqual(err,{code:-2, message:"Wrong parameter type doc: must be an object"});
+		test.deepEqual(err,{code:-11, message:"Wrong parameter type doc: must be an object"});
 		test.expect(5);
 		test.done();
 	});
@@ -558,7 +558,7 @@ exports["sandbox.add_constraint_post: constraints.has_joined"] = function(test){
 	
 	sb.execute("join", params, function(err,result){
 		
-		test.deepEqual(err,{code:-2, message:"No access permission: not joined"});										
+		test.deepEqual(err,{code:-3, message:"No access permission: not joined"});										
 		test.done();
 	});
 		
@@ -592,7 +592,7 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 	
 	sb.execute("join", params, function(err,result){
 		
-		test.deepEqual(err,{code:-2, message:"No access permission: system catalog"});										
+		test.deepEqual(err,{code:-5, message:"No access permission: system catalog"});										
 		test.done();
 	});
 		
@@ -627,7 +627,7 @@ exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test)
 	
 	sb.execute("join", params, function(err,result){
 		
-		test.deepEqual(err,{code:-2, message:"No access permission: not joinable/unjoinable"})										
+		test.deepEqual(err,{code:-7, message:"No access permission: not joinable/unjoinable"})										
 		test.done();
 	});
 		
@@ -662,7 +662,7 @@ exports["sandbox.add_constraint_post: constraints.is_reserved"] = function(test)
 	
 	sb.execute("set", params, function(err,result){
 		
-		test.deepEqual(err,{code:-3, message:"Reserved word not allowed as field name: " + params.fname })										
+		test.deepEqual(err,{code:-8, message:"Reserved word not allowed as field name: " + params.fname })										
 		test.done();
 	});
 		
@@ -697,7 +697,7 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 	
 	sb.execute("set", params, function(err,result){
 		
-		test.deepEqual(err,{code:-3, message:"Not exists: #" + params.catalog + "/" + params.wid + ":" + params.fname});										
+		test.deepEqual(err,{code:-9, message:"Not exists: #" + params.catalog + "/" + params.wid + ":" + params.fname});										
 		test.done();
 	});
 		
@@ -733,7 +733,7 @@ exports["sandbox.add_constraint_post: constraints.field_type object"] = function
 	
 	sb.execute("set", params, function(err,result){
 		
-		test.deepEqual(err,{code:-4, message:"Wrong type: #" + params.catalog + "/" + params.wid + ":" + params.fname + " not object"});										
+		test.deepEqual(err,{code:-10, message:"Wrong type: #" + params.catalog + "/" + params.wid + ":" + params.fname + " not object"});										
 		test.done();
 	});
 		
@@ -770,7 +770,7 @@ exports["sandbox.add_constraint_post: constraints.field_type array"] = function(
 	
 	sb.execute("push", params, function(err,result){
 		
-		test.deepEqual(err,{code:-4, message:"Wrong type: #" + params.catalog + "/" + params.wid + ":" + params.fname + " not array"});										
+		test.deepEqual(err,{code:-10, message:"Wrong type: #" + params.catalog + "/" + params.wid + ":" + params.fname + " not array"});										
 		test.done();
 	});
 		
@@ -809,7 +809,7 @@ exports["sandbox.add_constraint_post: constraints.is_required"] = function(test)
 	
 	sb.execute("set", params, function(err,result){
 										
-		test.deepEqual(err,{code:-4, message:"wid parameter required"});										
+		test.deepEqual(err,{code:-12, message:"wid parameter required"});										
 		test.done();
 	});
 		
@@ -882,7 +882,7 @@ exports["sandbox.add_constraint_post: method not found"] = function(test){
 		
 	sb.execute("foooooo", params, function(err,result){
 						
-		test.deepEqual(err,{ code: -32600, message: "Method not found." });									
+		test.deepEqual(err,{ code: -32601, message: "Method not found." });									
 		test.done();
 	});
 		
