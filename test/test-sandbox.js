@@ -11,7 +11,7 @@ exports["module exported function"] = function(test){
 	test.notEqual(sb.constraints.is_owner,undefined);
 	test.notEqual(sb.constraints.has_joined,undefined);
 	test.notEqual(sb.constraints.not_joined,undefined);
-	test.notEqual(sb.constraints.user_catalog,undefined);
+	test.notEqual(sb.constraints.not_system_catalog,undefined);
 	test.notEqual(sb.constraints.is_joinable,undefined);
 	test.notEqual(sb.constraints.is_reserved,undefined);		
 	test.notEqual(sb.constraints.field_exists,undefined);
@@ -483,7 +483,7 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
 	sb.add_constraint_post("test",sb.constraints.is_owner)
-	  .add_constraint_post("test","user_catalog",sb.constraints.user_catalog);
+	  .add_constraint_post("test","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("test", params, function(err,result){
 		
@@ -520,7 +520,7 @@ exports["sandbox.add_constraint_post: constraints.is_owner"] = function(test){
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
 	sb.add_constraint_post("join","is_owner",sb.constraints.is_owner)
-	  .add_constraint_post("join","user_catalog",sb.constraints.user_catalog);
+	  .add_constraint_post("join","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("join", params, function(err,result){
 		
@@ -564,7 +564,7 @@ exports["sandbox.add_constraint_post: constraints.has_joined"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test){
+exports["sandbox.add_constraint_post: constraints.not_system_catalog"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -588,7 +588,7 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"timers"};
 	
-	sb .add_constraint_post("join","user_catalog",sb.constraints.user_catalog);
+	sb .add_constraint_post("join","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("join", params, function(err,result){
 		
@@ -623,7 +623,7 @@ exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test)
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
 	sb.add_constraint_post("join","is_joinable",sb.constraints.is_joinable)
-	  .add_constraint_post("join","user_catalog",sb.constraints.user_catalog);
+	  .add_constraint_post("join","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("join", params, function(err,result){
 		
@@ -658,7 +658,7 @@ exports["sandbox.add_constraint_post: constraints.is_reserved"] = function(test)
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"_id", value:4};
 	
 	sb.add_constraint_post("set","is_reserved",sb.constraints.is_reserved)
-	  .add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
+	  .add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("set", params, function(err,result){
 		
@@ -693,7 +693,7 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:4};
 	
 	sb.add_constraint_post("set","field_exists",sb.constraints.field_exists)
-	  .add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
+	  .add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("set", params, function(err,result){
 		
@@ -729,7 +729,7 @@ exports["sandbox.add_constraint_post: constraints.field_type object"] = function
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 	
 	sb.add_constraint_post("set","field_type",sb.constraints.field_type("object"))
-	  .add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
+	  .add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("set", params, function(err,result){
 		
@@ -764,7 +764,7 @@ exports["sandbox.add_constraint_post: constraints.field_type array"] = function(
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:5};
 	
-	sb.add_constraint_pre("push","user_catalog",sb.constraints.user_catalog)
+	sb.add_constraint_pre("push","not_system_catalog",sb.constraints.not_system_catalog)
 	  .add_constraint_post("push","field_type",sb.constraints.field_type("array"));
 	  
 	
@@ -805,7 +805,7 @@ exports["sandbox.add_constraint_post: constraints.is_required"] = function(test)
 	  .add_constraint_post("set","param_required_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("set","param_required_fname",sb.constraints.is_required("fname"))
 	  .add_constraint_post("set","param_required_value",sb.constraints.is_required("value"))
-	  .add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
+	  .add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("set", params, function(err,result){
 										
@@ -858,7 +858,7 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 		
-	sb.add_constraint_post("set","user_catalog",sb.constraints.user_catalog);
+	sb.add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog);
 	
 	sb.execute("set", params, function(err,result){
 		
@@ -917,7 +917,7 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
 	
 	sb.add_constraint_post("test",sb.constraints.is_owner)
-	  .add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
 	  .add_plugin("test",function(ctx, end_handler){
 	  			
 	  		  			  		
@@ -968,7 +968,7 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 	var params = {uid:620793115,wid:"5074b135d03a0ac443000001",notifiable:1};
 	
 	sb.add_constraint_post("test",sb.constraints.is_owner)
-	  .add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
 	  .add_plugin("test",sb.plugins.notifying_doc);
 	
 	sb.execute("test", params, function(err,result){
@@ -1014,7 +1014,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
 	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:a.b.3.c"};
 	
 	sb.add_constraint_post("test",sb.constraints.is_owner)
-	  .add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
 	  .add_plugin("test",sb.plugins.url_transform);
 	
 	sb.execute("test", params, function(err,result){
@@ -1059,7 +1059,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
 	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:"};
 	
 	sb.add_constraint_post("test",sb.constraints.is_owner)
-	  .add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)
+	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
 	  .add_plugin("test",sb.plugins.url_transform);
 	
 	sb.execute("test", params, function(err,result){
@@ -1102,7 +1102,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 	
 	var params = {uid:620793115, url:"#docs/"};
 	
-	sb.add_constraint_pre("test","user_catalog",sb.constraints.user_catalog)	  	  	  
+	sb.add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)	  	  	  
 	  .add_plugin("test",sb.plugins.url_transform);
 	
 	sb.execute("test", params, function(err,result){
