@@ -55,6 +55,48 @@ exports["endpoint.rpc: incorrect json-rpc version"] = function(test){
 }
 
 
+exports["endpoint.rpc: method not available"] = function(test){
+	
+	var api = {remote:{
+						create: function(params, ret_handler){
+							
+							
+							ret_handler(null,{wid:"1234"});
+							
+						}					
+			 }
+	};
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+				"./api":api,
+				"./server":{api:{config:{procedures:{create:0}}}}
+				}
+	});
+	
+	var endpoint = sandbox.require("../lib/endpoint",{
+		requires:{"./sandbox":sb } 
+	});
+	
+	var req_str = '{"jsonrpc":"2.0","method":"create","id":123}';
+	
+	endpoint.rpc( {writeHead: function(status, header_data){
+							
+							test.equal(status, 400);
+							test.deepEqual(header_data,{"Content-Type":"application/json"});
+			 		},
+			 		end: function( out_str ){
+			 	
+					 		var out_obj = JSON.parse(out_str);
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32604,message:"Method not available."}, id:123},out_obj);
+					 		
+					}		
+			} , req_str );
+			
+	test.done();
+		
+}
+
 exports["endpoint.rpc: method not found"] = function(test){
 	
 	var api = {remote:{
@@ -88,7 +130,7 @@ exports["endpoint.rpc: method not found"] = function(test){
 			 		end: function( out_str ){
 			 	
 					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32600,message:"Method not found."}, id:123},out_obj);
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32601,message:"Method not found."}, id:123},out_obj);
 					 		
 					}		
 			} , req_str );
@@ -96,6 +138,7 @@ exports["endpoint.rpc: method not found"] = function(test){
 	test.done();
 		
 }
+
 
 
 exports["endpoint.rpc: method invocation: with result, no params"] = function(test){
