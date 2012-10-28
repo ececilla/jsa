@@ -28,7 +28,10 @@ exports["module exported functions"] = function(test){
 			requires:{"./api":api, "./sandbox":sb}
 		});
 	server.config.app = {status:1};
-		
+	
+	test.notEqual( server.init, undefined );
+	test.notEqual( server.init.execute, undefined );
+	test.notEqual( server.init.add, undefined );
 	test.notEqual( server.settings, undefined );
 	test.notEqual( server.start, undefined );
 	test.notEqual( server.stop, undefined );
@@ -58,7 +61,7 @@ exports["module exported functions"] = function(test){
 	server.settings();
 	test.notEqual( server.config.app, undefined);
 	
-	test.expect(19);	
+	test.expect(22);	
 	test.done();
 }
 
