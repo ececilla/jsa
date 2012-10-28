@@ -27,6 +27,7 @@ exports["module exported functions"] = function(test){
 		
 			requires:{"./api":api, "./sandbox":sb}
 		});
+	server.config.app = {status:1};
 		
 	test.notEqual( server.settings, undefined );
 	test.notEqual( server.start, undefined );
@@ -214,6 +215,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		requires:{"./sandbox":sb,"./api":api}
 		
 	});
+	server.config.app = {status:1};
 	
 	//two ev_api_create handlers.				
 	server.api.events
@@ -271,7 +273,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 		requires:{"./api":api,"./sandbox":sb}
 		
 	});
-	
+	server.config.app = {status:1};
 		
 	test.throws( function(){server.api.create(params)} );
 		
@@ -312,6 +314,7 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 		requires:{"./sandbox":sb,"./api":api}
 		
 	});
+	server.config.app = {status:1};
 	
 	//two ev_api_create handlers.				
 	server.api.events
@@ -377,7 +380,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 		requires:{"./sandbox":sb,"./api":api}
 		
 	});
-		
+	server.config.app = {status:1};	
 	
 	//two ev_api_create handlers.				
 	server.api.events
@@ -460,7 +463,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 		requires:{"./api":api,"./db":db,"./sandbox":sb}
 		
 	});
-			
+	server.config.app = {status:1};		
 					
 	server.api.events.on("ev_api_create", function(msg){
 		
@@ -530,7 +533,7 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 		
 		requires:{"./api":api,"./sandbox":sb}		
 	});
-	
+	server.config.app = {status:1};
 						
 	server.api.events.on("ev_api_dispose", function(msg){
 		
@@ -601,7 +604,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 		
 		requires:{"./api":api,"./sandbox":sb}		
 	});
-	
+	server.config.app = {status:1};
 						
 	server.api.events.on("ev_api_join", function(msg){
 		
@@ -671,7 +674,7 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 		
 		requires:{"./api":api,"./sandbox":sb}		
 	});
-	
+	server.config.app = {status:1};
 						
 	server.api.events.on("ev_api_unjoin", function(msg){
 		
@@ -742,7 +745,7 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 		
 		requires:{"./api":api,"./sandbox":sb}		
 	});
-	
+	server.config.app = {status:1};
 						
 	server.api.events.on("ev_api_remove", function(msg){
 		
@@ -815,7 +818,7 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 		
 		requires:{"./api":api,"./sandbox":sb}		
 	});
-	
+	server.config.app = {status:1};
 						
 	server.api.events.on("ev_api_set", function(msg){
 		
@@ -886,6 +889,7 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 		
 		requires:{"./api":api,"./sandbox":sb}		
 	});
+	server.config.app = {status:1};
 	
 	var flag = 1;					
 	server.api.events.on("ev_api_push", function(msg){
@@ -960,6 +964,7 @@ exports["server.api.pop: internal events, explicit catalog"] = function(test){
 		
 		requires:{"./api":api,"./sandbox":sb}		
 	});
+	server.config.app = {status:1};
 							
 	server.api.events.on("ev_api_pop", function(msg){
 		
@@ -1030,6 +1035,7 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 		
 		requires:{"./api":api,"./sandbox":sb}		
 	});
+	server.config.app = {status:1};
 							
 	server.api.events.on("ev_api_shift", function(msg){
 		
@@ -1235,7 +1241,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
 	});
-			
+	server.config.app = {status:1};		
 	
 	
 	server.api.config.newop("newop1", function(ctx, ret_handler){
