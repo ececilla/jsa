@@ -12,6 +12,7 @@ exports["module exported function"] = function(test){
 	test.notEqual(sb.constraints.has_joined,undefined);
 	test.notEqual(sb.constraints.not_joined,undefined);
 	test.notEqual(sb.constraints.not_system_catalog,undefined);
+	test.notEqual(sb.constraints.user_catalog,undefined);
 	test.notEqual(sb.constraints.is_joinable,undefined);
 	test.notEqual(sb.constraints.is_reserved,undefined);		
 	test.notEqual(sb.constraints.field_exists,undefined);
@@ -597,6 +598,47 @@ exports["sandbox.add_constraint_post: constraints.not_system_catalog"] = functio
 	});
 		
 }
+
+exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		},
+		"./server":{
+						config:{db:{user_catalogs:["docs", "users"]}},//valid user catalogs
+						api:{config:{procedures:{test:1}}}
+				    }
+		
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"dummy"};//non-valid user catalog
+	
+	sb .add_constraint_post("test","user_catalog",sb.constraints.user_catalog);
+	
+	sb.execute("test", params, function(err,result){
+		
+		test.deepEqual(err,{code:-6, message:"No access permission: not user catalog"});										
+		test.done();
+	});
+		
+}
+
+
 
 exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test){
 	
