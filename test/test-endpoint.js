@@ -155,7 +155,7 @@ exports["endpoint.rpc: method invocation: with result, no params"] = function(te
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{procedures:{test:1}}}}
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 		
 			}
 	});		
@@ -205,7 +205,7 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{procedures:{test:1}}}}}
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}}
 	});			 				
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
@@ -245,7 +245,7 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{procedures:{test:1}}}}
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 		}
 	});			 				
 	
@@ -289,7 +289,7 @@ exports["endpoint.rpc: method invocation without id"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{procedures:{test:1}}}}
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 					}
 	});			 				
 	

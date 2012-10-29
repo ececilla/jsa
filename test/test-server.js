@@ -18,7 +18,7 @@ exports["module exported functions"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
-					"./server":{api:{config:{procedures:{remote_func:1}}}}										
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{remote_func:1}}}}										
 				}
 		
 	});
@@ -29,8 +29,7 @@ exports["module exported functions"] = function(test){
 		});
 	server.config.app = {status:1};
 	
-	test.notEqual( server.init, undefined );
-	test.notEqual( server.init.execute, undefined );
+	test.notEqual( server.init, undefined );	
 	test.notEqual( server.init.add, undefined );
 	test.notEqual( server.settings, undefined );
 	test.notEqual( server.start, undefined );
@@ -41,7 +40,10 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.config, undefined );
 	test.notEqual( server.api.config.enable_procedures, undefined );
 	test.notEqual( server.api.config.disable_procedures, undefined );
-	test.notEqual( server.api.config.newop, undefined );	
+	test.notEqual( server.api.config.newop, undefined );
+	test.notEqual( server.api.config.add_plugin, undefined );
+	test.notEqual( server.api.config.add_constraint_pre, undefined );
+	test.notEqual( server.api.config.add_constraint_post, undefined );	
 	test.notEqual( server.api.events, undefined );
 	test.notEqual( server.api.events.on, undefined );
 	test.notEqual( server.api.events.emit, undefined );
@@ -61,7 +63,7 @@ exports["module exported functions"] = function(test){
 	server.settings();
 	test.notEqual( server.config.app, undefined);
 	
-	test.expect(22);	
+	test.expect(24);	
 	test.done();
 }
 
@@ -108,35 +110,6 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	
 }
 
-exports["server.init.execute: init scripts"] = function(test){
-	
-	var server = require("../lib/server");
-	var async = require("async");	
-	var flags = [0, 0];
-	
-	server.init.execute.push(function(end_handler){
-		
-		flags[0] = 1;
-		end_handler();
-	});
-	
-	server.init.execute.push(function(end_handler){
-		
-		flags[1] = 1;
-		end_handler();
-	});
-	
-	async.series(server.init.execute,function(){
-		
-		test.ok(flags[0]);
-		test.ok(flags[1]);
-		test.done();
-	});
-	
-	
-		
-	
-}
 
 exports["server.events.on: custom server events"] = function(test){
 	
@@ -209,7 +182,9 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 	});	
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api}
+		requires:{
+				"./api":api,
+				"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}}
 		
 	});
 	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
@@ -218,6 +193,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		requires:{"./sandbox":sb,"./api":api}
 		
 	});
+	//"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 	server.config.app = {status:1};
 	
 	//two ev_api_create handlers.				
@@ -267,7 +243,11 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 	});	
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api}
+		requires:{
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
+						
+				}
 		
 	});
 	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
@@ -309,7 +289,10 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 	});	
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api}
+		requires:{
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
+					}
 		
 	});
 				
@@ -369,7 +352,10 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 	});	
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api}
+		requires:{
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
+				}
 		
 	});
 	sb.add_plugin("create",sb.plugins.notifying_catalog("dummy"))
@@ -449,7 +435,10 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 	});	
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api}
+		requires:{
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
+				}
 	});	
 	sb.add_plugin("create",sb.plugins.notifying_catalog("dummy"))
 	  .add_plugin("create", function(ctx,end_handler){
@@ -529,7 +518,7 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api,"./db":db}		
+		requires:{"./api":api,"./db":db,"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dispose:1}}}}}		
 	});
 				
 	var server = sandbox.require("../lib/server",{
@@ -600,7 +589,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api, "./db":db}		
+		requires:{"./api":api, "./db":db, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}}		
 	});
 					
 	var server = sandbox.require("../lib/server",{
@@ -670,7 +659,7 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api, "./db":db}		
+		requires:{"./api":api, "./db":db, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{unjoin:1}}}}}		
 	});
 					
 	var server = sandbox.require("../lib/server",{
@@ -741,7 +730,7 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api, "./db":db}		
+		requires:{"./api":api, "./db":db, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{remove:1}}}}}		
 	});
 					
 	var server = sandbox.require("../lib/server",{
@@ -814,7 +803,7 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api, "./db":db}		
+		requires:{"./api":api, "./db":db, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}}		
 	});
 					
 	var server = sandbox.require("../lib/server",{
@@ -885,7 +874,7 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api, "./db":db}		
+		requires:{"./api":api, "./db":db, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{push:1}}}}}		
 	});
 					
 	var server = sandbox.require("../lib/server",{
@@ -960,7 +949,7 @@ exports["server.api.pop: internal events, explicit catalog"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api, "./db":db}		
+		requires:{"./api":api, "./db":db, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{pop:1}}}}}		
 	});
 					
 	var server = sandbox.require("../lib/server",{
@@ -1031,7 +1020,7 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		
-		requires:{"./api":api, "./db":db}		
+		requires:{"./api":api, "./db":db, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{shift:1}}}}}		
 	});
 					
 	var server = sandbox.require("../lib/server",{
@@ -1086,6 +1075,7 @@ exports["server.api.config.newop: invocation"] = function(test){
 	var server = require("../lib/server");	
 	var api = require("../lib/api");			
 	var myparams = {foo:1, bar:"test"};
+	server.config = {app:{status:1}};
 	
 	var flag = 0;		
 	server.api.config.newop("newop", function(ctx, ret_handler){
@@ -1174,7 +1164,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	});
 		
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{ "./server":{api:{config:{procedures:{dummy:1}}}},"./api":api }
+		requires:{ "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dummy:1}}}},"./api":api }
 	});
 	
 	var server = sandbox.require("../lib/server",{
@@ -1237,7 +1227,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	});
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api,"./server":{api:{config:{procedures:{newop1:1,create:1}}}}}
+		requires:{"./api":api,"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1, newop1:1}}}}}
 	});
 	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
 	

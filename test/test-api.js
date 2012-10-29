@@ -55,7 +55,8 @@ exports["api.remote.create: missing params"] = function(test){
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
@@ -115,7 +116,8 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
@@ -167,7 +169,8 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
@@ -289,7 +292,8 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	
@@ -358,7 +362,8 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	
@@ -426,7 +431,8 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	
@@ -499,7 +505,8 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog, notif
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	
@@ -569,7 +576,8 @@ exports["api.remote.create: valid params, non init.rcpts, added catalog"] = func
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	
@@ -647,7 +655,8 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 								ret_handler();	
 							}
 						 },
-					"./api":api	 
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
 	
@@ -693,7 +702,8 @@ exports["api.remote.dispose: missing params"] = function(test){
 								flag = 0;
 								ret_handler();	
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dispose:1}}}} 
 		}
 	});
 	sb.add_constraint_post("dispose","param_wid",sb.constraints.is_required("wid"))
@@ -744,7 +754,8 @@ exports["api.remote.dispose: valid params, wid not found, not owner"] = function
 								flag = 0;
 								ret_handler();	
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dispose:1}}}} 
 		}
 	});
 	sb.add_constraint_post("dispose","param_wid",sb.constraints.is_required("wid"))
@@ -823,7 +834,8 @@ exports["api.remote.dispose: valid params, default catalog"] = function(test){
 								ret_handler();	
 							}
 						 },
-				 "./api":api 
+				 "./api":api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dispose:1}}}} 
 		}
 	});
 	
@@ -867,7 +879,8 @@ exports["api.remote.join: missing params"] = function(test){
 								flag = 0;
 								ret_handler();	
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}} 
 		}
 	});
 	sb.add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
@@ -938,7 +951,8 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 								ret_handler();	
 							}
 						 },
-				 "./api" : api		  
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}		  
 		}
 	});
 	
@@ -1008,7 +1022,8 @@ exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(
 								flag = 0;								
 								ret_handler();	
 							}
-						 }		  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}		  
 		}
 	});
 	
@@ -1054,7 +1069,8 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 								flag = 0;
 								ret_handler();	
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{unjoin:1}}}} 
 		}
 	});
 	
@@ -1140,7 +1156,8 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 								},20);	
 									
 							}
-						 }				 		  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{unjoin:1}}}}				 		  
 		}
 	});
 	
@@ -1185,7 +1202,8 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 								},10);									
 																
 							}							
-						 }				 		  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{unjoin:1}}}}				 		  
 		}
 	});
 	
@@ -1227,7 +1245,8 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 								else
 									ret_handler(null,null);								
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{remove:1}}}} 
 		}
 	});
 	
@@ -1361,7 +1380,8 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
 	
@@ -1422,7 +1442,8 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
 	
@@ -1484,7 +1505,8 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
 	
@@ -1545,7 +1567,8 @@ exports["api.remote.remove: valid params, non existing array index, explicit cat
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
 	
@@ -1589,7 +1612,8 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 								else
 									ret_handler(null,null);								
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}} 
 		}
 	});
 	
@@ -1731,7 +1755,8 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
 	
@@ -1794,7 +1819,8 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
 	
@@ -1857,7 +1883,8 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
 	
@@ -1918,7 +1945,8 @@ exports["api.remote.set: valid params,non existing inner array field, explicit c
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
 	
@@ -1963,7 +1991,8 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 								else
 									ret_handler(null,null);								
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{push:1}}}} 
 		}
 	});
 	
@@ -2123,7 +2152,8 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{push:1}}}}	  
 		}
 	});
 	
@@ -2185,7 +2215,8 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{push:1}}}}	  
 		}
 	});
 	
@@ -2229,7 +2260,8 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 								else
 									ret_handler(null,null);								
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{pop:1}}}} 
 		}
 	});
 	
@@ -2379,7 +2411,8 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{pop:1}}}}	  
 		}
 	});
 	
@@ -2440,7 +2473,8 @@ exports["api.remote.pop: valid params, existing inner field as array, explicit c
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{pop:1}}}}	  
 		}
 	});
 	
@@ -2485,7 +2519,8 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 								else
 									ret_handler(null,null);								
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{shift:1}}}} 
 		}
 	});
 	
@@ -2636,7 +2671,8 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{shift:1}}}}	  
 		}
 	});
 	
@@ -2697,7 +2733,8 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 								},50);
 								
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{shift:1}}}}	  
 		}
 	});
 	
@@ -2739,7 +2776,8 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 								else
 									ret_handler(null,null);								
 							}
-						 } 
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{get:1}}}} 
 		}
 	});
 	
@@ -2812,7 +2850,8 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 								},50);
 																
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
 	
@@ -2858,7 +2897,8 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 								},50);
 																
 							}
-						 }	  
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
 	

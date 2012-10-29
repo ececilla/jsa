@@ -53,7 +53,8 @@ exports["sandbox.add_constraint_post: non satisfied constraints"] = function(tes
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -119,7 +120,8 @@ exports["sandbox.add_constraint_pre: non satisfied anonymous constraints"] = fun
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -189,7 +191,8 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 						test.equal(ev_name,"ev_api_join");
 															
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -260,7 +263,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 						  }
 				}
 		},
-		"./server":{api:{config:{procedures:{dummy:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dummy:1}}}}
 	
 	}
 	});
@@ -323,7 +326,8 @@ exports["sandbox.add_constraint_post: wid not found"] = function(test){
 							 							 
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -376,7 +380,8 @@ exports["sandbox.add_constraint_post: no wid"] = function(test){
 							 ret_handler(null, {wid:"5074b135d03a0ac443000001"} );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 	}
 	});
 	
@@ -420,7 +425,8 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 							 ret_handler(null, {wid:"5074b135d03a0ac443000001"} );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 	}
 	});
 	
@@ -477,7 +483,7 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 						  }
 				}
 		},
-		"./server":{api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -514,7 +520,8 @@ exports["sandbox.add_constraint_post: constraints.is_owner"] = function(test){
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -549,7 +556,8 @@ exports["sandbox.add_constraint_post: constraints.has_joined"] = function(test){
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -583,7 +591,8 @@ exports["sandbox.add_constraint_post: constraints.not_system_catalog"] = functio
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -619,7 +628,7 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 				}
 		},
 		"./server":{
-						config:{db:{user_catalogs:["docs", "users"]}},//valid user catalogs
+						config:{db:{user_catalogs:["docs", "users"]}, app:{status:1}},//valid user catalogs
 						api:{config:{procedures:{test:1}}}
 				    }
 		
@@ -658,7 +667,8 @@ exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test)
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -693,7 +703,8 @@ exports["sandbox.add_constraint_post: constraints.is_reserved"] = function(test)
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}
 	}
 	});
 	
@@ -728,7 +739,8 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}
 	}
 	});
 	
@@ -764,7 +776,8 @@ exports["sandbox.add_constraint_post: constraints.field_type object"] = function
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}
 	}
 	});
 	
@@ -800,7 +813,8 @@ exports["sandbox.add_constraint_post: constraints.field_type array"] = function(
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{push:1}}}}
 	}
 	});
 	
@@ -837,7 +851,8 @@ exports["sandbox.add_constraint_post: constraints.is_required"] = function(test)
 							 ret_handler( null, ctx.doc );
 						  }
 				}
-		}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}
 	}
 	});
 	
@@ -887,7 +902,8 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 								ret_handler(null,{doc:doc});
 							}
 		},
-		"./api":api
+		"./api":api,
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}
 		}		
 	
 	});
@@ -918,7 +934,10 @@ exports["sandbox.add_constraint_post: method not found"] = function(test){
 	
 	
 	var api = require("../lib/api");	
-	var sb = sandbox.require("../lib/sandbox",{requires:{"./api":api}});				
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+			"./api":api,
+			"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{foooooo:1}}}}
+	}});				
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 		
 		
@@ -952,7 +971,7 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 						  }
 				}
 		},
-		"./server":{api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -1003,7 +1022,7 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 						  }
 				}
 		},
-		"./server":{api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -1049,7 +1068,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
 						  }
 				}
 		},
-		"./server":{api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -1094,7 +1113,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
 						  }
 				}
 		},
-		"./server":{api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -1138,7 +1157,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 						  }
 				}
 		},
-		"./server":{api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
