@@ -592,7 +592,7 @@ exports["sandbox.add_constraint_post: constraints.not_system_catalog"] = functio
 						  }
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs",system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}
 	}
 	});
 	
@@ -814,7 +814,7 @@ exports["sandbox.add_constraint_post: constraints.field_type array"] = function(
 						  }
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{push:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{push:1}}}}
 	}
 	});
 	
@@ -903,7 +903,7 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 							}
 		},
 		"./api":api,
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}
 		}		
 	
 	});
@@ -971,7 +971,7 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 						  }
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -1022,7 +1022,7 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 						  }
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -1068,7 +1068,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
 						  }
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -1113,7 +1113,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
 						  }
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
@@ -1157,7 +1157,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 						  }
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers", "events"]}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
