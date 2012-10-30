@@ -1177,6 +1177,50 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 		
 }
 
+exports["sandbox.add_plugin: sandbox.plugins.url_transform overwrite"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
+	var flag = 0;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 flag = 1;
+							 ctx.config.save = 0;
+							 test.equal(ctx.params.catalog, "docs");
+							 test.equal(ctx.params.wid,"5074b135d03a0ac443000001");	
+							 test.equal(ctx.params.fname, "test.5");						 							 
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers", "events"]}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:test.5", catalog:"dummy", wid:"5074b135d03a0ac443000006", fname:"no-test"};
+	
+	sb.add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)	  	  	  
+	  .add_plugin("test",sb.plugins.url_transform);
+	
+	sb.execute("test", params, function(err,result){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(result,1)										
+		test.expect(6);
+		test.done();
+	});		
+		
+}
+
+
 
 
 
