@@ -7,7 +7,11 @@ exports["module exported functions"] = function(test){
 	test.notEqual(db.select, undefined);
 	test.notEqual(db.remove, undefined);
 	test.notEqual(db.removeById, undefined);
-	test.done()
+	test.notEqual(db.remove_global, undefined);
+	test.notEqual(db.criteria, undefined);
+	test.notEqual(db.close, undefined);
+	test.notEqual(db.prepare, undefined);
+	test.done();
 }
 
 
