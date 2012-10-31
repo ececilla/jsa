@@ -43,23 +43,21 @@ exports["util.set_field:existing field-path array"] = function(test){
 	var util = require("../lib/util");	
 	var doc = {x:{y:{z:[4,5,6]}}};	
 	
-	util.set_field(doc,"x.y.z",7,3);
+	util.set_field(doc,"x.y.z.3",7);
 	
 	test.deepEqual( doc.x.y.z, [4,5,6,7]);
 	test.done();
 }
-
 
 exports["util.set_field:non existing field-path array"] = function(test){
 		
 	var util = require("../lib/util");	
 	var doc = {x:{y:{z:1}}};	
 	
-	test.throws(function(){ util.set_field(doc,"x.y.z",7,3) });		
+	util.set_field(doc,"x.y.z.3",7) 
+	test.equal(doc.x.y.z,1);
 	test.done();
 }
-
-
 
 
 exports["util.set_field:existing single field"] = function(test){
@@ -108,21 +106,19 @@ exports["util.del_field:existing field-path array"] = function(test){
 	var util = require("../lib/util");
 	var doc = {x:{y:{z:[4,5,6]}}};	
 	
-	util.del_field(doc,"x.y.z",1);
-	
-	test.deepEqual( doc.x.y.z, [4,6] );	
-	test.deepEqual(doc,{x:{y:{z:[4,6]}}});
+	util.del_field(doc,"x.y.z.1");	
+	test.deepEqual( doc.x.y.z, [4,6] );		
 	
 	test.done();
 }
+
 
 exports["util.del_field:non existing field-path array"] = function(test){
 		
 	var util = require("../lib/util");
 	var doc = {x:{y:{z:1}}};	
 	
-	test.throws( function(){util.del_field(doc,"x.y.z",1)} );
-				
+	util.del_field(doc,"x.y.z.1");					
 	test.done();
 }
 
@@ -154,16 +150,6 @@ exports["util.del_field:non existing field-path"] = function(test){
 	test.equal( doc.x.y.z, 1 );			
 	test.done();
 }
-
-
-
-exports["util.add_console_log_printing_format"] = function(test){
-	
-	var util = require("../lib/util");
-	test.notEqual(util.add_console_log_printing_format, undefined);
-	test.done();
-}
-
 
 
 
