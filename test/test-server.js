@@ -1077,7 +1077,7 @@ exports["server.api.config.newop: invocation"] = function(test){
 	var server = require("../lib/server");	
 	var api = require("../lib/api");			
 	var myparams = {foo:1, bar:"test"};
-	server.config = {app:{status:1}};
+	server.config = {app:{status:1}, db:{default_catalog:"docs"}};
 	
 	var flag = 0;		
 	server.api.config.newop("newop", function(ctx, ret_handler){
