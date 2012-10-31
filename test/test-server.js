@@ -48,8 +48,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.events.on, undefined );
 	test.notEqual( server.api.events.emit, undefined );
 		
-	test.notEqual( server.eq.events.on, undefined );
-	test.notEqual( server.eq.events.emit, undefined );
+	test.notEqual( server.eq.events.on, undefined );	
 	test.notEqual( server.db, undefined );
 	
 	test.notEqual( server.config.system, undefined);
@@ -63,7 +62,7 @@ exports["module exported functions"] = function(test){
 	server.settings();
 	test.notEqual( server.config.app, undefined);
 	
-	test.expect(24);	
+	test.expect(23);	
 	test.done();
 }
 
@@ -129,17 +128,20 @@ exports["server.events.on: custom server events"] = function(test){
 
 exports["server.eq.events.on: custom eq events"] = function(test){
 	
-	var server = require("../lib/server");
-	var params = {test:1};
-	var rcpts = [1,2,3,4];
-	server.eq.events.on("ev_eq_push", function( _params, _rcpts){
+	var eq = sandbox.require("../lib/evqueue");
+	var server = sandbox.require("../lib/server",{requires:{
+							"./evqueue":eq
+	}});
+	
+	
+	server.eq.events.on("ev_eq_push", function( params, rcpts){
 		
-		test.deepEqual(_params.ev_data, {test:1});
-		test.deepEqual(_rcpts,[1,2,3,4]);
+		test.deepEqual( params.ev_data, {test:1} );
+		test.deepEqual( rcpts,[1,2,3,4]);
 		test.done();
 	});
 	
-	server.eq.events.emit("ev_eq_push", params, rcpts );	
+	eq.emit("ev_eq_push", {test:1}, [1,2,3,4] );	
 	
 }
 
