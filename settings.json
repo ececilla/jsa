@@ -4,5 +4,7 @@
  "dbname":"jsa",
  "httpaddr":"127.0.0.1",
  "httpport":8080,
+ "redishost":"127.0.0.1",
+ "redisport":15000,
  "debug":1
 }
