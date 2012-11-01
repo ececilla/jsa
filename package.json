@@ -15,7 +15,10 @@
   "dependencies": {
   	"async":"0.1.x",
   	"mongodb":"1.x.x",
-	"moment":"1.6.x"
+	"moment":"1.6.x",
+	"redis":"0.8.x",
+	"hiredis":"0.1.x",
+	"prettyjson":"0.7.x"
   },
   "devDependencies":{
  	"nodeunit":"0.7.x"	
