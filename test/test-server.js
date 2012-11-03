@@ -62,7 +62,17 @@ exports["module exported functions"] = function(test){
 	server.settings();
 	test.notEqual( server.config.app, undefined);
 	
-	test.expect(23);	
+	for(key in sb.constraints){
+		
+		test.equal(server.api.config.constraints[key], sb.constraints[key]);
+	}
+	
+	for(key in sb.plugins){
+		
+		test.equal(server.api.config.plugins[key], sb.plugins[key]);
+	}
+	
+	test.expect(37);	
 	test.done();
 }
 
