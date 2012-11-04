@@ -50,12 +50,10 @@ exports["timers.start_timer"] = function(test){
 
 exports["timers.load"] = function(test){
 	
-	test.done();
-	return;
-	//This document expires in 1 sec.
+		
 	var arr_timers = [{type_name:"dummy",etime:1379699594550,data:{catalog:"docs"}},{type_name:"dummy",etime:1379699595550,data:{catalog:"docs"}},{type_name:"dummy",etime:1379699598550,data:{catalog:"docs"}}];
 	
-	var time = sandbox.require("../lib/time",{
+	var timers = sandbox.require("../lib/timers",{
 		requires:{"./db":{
 							criteria:function( col_str, criteria, order_field, ret_handler ){
 								
@@ -71,16 +69,15 @@ exports["timers.load"] = function(test){
 		}
 	});
 	
-	//this function will be called from load_expire_timers
+	//this function will be called from load
 	var ncall = 0;
-	time.create_remove_timer = function( timer, ret_handler){
+	timers.start_timer = function( timer_data){
 				
-		test.deepEqual(timer,arr_timers[ncall++]);
-		
-						
+		test.deepEqual(timer_data,arr_timers[ncall++]);
+								
 	}
 	
-	time.load_remove_timers();
+	timers.load();
 	test.expect(5);
 	test.done();
 }
