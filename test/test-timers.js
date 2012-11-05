@@ -61,9 +61,6 @@ exports["timers.load"] = function(test){
 									test.equal(col_str,"timers");
 									test.deepEqual(criteria,{});	
 									ret_handler(null,arr_timers);								
-							},
-							save:function(){
-								
 							}
 				}		
 		}
