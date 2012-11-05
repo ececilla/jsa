@@ -1,9 +1,9 @@
 var sandbox = require("sandboxed-module");
 
-exports["time.now"] = function(test){
+exports["module exported functions"] = function(test){
 	
 	var time = require("../lib/time");
-	test.equal( new Date().getTime(), time.now() );
+	test.notEqual(time.now, undefined);	
 	test.done();
 }
 
