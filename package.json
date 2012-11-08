@@ -18,6 +18,7 @@
 	"moment":"1.6.x",
 	"redis":"0.8.x",
 	"hiredis":"0.1.x",
+	"colors":"0.6.x",
 	"prettyjson":"0.7.x"
   },
   "devDependencies":{
