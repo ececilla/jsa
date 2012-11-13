@@ -220,9 +220,9 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 		}
 	});
 	
-	sb.execute("join", params, function(err,result){
+	sb.execute("join", params, function(err,ctx){
 		
-		test.deepEqual(result.rcpts, [620793114,620793116]);
+		test.deepEqual(ctx.retval.rcpts, [620793114,620793116]);
 		test.expect(13);
 		test.done();
 	});
@@ -292,10 +292,10 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 		}
 	});
 	
-	sb.execute("dummy", params, function(err,result){
+	sb.execute("dummy", params, function(err,ctx){
 		
 		test.ok(flag);
-		test.equal(result,1);
+		test.equal(ctx.retval,1);
 		test.expect(11);
 		test.done();
 	});
@@ -989,11 +989,11 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 	  		
 	  });
 	
-	sb.execute("test", params, function(err,result){
+	sb.execute("test", params, function(err,ctx){
 		
 		test.ok(flag);
 		test.equal(err,null);
-		test.equal(result,1)										
+		test.equal(ctx.retval,1)										
 		test.expect(4);
 		test.done();
 	});
@@ -1032,11 +1032,11 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
 	  .add_plugin("test",sb.plugins.notifying_doc);
 	
-	sb.execute("test", params, function(err,result){
+	sb.execute("test", params, function(err,ctx){
 		
 		test.ok(flag);
 		test.equal(err,null);
-		test.equal(result,1)										
+		test.equal(ctx.retval,1)										
 		test.expect(4);
 		test.done();
 	});
@@ -1078,11 +1078,11 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
 	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
 	  .add_plugin("test",sb.plugins.url_transform);
 	
-	sb.execute("test", params, function(err,result){
+	sb.execute("test", params, function(err,ctx){
 		
 		test.ok(flag);
 		test.equal(err,null);
-		test.equal(result,1)										
+		test.equal(ctx.retval,1)										
 		test.expect(6);
 		test.done();
 	});		
@@ -1123,11 +1123,11 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
 	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
 	  .add_plugin("test",sb.plugins.url_transform);
 	
-	sb.execute("test", params, function(err,result){
+	sb.execute("test", params, function(err,ctx){
 		
 		test.ok(flag);
 		test.equal(err,null);
-		test.equal(result,1)										
+		test.equal(ctx.retval,1)										
 		test.expect(6);
 		test.done();
 	});		
@@ -1166,11 +1166,11 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 	sb.add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)	  	  	  
 	  .add_plugin("test",sb.plugins.url_transform);
 	
-	sb.execute("test", params, function(err,result){
+	sb.execute("test", params, function(err,ctx){
 		
 		test.ok(flag);
 		test.equal(err,null);
-		test.equal(result,1)										
+		test.equal(ctx.retval,1)										
 		test.expect(6);
 		test.done();
 	});		
@@ -1209,11 +1209,11 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform overwrite"] = functio
 	sb.add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)	  	  	  
 	  .add_plugin("test",sb.plugins.url_transform);
 	
-	sb.execute("test", params, function(err,result){
+	sb.execute("test", params, function(err,ctx){
 		
 		test.ok(flag);
 		test.equal(err,null);
-		test.equal(result,1)										
+		test.equal(ctx.retval,1)										
 		test.expect(6);
 		test.done();
 	});		
@@ -1251,10 +1251,10 @@ exports["sandbox.add_plugin: sandbox.plugins.external_config"] = function(test){
 	sb.add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)	  	  	  
 	  .add_plugin("test",sb.plugins.external_config);
 	
-	sb.execute("test", params, function(err,result){
+	sb.execute("test", params, function(err,ctx){
 				
 		test.equal(err,null);
-		test.equal(result,1)										
+		test.equal(ctx.retval,1)										
 		test.expect(4);
 		test.done();
 	});		

@@ -845,10 +845,10 @@ exports["api.remote.dispose: valid params, default catalog"] = function(test){
 	  .add_constraint_post("dispose","is_owner",sb.constraints.is_owner);		
 	
 		
-	sb.execute("dispose", params, function(err,result){
+	sb.execute("dispose", params, function(err,ctx){
 		
 		test.ok(flag);		
-		test.equal(result, 1);
+		test.equal(ctx.retval, 1);
 		test.expect(8);
 		test.done();		
 		
@@ -966,16 +966,16 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 	async.series(
 		[function(next){
 						
-			sb.execute("join", params, function(err,result){
+			sb.execute("join", params, function(err,ctx){
 								
 				test.ok(flag);				
 				test.equal(err,null);		
-				test.deepEqual(result.rcpts, [620793115, 620793117, 620793114]);
-				test.equal(result._id, undefined);		
-				test.equal(result.wid, "50187f71556efcbb25000001");
-				test.equal(result.catalog, "docs");		
-				test.equal(result.a,1);
-				test.equal(result.b,"test1234");		
+				test.deepEqual(ctx.retval.rcpts, [620793115, 620793117, 620793114]);
+				test.equal(ctx.retval._id, undefined);		
+				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+				test.equal(ctx.retval.catalog, "docs");		
+				test.equal(ctx.retval.a,1);
+				test.equal(ctx.retval.b,"test1234");		
 				next();		
 				
 			});
@@ -983,11 +983,11 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 		},function(next){
 			params = {uid:620793117, wid:"50187f71556efcbb25000001"};//uid in rcpts
 						
-			sb.execute("join", params, function(err,result){
+			sb.execute("join", params, function(err,ctx){
 								
 				test.ok(flag);	
 				test.equal(err,null);		
-				test.equal(result,1);
+				test.equal(ctx.retval,1);
 				
 				test.expect(17);
 				test.done();
@@ -1170,10 +1170,10 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 	
 	var params = {uid:620793117, wid:"50187f71556efcbb25000001"};//uid not in rcpts	
 				
-	sb.execute("unjoin", params, function(err,result){
+	sb.execute("unjoin", params, function(err,ctx){
 									
 		test.equal(err,null);		
-		test.equal(result,1);
+		test.equal(ctx.retval,1);
 		
 		test.expect(6);
 		test.done();		
@@ -1397,11 +1397,11 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};
 
 						
-	sb.execute("remove", params, function(err,result){
+	sb.execute("remove", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -1459,11 +1459,11 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};
 
 						
-	sb.execute("remove", params, function(err,result){
+	sb.execute("remove", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -1522,11 +1522,11 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b.1", catalog:"dummy"};
 
 						
-	sb.execute("remove", params, function(err,result){
+	sb.execute("remove", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -1773,11 +1773,11 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b",value:5, catalog:"dummy"};
 
 						
-	sb.execute("set", params, function(err,result){
+	sb.execute("set", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -1837,11 +1837,11 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b",value:5, catalog:"dummy"};
 
 						
-	sb.execute("set", params, function(err,result){
+	sb.execute("set", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -1901,11 +1901,11 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b.1",value:5, catalog:"dummy"};
 
 						
-	sb.execute("set", params, function(err,result){
+	sb.execute("set", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -2170,11 +2170,11 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b",value:9, catalog:"dummy"};
 
 						
-	sb.execute("push", params, function(err,result){
+	sb.execute("push", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -2233,11 +2233,11 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b",value:9, catalog:"dummy"};
 
 						
-	sb.execute("push", params, function(err,result){
+	sb.execute("push", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -2428,11 +2428,11 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};
 
 						
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -2491,11 +2491,11 @@ exports["api.remote.pop: valid params, existing inner field as array, explicit c
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};
 
 						
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -2688,11 +2688,11 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};
 
 						
-	sb.execute("shift", params, function(err,result){
+	sb.execute("shift", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -2750,11 +2750,11 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};
 
 						
-	sb.execute("shift", params, function(err,result){
+	sb.execute("shift", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.equal(result,1);	
+		test.equal(ctx.retval,1);	
 		test.expect(7);	
 		test.done();		
 		
@@ -2864,11 +2864,11 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 	var params = {url:"#dummy/50187f71556efcbb25000001"};
 
 						
-	sb.execute("get", params, function(err,result){
+	sb.execute("get", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.deepEqual(result,{wid:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"});	
+		test.deepEqual(ctx.retval,{wid:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"});	
 		test.expect(4);	
 		test.done();		
 		
@@ -2911,11 +2911,11 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 	var params = {url:"#dummy/50187f71556efcbb25000001:b"};
 
 						
-	sb.execute("get", params, function(err,result){
+	sb.execute("get", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.deepEqual(result,[4,5,6]);	
+		test.deepEqual(ctx.retval,[4,5,6]);	
 		test.expect(4);	
 		test.done();		
 		

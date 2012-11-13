@@ -72,7 +72,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(37);	
+	test.expect(38);	
 	test.done();
 }
 
@@ -550,10 +550,10 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 	});
 				
 	
-	server.api.dispose(params, function(err,val){
+	server.api.dispose(params, function(err,ctx){
 		
 		test.equal(err,undefined);
-		test.equal(val,1);						
+		test.equal(ctx.retval,1);						
 				
 		test.expect(11);		
 		test.done();
@@ -761,10 +761,10 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 	});
 				
 	
-	server.api.remove(params, function(err,val){
+	server.api.remove(params, function(err,ctx){
 		
 		test.equal(err,undefined);
-		test.equal(val,1);						
+		test.equal(ctx.retval,1);						
 				
 		test.expect(12);		
 		test.done();
@@ -834,10 +834,10 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 	});
 				
 	
-	server.api.set(params, function(err,val){
+	server.api.set(params, function(err,ctx){
 		
 		test.equal(err,undefined);
-		test.equal(val,1);						
+		test.equal(ctx.retval,1);						
 				
 		test.expect(13);		
 		test.done();
@@ -909,11 +909,11 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 	});
 				
 	
-	server.api.push(params, function(err,val){
+	server.api.push(params, function(err,ctx){
 		
 		test.ok(flag);
 		test.equal(err,undefined);
-		test.equal(val,1);						
+		test.equal(ctx.retval,1);						
 				
 		test.expect(14);		
 		test.done();
@@ -980,10 +980,10 @@ exports["server.api.pop: internal events, explicit catalog"] = function(test){
 	});
 				
 	
-	server.api.pop(params, function(err,val){
+	server.api.pop(params, function(err,ctx){
 				
 		test.equal(err,undefined);
-		test.equal(val,1);						
+		test.equal(ctx.retval,1);						
 				
 		test.expect(13);		
 		test.done();
@@ -1051,10 +1051,10 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 	});
 				
 	
-	server.api.shift(params, function(err,val){
+	server.api.shift(params, function(err,ctx){
 				
 		test.equal(err,undefined);
-		test.equal(val,1);						
+		test.equal(ctx.retval,1);						
 				
 		test.expect(13);		
 		test.done();
@@ -1128,19 +1128,19 @@ exports["server.api.config.newop: invocation"] = function(test){
 	});
 				
 	//make invocation
-	server.api.newop( myparams, function(err,val){
+	server.api.newop( myparams, function(err,ctx){
 	
 		
-		test.equal(val,1);
+		test.equal(ctx.retval,1);
 		test.equal(err,null);	
 				
 	});
 	
-	server.api.echo_x({x:1},function(err,val){
+	server.api.echo_x({x:1},function(err,ctx){
 		
 		test.ok(flag);
 		test.equal(err,null);
-		test.equal(val,5);
+		test.equal(ctx.retval,5);
 		test.expect(13);
 		test.done();
 	})
@@ -1205,10 +1205,10 @@ exports["server.api.config.newop: event custom params"] = function(test){
 		
 	test.notEqual( api.remote["dummy"], undefined );	
 	test.notEqual( server.api["dummy"], undefined );
-	server.api["dummy"](myparams, function(err,val){
+	server.api["dummy"](myparams, function(err,ctx){
 		
 		test.equal(err,null);
-		test.equal(val,1);
+		test.equal(ctx.retval,1);
 		test.expect(24);
 		test.done();		
 	});
