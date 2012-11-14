@@ -165,12 +165,10 @@ exports["endpoint.rpc + add_plugin:custom plugin"] = function(test){
 					"./sandbox":sb,											 
 				}
 	});
-	
-	var flag = 0;
-	endpoint.add_plugin("test",function(ctx,next){
-				
-		flag = 1;
-		setTimeout(function(){ ctx.retval.test = 99; next();},1000);
+			
+	endpoint.add_plugin(function(str_in){
+						
+		return  "["+ str_in + "]";
 	});
 	
 	var req_str = '{"jsonrpc":"2.0","method":"test","id":123}';
@@ -183,8 +181,7 @@ exports["endpoint.rpc + add_plugin:custom plugin"] = function(test){
 			 		end: function( out_str ){
 			 	
 					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",result:{test:99}, id:"123"},out_obj);
-							test.ok(flag);		
+					 		test.deepEqual({jsonrpc:"2.0",result:{test:1}, id:"123"},out_obj[0]);								
 							test.done();				 							 	
 					}		
 			} , req_str );

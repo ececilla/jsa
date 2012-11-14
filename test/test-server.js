@@ -41,7 +41,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.config.enable_procedures, undefined );
 	test.notEqual( server.api.config.disable_procedures, undefined );
 	test.notEqual( server.api.config.newop, undefined );
-	test.notEqual( server.api.config.add_plugin, undefined );
+	test.notEqual( server.api.config.add_plugin, undefined );	
 	test.notEqual( server.api.config.add_constraint_pre, undefined );
 	test.notEqual( server.api.config.add_constraint_post, undefined );	
 	test.notEqual( server.api.events, undefined );
@@ -52,6 +52,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.db, undefined );
 	
 	test.notEqual( server.config.system, undefined);
+	test.notEqual( server.config.add_output_transformer, undefined );
 	
 	
 	//check exported functions can be invoked.
@@ -72,7 +73,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(38);	
+	test.expect(39);	
 	test.done();
 }
 
