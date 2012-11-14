@@ -6,6 +6,8 @@ exports["module exported functions"] = function(test){
 	
 	test.notEqual(endpoint.rpc,undefined);
 	test.notEqual(endpoint.events, undefined);
+	test.notEqual(endpoint.add_plugin, undefined);
+	
 	test.done();
 	
 }
@@ -139,6 +141,55 @@ exports["endpoint.rpc: method not found"] = function(test){
 		
 }
 
+exports["endpoint.rpc + add_plugin:custom plugin"] = function(test){
+	
+	var api = {	remote:{
+						test: function(ctx, ret_handler){
+							
+							ctx.config.save = 0;								
+							ret_handler(null,{test:1});
+							
+						}}
+			 };
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		
+			}
+	});		
+	
+	var endpoint = sandbox.require("../lib/endpoint",{
+		requires:{	
+					"./sandbox":sb,											 
+				}
+	});
+	
+	var flag = 0;
+	endpoint.add_plugin("test",function(ctx,next){
+				
+		flag = 1;
+		setTimeout(function(){ ctx.retval.test = 99; next();},1000);
+	});
+	
+	var req_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	
+	endpoint.rpc( {writeHead: function(status, header_data){
+							
+							test.equal(status, 200);
+							test.deepEqual(header_data,{"Content-Type":"application/json"});
+			 		},
+			 		end: function( out_str ){
+			 	
+					 		var out_obj = JSON.parse(out_str);
+					 		test.deepEqual({jsonrpc:"2.0",result:{test:99}, id:"123"},out_obj);
+							test.ok(flag);		
+							test.done();				 							 	
+					}		
+			} , req_str );
+			
+}
 
 
 exports["endpoint.rpc: method invocation: with result, no params"] = function(test){
