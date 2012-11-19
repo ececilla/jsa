@@ -7,6 +7,7 @@ exports["module exported function"] = function(test){
 	test.notEqual(sb.add_constraint_post,undefined);
 	test.notEqual(sb.add_constraint_pre,undefined);
 	test.notEqual(sb.add_plugin,undefined);
+	test.notEqual(sb.add_plugout,undefined);
 	test.notEqual(sb.execute,undefined);
 	test.notEqual(sb.constraints.is_owner,undefined);
 	test.notEqual(sb.constraints.has_joined,undefined);
@@ -999,6 +1000,178 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 	});
 		
 }
+
+exports["sandbox.add_plugout: custom plugout, ctx.retval interception"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	var flag = 0;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								ret_handler(null,dbdocs[id_str]);		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 flag = 1;
+							 ctx.config.save = 0;							 
+							 							 
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
+	
+	sb.add_constraint_post("test",sb.constraints.is_owner)
+	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
+	  .add_plugout("test",function(ctx, end_handler){
+	  			
+	  		  			  		
+	  		setTimeout(function(){ //change return value.
+	  			ctx.retval = 99;		  			
+	  			end_handler();	
+	  		},500);
+	  		
+	  });
+	
+	sb.execute("test", params, function(err,ctx){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(ctx.retval,99)										
+		test.expect(3);
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_plugout: custom plugout, ctx.doc interception"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	var flag = 0;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								//load document
+								test.equal(dbdocs["5074b135d03a0ac443000001"].test, "test");
+								ret_handler(null,dbdocs[id_str]);		
+							},
+							save: function(col_str, doc, ret_handler){
+								
+								//save document								
+								test.equal(doc.test,"foobar");
+								ret_handler(null,doc);
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 flag = 1;	
+							 ctx.config.emit = 0;						 														  							 
+							 ret_handler( null, 1 );
+						 }						 
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
+	
+	sb.add_constraint_post("test",sb.constraints.is_owner)
+	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
+	  .add_plugout("test",function(ctx, end_handler){
+	  			
+	  		  			  		
+	  		setTimeout(function(){ //change saved document.
+	  			ctx.doc.test = "foobar";		  			
+	  			end_handler();	
+	  		},500);
+	  		
+	  });
+	
+	sb.execute("test", params, function(err,ctx){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(ctx.retval,1)										
+		test.expect(5);
+		test.done();
+	});
+		
+}
+
+
+exports["sandbox.add_plugout: custom plugout, ctx.payload interception"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	var flag = 0;
+	var api = require("../lib/api");
+	api.remote.test = function(ctx, ret_handler){
+		
+		flag = 1;	
+		ctx.config.emit = 1;
+		ctx.config.save = 1;
+		ctx.payload = ctx.config;//Make payload point to config params.						 														  							 
+		ret_handler( null, 1 );
+	};
+	api.on("ev_api_test",function(data){
+				
+		test.deepEqual(data.ev_ctx.payload,{emit:1, save:1, test:"foobar"});
+	})
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								//load document
+								test.equal(dbdocs["5074b135d03a0ac443000001"].test, "test");
+								ret_handler(null,dbdocs[id_str]);		
+							},
+							save: function(col_str, doc, ret_handler){
+								
+								//save document								
+								test.equal(doc.test,"test");
+								ret_handler(null,doc);
+							}
+		},
+		"./api":api,
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
+	
+	sb.add_constraint_post("test",sb.constraints.is_owner)
+	  .add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)
+	  .add_plugout("test",function(ctx, end_handler){
+	  			
+	  		  			  		
+	  		setTimeout(function(){ //change payload:add param 
+	  			ctx.payload.test = "foobar";		  			
+	  			end_handler();	
+	  		},500);
+	  		
+	  });
+	
+	sb.execute("test", params, function(err,ctx){
+		
+		test.ok(flag);
+		test.equal(err,null);
+		test.equal(ctx.retval,1)										
+		test.expect(6);
+		test.done();
+	});
+		
+}
+
 
 
 exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
