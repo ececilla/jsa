@@ -1241,7 +1241,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																							
-								ret_handler(null,[{wids:[]}]);
+								ret_handler(null,[{wids:["50187f71556efcbb25000001"]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}}				 		  

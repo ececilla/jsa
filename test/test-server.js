@@ -695,6 +695,7 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 							ret_handler(null,doc);
 						},50);	
 					}else if( col_str == "users"){
+						
 						test.equal(col_str,"users");
 						test.deepEqual(doc,{wids:[]});
 						ret_handler(null);	
@@ -714,7 +715,7 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 				
 				criteria:function(col_str,criteria,order,ret_handler){
 																												
-					ret_handler(null,[{wids:[]}]);
+					ret_handler(null,[{wids:["50187f71556efcbb25000001"]}]);
 				}
 	};
 	   
