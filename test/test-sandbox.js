@@ -44,6 +44,11 @@ exports["sandbox.add_constraint_post: non satisfied constraints"] = function(tes
 								
 								flags[0] = 0;								
 								ret_handler(null,{wid:"5074b135d03a0ac443000001",reach:2});
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -172,9 +177,20 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 							},
 							save: function(col_str, doc,ret_handler){
 								
-								test.equal(col_str,"docs");
-								test.deepEqual(doc,{_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114, 620793116] })
-								ret_handler(null,{wid:"5074b135d03a0ac443000001",reach:2});
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");
+									test.deepEqual(doc,{_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114, 620793116] })
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -224,7 +240,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 	sb.execute("join", params, function(err,ctx){
 		
 		test.deepEqual(ctx.retval.rcpts, [620793114,620793116]);
-		test.expect(13);
+		test.expect(15);
 		test.done();
 	});
 		
@@ -250,7 +266,12 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 							save: function(col_str, doc,ret_handler){
 								
 								flag = 0;								
-								ret_handler(null,{wid:"5074b135d03a0ac443000001",reach:2});
+								ret_handler(null,doc);
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ dummy:function( ctx, ret_handler){
@@ -361,7 +382,7 @@ exports["sandbox.add_constraint_post: wid not found"] = function(test){
 		
 }
 
-exports["sandbox.add_constraint_post: no wid"] = function(test){
+exports["sandbox.add_constraint_post: no wid, uid"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:12345, test:"test", uid:620793114, rcpts:[620793114] };
@@ -371,11 +392,17 @@ exports["sandbox.add_constraint_post: no wid"] = function(test){
 							select: function(col_str, id_str, ret_handler){
 										
 								flag = 0;		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ create:function( ctx, ret_handler){
 							 
 							 test.deepEqual(ctx.doc, {});
+							 test.deepEqual(ctx.user,{wids:[]});
 							 test.deepEqual(ctx.params, {uid:620793116,doc:{test:1},catalog:"docs"});
 							 ctx.config.save = 0;
 							 ret_handler(null, {wid:"5074b135d03a0ac443000001"} );
@@ -402,11 +429,68 @@ exports["sandbox.add_constraint_post: no wid"] = function(test){
 	sb.execute("create", params, function(err,result){
 		
 		test.ok(flag);
-		test.expect(5);
+		test.expect(6);
 		test.done();
 	});
 		
 }
+
+exports["sandbox.add_constraint_post: wid, no uid"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:12345, test:"test", uid:620793114, rcpts:[620793114] };
+	var flag = 1;	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){
+										
+								test.equal(col_str,"docs");
+								test.equal(id_str,"5074b135d03a0ac443000001");
+								ret_handler(null,dbdocs["5074b135d03a0ac443000001"]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								flag = 0;
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 
+							 test.deepEqual(ctx.doc, {_id:12345, test:"test", uid:620793114, rcpts:[620793114] });
+							 test.deepEqual(ctx.params, {wid:"5074b135d03a0ac443000001",doc:{test:1},catalog:"docs"});
+							 ctx.config.save = 0;
+							 ret_handler(null, {foo:66} );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {wid:"5074b135d03a0ac443000001",doc:{test:1}};
+		
+	sb.add_constraint_post("test","params",function( ctx ){
+		
+		test.deepEqual(ctx.params, {wid:"5074b135d03a0ac443000001",doc:{test:1},catalog:"docs"});
+		test.deepEqual(ctx.doc, {_id:12345, test:"test", uid:620793114, rcpts:[620793114] });
+		test.equal(ctx.user,undefined);
+		
+		if(!ctx.params || !(ctx.params.wid && ctx.params.doc ) ){
+						
+			return {code:-2, message:"Missing parameters:{wid:,doc:,(optional)catalog:}"};						
+		}
+	});
+	
+	sb.execute("test", params, function(err,ctx){
+		
+		test.ok(flag);
+		test.deepEqual(ctx.retval,{foo:66});
+		test.expect(9);
+		test.done();
+	});
+		
+}
+
 
 exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = function(test){
 	
@@ -418,6 +502,11 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 							select: function(col_str, id_str, ret_handler){
 										
 								flags[0] = 0;		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ create:function( ctx, ret_handler){
@@ -437,6 +526,7 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 				
 		test.deepEqual(ctx.params, {uid:620793116,doc:"not an object",catalog:"docs"});
 		test.deepEqual(ctx.doc, {});
+		test.deepEqual(ctx.user,{wids:[]});
 		
 		if(!ctx.params || !(ctx.params.uid && ctx.params.doc ) ){
 						
@@ -456,7 +546,7 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 		test.ok(flags[0]);
 		test.ok(flags[1]);
 		test.deepEqual(err,{code:-11, message:"Wrong parameter type doc: must be an object"});
-		test.expect(5);
+		test.expect(6);
 		test.done();
 	});
 		
@@ -475,6 +565,11 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -513,6 +608,11 @@ exports["sandbox.add_constraint_post: constraints.is_owner"] = function(test){
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -549,6 +649,11 @@ exports["sandbox.add_constraint_post: constraints.has_joined"] = function(test){
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -584,6 +689,11 @@ exports["sandbox.add_constraint_post: constraints.not_system_catalog"] = functio
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -619,6 +729,11 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -660,6 +775,11 @@ exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test)
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -696,6 +816,11 @@ exports["sandbox.add_constraint_post: constraints.is_reserved"] = function(test)
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ set:function( ctx, ret_handler){
@@ -732,6 +857,11 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ set:function( ctx, ret_handler){
@@ -769,6 +899,11 @@ exports["sandbox.add_constraint_post: constraints.field_type object"] = function
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ set:function( ctx, ret_handler){
@@ -806,6 +941,11 @@ exports["sandbox.add_constraint_post: constraints.field_type array"] = function(
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ push:function( ctx, ret_handler){
@@ -844,6 +984,11 @@ exports["sandbox.add_constraint_post: constraints.is_required"] = function(test)
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ set:function( ctx, ret_handler){
@@ -899,8 +1044,19 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 							},
 							save: function(col_str, doc,ret_handler){
 																								
-								test.equal(col_str,"docs");								
-								ret_handler(null,{doc:doc});
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");								
+									ret_handler(null,{doc:doc});
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":api,
@@ -923,7 +1079,7 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 		
 		test.ok(flag);
 		test.equal(err,undefined);
-		test.expect(5);									
+		test.expect(7);									
 		test.done();
 	});
 		
@@ -937,7 +1093,12 @@ exports["sandbox.add_constraint_post: method not found"] = function(test){
 	var api = require("../lib/api");	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 			"./api":api,
-			"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{foooooo:1}}}}
+			"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{foooooo:1}}}},
+			"./db":{
+					criteria:function(col_str,criteria,order,ret_handler){
+																													
+						ret_handler(null,[{wids:[]}]);
+					}}
 	}});				
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 		
@@ -961,6 +1122,11 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1011,6 +1177,11 @@ exports["sandbox.add_plugout: custom plugout, ctx.retval interception"] = functi
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1066,9 +1237,21 @@ exports["sandbox.add_plugout: custom plugout, ctx.doc interception"] = function(
 							},
 							save: function(col_str, doc, ret_handler){
 								
-								//save document								
-								test.equal(doc.test,"foobar");
-								ret_handler(null,doc);
+								//save document
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");
+									test.equal(doc.test,"foobar");
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1102,7 +1285,7 @@ exports["sandbox.add_plugout: custom plugout, ctx.doc interception"] = function(
 		test.ok(flag);
 		test.equal(err,null);
 		test.equal(ctx.retval,1)										
-		test.expect(5);
+		test.expect(8);
 		test.done();
 	});
 		
@@ -1137,9 +1320,21 @@ exports["sandbox.add_plugout: custom plugout, ctx.payload interception"] = funct
 							},
 							save: function(col_str, doc, ret_handler){
 								
-								//save document								
-								test.equal(doc.test,"test");
-								ret_handler(null,doc);
+								//save document	
+								if(col_str == "docs"){							
+									test.equal(col_str,"docs");
+									test.equal(doc.test,"test");
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":api,
@@ -1166,7 +1361,7 @@ exports["sandbox.add_plugout: custom plugout, ctx.payload interception"] = funct
 		test.ok(flag);
 		test.equal(err,null);
 		test.equal(ctx.retval,1)										
-		test.expect(6);
+		test.expect(9);
 		test.done();
 	});
 		
@@ -1184,11 +1379,17 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 							
 							 flag = 1;
+							 test.deepEqual(ctx.user,{wids:[]});
 							 ctx.config.save = 0;
 							 test.deepEqual(ctx.params.rcpts,[620793115]);							 
 							 ret_handler( null, 1 );
@@ -1210,7 +1411,7 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 		test.ok(flag);
 		test.equal(err,null);
 		test.equal(ctx.retval,1)										
-		test.expect(4);
+		test.expect(5);
 		test.done();
 	});
 		
@@ -1228,6 +1429,11 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1273,6 +1479,11 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1317,6 +1528,11 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1360,6 +1576,11 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform overwrite"] = functio
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1403,6 +1624,11 @@ exports["sandbox.add_plugin: sandbox.plugins.external_config"] = function(test){
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								ret_handler(null,dbdocs[id_str]);		
+							},
+				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){

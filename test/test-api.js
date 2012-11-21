@@ -25,7 +25,7 @@ exports["module exported functions"] = function(test){
 }
 
 exports["api.remote.create: missing params"] = function(test){
-		
+				
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
@@ -41,6 +41,7 @@ exports["api.remote.create: missing params"] = function(test){
 	});
 	
 	var flag = 1;
+	var dbusers = {620793114:{uid:620793114}};
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
@@ -53,6 +54,12 @@ exports["api.remote.create: missing params"] = function(test){
 								//Not executed because constraint is not satisfied
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{uid:620793114});								
+								ret_handler(null,[dbusers["620793114"]]);
 							}
 						 },
 					"./api":api,
@@ -78,7 +85,7 @@ exports["api.remote.create: missing params"] = function(test){
 		
 		test.ok(flag);		
 		test.deepEqual(err, {code:-12, message: "doc parameter required"});
-		test.expect(4);
+		test.expect(6);
 		test.done();
 	}); 		
 	
@@ -101,7 +108,7 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 		}
 	});
 	
-	var flag = 1;
+	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
 							select: function(col_str, id_str, ret_handler){
@@ -114,6 +121,12 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 								//Not executed because constraint is not satisfied
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{uid:620793114});								
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./api":api,
@@ -131,7 +144,7 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 		
 		test.ok(flag);		
 		test.deepEqual(err, {code:-5, message: "No access permission: system catalog"});
-		test.expect(2);
+		test.expect(4);
 		test.done();
 	});
 				 		
@@ -167,6 +180,10 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 								//Not executed because sandbox doesn't save document
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./api":api,
@@ -290,6 +307,10 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 								//Not executed because sandbox not saves document.
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./api":api,
@@ -360,6 +381,10 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 								//Not executed because sandbox not saves document.
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./api":api,
@@ -429,6 +454,10 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 								//Not executed because sandbox not saves document.
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./api":api,
@@ -503,6 +532,10 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog, notif
 								//Not executed because sandbox not saves document.
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./api":api,
@@ -574,6 +607,10 @@ exports["api.remote.create: valid params, non init.rcpts, added catalog"] = func
 								//Not executed because sandbox not saves document.
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./api":api,
@@ -653,6 +690,10 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 								//Not executed because sandbox not saves document.
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./api":api,
@@ -701,6 +742,10 @@ exports["api.remote.dispose: missing params"] = function(test){
 								//Not executed because constraint is not satisfied
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dispose:1}}}} 
@@ -753,6 +798,10 @@ exports["api.remote.dispose: valid params, wid not found, not owner"] = function
 								//Not executed because document not found or constraint not satisfied
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{dispose:1}}}} 
@@ -832,6 +881,10 @@ exports["api.remote.dispose: valid params, default catalog"] = function(test){
 															
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 				 "./api":api,
@@ -878,6 +931,10 @@ exports["api.remote.join: missing params"] = function(test){
 								//Not executed because constraint is not satisfied
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}} 
@@ -921,19 +978,24 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for join procedure							
 							save:function(col_str,doc,ret_handler){
-															
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts, [620793115, 620793117, 620793114]);
-																
-								//save doc to db...returns with _id:12345
-								setTimeout(function(){//100ms delay saving document
-									
-									ret_handler(null,doc);
-								},100);	
+								
+								if(col_str == "docs"){							
+								
+									test.equal(col_str,"docs");
+									test.deepEqual(doc.rcpts, [620793115, 620793117, 620793114]);
+																	
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									console.log("usersssssssss");
+								}
 							}
 		}}
 	});
-	
+	var dbusers = {620793114:{wids:["50187f71556efcbb25000001"]}, 620793117:{wids:[]}};
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -949,6 +1011,16 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 								//Not executed because join saves document itself
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																								
+								test.equal(col_str,"users");
+								if(criteria.uid == 620793114)
+									test.deepEqual(dbusers["620793114"].wids,["50187f71556efcbb25000001"]);
+								else if(criteria.uid == 620793117)
+									test.deepEqual(dbusers["620793117"].wids,[]);
+																	
+								ret_handler(null,[dbusers["" + criteria.uid]]);
 							}
 						 },
 				 "./api" : api,
@@ -989,7 +1061,7 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 				test.equal(err,null);		
 				test.equal(ctx.retval,1);
 				
-				test.expect(17);
+				test.expect(21);
 				test.done();
 				next();
 				
@@ -1021,6 +1093,10 @@ exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(
 								//Not executed because constraint joinable is not satisfied.
 								flag = 0;								
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
@@ -1068,6 +1144,10 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 								//Not executed because constraint is not satisfied
 								flag = 0;
 								ret_handler();	
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[criteria]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}} 
@@ -1146,15 +1226,25 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 							},
 							save:function(col_str,doc,ret_handler){
 								
-																															
-								test.equal(col_str,"docs");
-								test.deepEqual(doc.rcpts,[620793115]);
-								
-								setTimeout(function(){//100ms delay saving document
+								if(col_str == "docs"){	//autosaving doc.																						
+									test.equal(col_str,"docs");
+									test.deepEqual(doc.rcpts,[620793115]);
 									
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},20);	
+								}else if(col_str == "users"){ //autosaving user.
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
 									ret_handler(null,doc);
-								},20);	
+								}
 									
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}}				 		  
@@ -1175,7 +1265,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);
 		
-		test.expect(6);
+		test.expect(8);
 		test.done();		
 		
 	});				
@@ -1244,6 +1334,10 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 									ret_handler(null,dbdocs[id_str]);
 								else
 									ret_handler(null,null);								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}} 
@@ -1370,15 +1464,25 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 							},
 							save:function(col_str,doc,ret_handler){
 															
+								if(col_str == "dummy"){
 								
-								test.equal(col_str,"dummy");
-								test.equal(doc.b,undefined);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+									test.equal(col_str,"dummy");
+									test.equal(doc.b,undefined);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if( col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
@@ -1402,7 +1506,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});
@@ -1432,15 +1536,25 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.equal(doc.a.b,undefined);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.equal(doc.a.b,undefined);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if( col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
@@ -1464,7 +1578,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});	
@@ -1495,15 +1609,24 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.deepEqual(doc.a.b,[4,6]);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.deepEqual(doc.a.b,[4,6]);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if( col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
@@ -1527,7 +1650,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});	
@@ -1566,6 +1689,10 @@ exports["api.remote.remove: valid params, non existing array index, explicit cat
 									ret_handler(null,doc);
 								},50);
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs",system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
@@ -1611,6 +1738,10 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 									ret_handler(null,dbdocs[id_str]);
 								else
 									ret_handler(null,null);								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}} 
@@ -1745,15 +1876,24 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.equal(dbdocs["50187f71556efcbb25000001"].b, 5);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.equal(dbdocs["50187f71556efcbb25000001"].b, 5);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
@@ -1778,7 +1918,7 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});
@@ -1809,15 +1949,24 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.equal(dbdocs["50187f71556efcbb25000001"].a.b, 5);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.equal(dbdocs["50187f71556efcbb25000001"].a.b, 5);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if( col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
@@ -1842,7 +1991,7 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});
@@ -1873,15 +2022,24 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [1,5,3]);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [1,5,3]);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if( col_str == "users"){
+									test.equal(col_str, "users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
@@ -1906,7 +2064,7 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});		
@@ -1944,6 +2102,10 @@ exports["api.remote.set: valid params,non existing inner array field, explicit c
 									ret_handler(null,doc);
 								},50);
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
@@ -1990,6 +2152,10 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 									ret_handler(null,dbdocs[id_str]);
 								else
 									ret_handler(null,null);								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{push:1}}}} 
@@ -2142,15 +2308,24 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.deepEqual(dbdocs["50187f71556efcbb25000001"].b, [4,5,6,9]);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.deepEqual(dbdocs["50187f71556efcbb25000001"].b, [4,5,6,9]);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{push:1}}}}	  
@@ -2175,7 +2350,7 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});	
@@ -2205,15 +2380,24 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [4,5,6,9]);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [4,5,6,9]);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if( col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{push:1}}}}	  
@@ -2238,7 +2422,7 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});					
@@ -2259,6 +2443,10 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 									ret_handler(null,dbdocs[id_str]);
 								else
 									ret_handler(null,null);								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{pop:1}}}} 
@@ -2401,15 +2589,25 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.deepEqual(dbdocs["50187f71556efcbb25000001"].b, [4,5]);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.deepEqual(dbdocs["50187f71556efcbb25000001"].b, [4,5]);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{pop:1}}}}	  
@@ -2433,7 +2631,7 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});
@@ -2463,15 +2661,24 @@ exports["api.remote.pop: valid params, existing inner field as array, explicit c
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
-								test.equal(col_str,"dummy");
-								test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [4,5]);								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");
+									test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [4,5]);								
 									
-									ret_handler(null,doc);
-								},50);
+									setTimeout(function(){ //db 50ms delay retrieving document
+										
+										ret_handler(null,doc);
+									},50);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{pop:1}}}}	  
@@ -2496,7 +2703,7 @@ exports["api.remote.pop: valid params, existing inner field as array, explicit c
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});	
@@ -2518,6 +2725,10 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 									ret_handler(null,dbdocs[id_str]);
 								else
 									ret_handler(null,null);								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{shift:1}}}} 
@@ -2661,7 +2872,7 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								
+								if(col_str == "dummy"){
 								test.equal(col_str,"dummy");
 								test.deepEqual(dbdocs["50187f71556efcbb25000001"].b, [5,6]);								
 								
@@ -2669,7 +2880,17 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 									
 									ret_handler(null,doc);
 								},50);
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{shift:1}}}}	  
@@ -2693,7 +2914,7 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});
@@ -2724,6 +2945,7 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 							save:function(col_str,doc,ret_handler){
 															
 								
+								if(col_str == "dummy"){
 								test.equal(col_str,"dummy");
 								test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [5,6]);								
 								
@@ -2731,7 +2953,16 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 									
 									ret_handler(null,doc);
 								},50);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:[]});
+									ret_handler(null);
+								}
 								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{shift:1}}}}	  
@@ -2755,7 +2986,7 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});	

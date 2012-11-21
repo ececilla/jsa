@@ -74,7 +74,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(40);	
+	test.expect(41);	
 	test.done();
 }
 
@@ -198,6 +198,10 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 				"./api":api,
+				"./db": {criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
+						}},
 				"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}}
 		
 	});
@@ -259,6 +263,11 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
+					"./db":{
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
+							}},
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 						
 				}
@@ -305,6 +314,11 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
+					"./db":{
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
+							}},
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 					}
 		
@@ -368,6 +382,11 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
+					"./db":{
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
+							}},
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 				}
 		
@@ -451,6 +470,11 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 					"./api":api,
+					"./db":{
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
+							}},
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 				}
 	});	
@@ -523,6 +547,11 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 						
 						ret_handler(null,dbdocs[id_str]);
 					},50);	
+				},
+				
+				criteria:function(col_str,criteria,order,ret_handler){
+																												
+					ret_handler(null,[{wids:[]}]);
 				}
 	};
 		
@@ -594,6 +623,11 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 						
 						ret_handler(null,dbdocs[id_str]);
 					},50);	
+				},
+				
+				criteria:function(col_str,criteria,order,ret_handler){
+																												
+					ret_handler(null,[{wids:[]}]);
 				}
 	};
 	   
@@ -646,13 +680,19 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
-					test.equal(col_str,"docs");																								
-					test.deepEqual( doc.rcpts, [620793115]);
-										
-					setTimeout(function(){
-						
-						ret_handler(null,doc);
-					},50);	
+					if(col_str == "docs"){
+						test.equal(col_str,"docs");																								
+						test.deepEqual( doc.rcpts, [620793115]);
+											
+						setTimeout(function(){
+							
+							ret_handler(null,doc);
+						},50);	
+					}else if( col_str == "users"){
+						test.equal(col_str,"users");
+						test.deepEqual(doc,{wids:[]});
+						ret_handler(null);	
+					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
@@ -664,6 +704,11 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 						
 						ret_handler(null,dbdocs[id_str]);
 					},50);	
+				},
+				
+				criteria:function(col_str,criteria,order,ret_handler){
+																												
+					ret_handler(null,[{wids:[]}]);
 				}
 	};
 	   
@@ -698,7 +743,7 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(12);		
+		test.expect(14);		
 		test.done();
 	});
 						
@@ -716,14 +761,21 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
-					test.equal(col_str,"dummy");																								
-					test.deepEqual( doc.rcpts, [620793115, 620793116]);
-					test.equal(doc.b,undefined);
-										
-					setTimeout(function(){
+					if(col_str == "dummy"){
+						test.equal(col_str,"dummy");																								
+						test.deepEqual( doc.rcpts, [620793115, 620793116]);
+						test.equal(doc.b,undefined);
+											
+						setTimeout(function(){
+							
+							ret_handler(null,doc);
+						},50);	
+					}else if(col_str == "users"){
 						
-						ret_handler(null,doc);
-					},50);	
+						test.equal(col_str,"users");
+						test.deepEqual(doc,{wids:[]});
+						ret_handler(null);
+					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
@@ -735,6 +787,11 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 						
 						ret_handler(null,dbdocs[id_str]);
 					},50);	
+				},
+				
+				criteria:function(col_str,criteria,order,ret_handler){
+																												
+					ret_handler(null,[{wids:[]}]);
 				}
 	};
 	   
@@ -768,7 +825,7 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 		test.equal(err,undefined);
 		test.equal(ctx.retval,1);						
 				
-		test.expect(12);		
+		test.expect(14);		
 		test.done();
 	});	
 						
@@ -788,14 +845,21 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
-					test.equal(col_str,"dummy");																								
-					test.deepEqual( doc.rcpts, [620793115, 620793116]);
-					test.equal(doc.a,5);
-										
-					setTimeout(function(){
+					if(col_str == "dummy"){
+						test.equal(col_str,"dummy");																								
+						test.deepEqual( doc.rcpts, [620793115, 620793116]);
+						test.equal(doc.a,5);
+											
+						setTimeout(function(){
+							
+							ret_handler(null,doc);
+						},50);	
+					}else if(col_str == "users"){
 						
-						ret_handler(null,doc);
-					},50);	
+						test.equal(col_str,"users");
+						test.deepEqual(doc,{wids:[]});
+						ret_handler(null);
+					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
@@ -808,6 +872,11 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 						
 						ret_handler(null,dbdocs[id_str]);
 					},50);	
+				},
+				
+				criteria:function(col_str,criteria,order,ret_handler){
+																												
+					ret_handler(null,[{wids:[]}]);
 				}
 	};
 	   
@@ -841,7 +910,7 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 		test.equal(err,undefined);
 		test.equal(ctx.retval,1);						
 				
-		test.expect(13);		
+		test.expect(15);		
 		test.done();
 	});						
 }
@@ -859,14 +928,20 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
-					test.equal(col_str,"dummy");																								
-					test.deepEqual( doc.rcpts, [620793115, 620793116]);
-					test.deepEqual(doc.a,[4,6,9]);
-										
-					setTimeout(function(){
-						
-						ret_handler(null,doc);
-					},50);	
+					if(col_str == "dummy"){
+						test.equal(col_str,"dummy");																								
+						test.deepEqual( doc.rcpts, [620793115, 620793116]);
+						test.deepEqual(doc.a,[4,6,9]);
+											
+						setTimeout(function(){
+							
+							ret_handler(null,doc);
+						},50);	
+					}else if(col_str == "users"){
+						test.equal(col_str,"users");
+						test.deepEqual(doc,{wids:[]});
+						ret_handler(null);
+					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
@@ -879,6 +954,11 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 						
 						ret_handler(null,dbdocs[id_str]);
 					},50);	
+				},
+				
+				criteria:function(col_str,criteria,order,ret_handler){
+																												
+					ret_handler(null,[{wids:[]}]);
 				}
 	};
 	   
@@ -917,7 +997,7 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 		test.equal(err,undefined);
 		test.equal(ctx.retval,1);						
 				
-		test.expect(14);		
+		test.expect(16);		
 		test.done();
 	});	
 						
@@ -934,14 +1014,20 @@ exports["server.api.pop: internal events, explicit catalog"] = function(test){
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
-					test.equal(col_str,"dummy");																								
-					test.deepEqual( doc.rcpts, [620793115, 620793116]);
-					test.deepEqual(doc.a,[-4,"foo"]);
-										
-					setTimeout(function(){
-						
-						ret_handler(null,doc);
-					},50);	
+					if(col_str == "dummy"){
+						test.equal(col_str,"dummy");																								
+						test.deepEqual( doc.rcpts, [620793115, 620793116]);
+						test.deepEqual(doc.a,[-4,"foo"]);
+											
+						setTimeout(function(){
+							
+							ret_handler(null,doc);
+						},50);	
+					}else if(col_str == "users"){
+						test.equal(col_str,"users");
+						test.deepEqual(doc,{wids:[]});
+						ret_handler(null);
+					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
@@ -954,6 +1040,11 @@ exports["server.api.pop: internal events, explicit catalog"] = function(test){
 						
 						ret_handler(null,dbdocs[id_str]);
 					},50);	
+				},
+				
+				criteria:function(col_str,criteria,order,ret_handler){
+																												
+					ret_handler(null,[{wids:[]}]);
 				}
 	};
 	   
@@ -987,7 +1078,7 @@ exports["server.api.pop: internal events, explicit catalog"] = function(test){
 		test.equal(err,undefined);
 		test.equal(ctx.retval,1);						
 				
-		test.expect(13);		
+		test.expect(15);		
 		test.done();
 	});	
 						
@@ -1005,14 +1096,20 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
-					test.equal(col_str,"dummy");																								
-					test.deepEqual( doc.rcpts, [620793115, 620793116]);
-					test.deepEqual(doc.a,["foo",6]);
-										
-					setTimeout(function(){
-						
-						ret_handler(null,doc);
-					},50);	
+					if(col_str == "dummy"){
+						test.equal(col_str,"dummy");																								
+						test.deepEqual( doc.rcpts, [620793115, 620793116]);
+						test.deepEqual(doc.a,["foo",6]);
+											
+						setTimeout(function(){
+							
+							ret_handler(null,doc);
+						},50);	
+					}else if(col_str == "users"){
+						test.equal(col_str,"users");
+						test.deepEqual(doc,{wids:[]});
+						ret_handler(null);
+					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
@@ -1025,6 +1122,11 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 						
 						ret_handler(null,dbdocs[id_str]);
 					},50);	
+				},
+				
+				criteria:function(col_str,criteria,order,ret_handler){
+																												
+					ret_handler(null,[{wids:[]}]);
 				}
 	};
 	   
@@ -1058,7 +1160,7 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 		test.equal(err,undefined);
 		test.equal(ctx.retval,1);						
 				
-		test.expect(13);		
+		test.expect(15);		
 		test.done();
 	});
 						
@@ -1241,7 +1343,14 @@ exports["server.api.config.newop: create based op"] = function(test){
 	});
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./api":api,"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1, newop1:1}}}}}
+		requires:{	"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1, newop1:1}}}},
+				 	"./db":{				
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
+							}}
+				 }
 	});
 	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
 	
