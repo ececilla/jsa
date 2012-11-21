@@ -272,14 +272,20 @@ exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpt
 		requires:{"./db":{	//db mock module
 							save:function(col_str,doc,ret_handler){
 													
-								test.equal(col_str,"dummy");								
-								test.equal( doc.test, rpc_params.doc.test );
-								test.equal( doc.uid, rpc_params.uid );
-								test.deepEqual( doc.rcpts, [620793114, 620793115, 620793119]);
-								
-								//save doc to db...returns doc with _id		
-								doc._id = "50187f71556efcbb25000001";						
-								ret_handler(null,doc);	
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");								
+									test.equal( doc.test, rpc_params.doc.test );
+									test.equal( doc.uid, rpc_params.uid );
+									test.deepEqual( doc.rcpts, [620793114, 620793115, 620793119]);
+									
+									//save doc to db...returns doc with _id		
+									doc._id = "50187f71556efcbb25000001";						
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									ret_handler(null);
+								}	
 							},
 							select: function(){
 								
@@ -329,12 +335,12 @@ exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpt
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 		
-	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:1}};
+	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:1}, user:{wids:[]}};
 	api.remote.create(ctx, function(err,val){
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);	
-		test.expect(16);
+		test.expect(18);
 		test.done();				
 		
 	});
@@ -350,14 +356,20 @@ exports["evqueue.on: ev_api_create, unreportable document, subscribed"] = functi
 		requires:{"./db":{	//db mock module
 							save:function(col_str,doc,ret_handler){
 																
-								test.equal(col_str,"dummy");								
-								test.equal( doc.test, rpc_params.doc.test );
-								test.equal( doc.uid, rpc_params.uid );
-								test.equal( doc.rcpts, undefined);
-								
-								//save doc to db...returns doc with _id		
-								doc._id = "50187f71556efcbb25000001";						
-								ret_handler(null,doc);	
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");								
+									test.equal( doc.test, rpc_params.doc.test );
+									test.equal( doc.uid, rpc_params.uid );
+									test.equal( doc.rcpts, undefined);
+									
+									//save doc to db...returns doc with _id		
+									doc._id = "50187f71556efcbb25000001";						
+									ret_handler(null,doc);	
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									ret_handler(null);
+								}
 							},
 							select: function(){
 								
@@ -398,14 +410,14 @@ exports["evqueue.on: ev_api_create, unreportable document, subscribed"] = functi
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 		
-	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:1}};
+	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:1}, user:{wids:[]}};
 	api.remote.create(ctx, function(err,val){
 		
 		test.ok(subs_flags[2]);
 		test.ok(eq_flag);
 		test.equal(err,null);
 		test.notEqual(val,undefined);			
-		test.expect(10);
+		test.expect(12);
 		test.done();
 	});
 		

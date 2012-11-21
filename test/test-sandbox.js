@@ -340,6 +340,10 @@ exports["sandbox.add_constraint_post: wid not found"] = function(test){
 								test.equal(id_str,"5074b135d03a0ac443000002");								
 								
 								ret_handler(null,dbdocs[id_str]);//null		
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( params, doc, ret_handler){

@@ -182,15 +182,21 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		requires:{"./db":{	//db mock module for create procedure
 							save:function(col_str,doc,ret_handler){
 																
-								test.equal(col_str,"docs");								
-								test.equal( doc.test, "test" );
-								test.equal( doc.uid,  620793114);
-								test.deepEqual( doc.rcpts, [620793114]);
-								test.equal(typeof doc.ctime, "number");								
-								
-								//save doc to db...returns with _id:12345
-								doc._id = "50187f71556efcbb25000001";
-								ret_handler(null,doc);	
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");								
+									test.equal( doc.test, "test" );
+									test.equal( doc.uid,  620793114);
+									test.deepEqual( doc.rcpts, [620793114]);
+									test.equal(typeof doc.ctime, "number");								
+									
+									//save doc to db...returns with _id:12345
+									doc._id = "50187f71556efcbb25000001";
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									ret_handler(null);
+								}	
 							}
 		}}
 	});	
@@ -234,7 +240,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(11);		
+		test.expect(13);		
 		test.done();
 	});
 					
@@ -298,15 +304,21 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 		requires:{"./db":{	//db mock module for create procedure
 							save:function(col_str, doc, ret_handler){
 																
-								test.equal(col_str,"dummy");								
-								test.equal( doc.test, "test" );
-								test.equal( doc.uid,  620793114);
-								test.deepEqual( doc.rcpts, undefined);
-								test.equal(typeof doc.ctime, "number");								
-								
-								//save doc to db...returns with _id:12345
-								doc._id = "50187f71556efcbb25000001";
-								ret_handler(null,doc);	
+								if(col_str == "dummy"){
+									test.equal(col_str,"dummy");								
+									test.equal( doc.test, "test" );
+									test.equal( doc.uid,  620793114);
+									test.deepEqual( doc.rcpts, undefined);
+									test.equal(typeof doc.ctime, "number");								
+									
+									//save doc to db...returns with _id:12345
+									doc._id = "50187f71556efcbb25000001";
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									ret_handler(null);
+								}	
 							}
 		}}
 	});	
@@ -350,7 +362,7 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(11);		
+		test.expect(13);		
 		test.done();
 	});
 						
@@ -365,16 +377,22 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for create procedure
 							save:function(col_str, doc, ret_handler){
-																
-								test.equal(col_str,"dummy");								
-								test.equal( doc.test, "test" );
-								test.equal( doc.uid,  620793114);
-								test.deepEqual( doc.rcpts, [620793114, 620793115]);
-								test.equal(typeof doc.ctime, "number");								
 								
-								//save doc to db...returns with _id:12345
-								doc._id = "50187f71556efcbb25000001";
-								ret_handler(null,doc);	
+								if(col_str == "dummy"){								
+									test.equal(col_str,"dummy");								
+									test.equal( doc.test, "test" );
+									test.equal( doc.uid,  620793114);
+									test.deepEqual( doc.rcpts, [620793114, 620793115]);
+									test.equal(typeof doc.ctime, "number");								
+									
+									//save doc to db...returns with _id:12345
+									doc._id = "50187f71556efcbb25000001";
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									ret_handler(null);
+								}	
 							}
 		}}
 	});	
@@ -425,7 +443,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(11);		
+		test.expect(13);		
 		test.done();
 	});								
 	
@@ -440,17 +458,23 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 		dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115};
 	var db = {	
 							save:function(col_str, doc ,ret_handler){
-																
-								test.equal(col_str,"dummy");								
-								test.equal( doc.test, "test" );
-								test.equal( doc.uid, 620793114 );
-								test.deepEqual( doc.rcpts, [620793114,620793115]);
 								
-								
-								//save doc to db...
-								doc._id = "50187f71556efcbb25000666";
-								dbdocs["50187f71556efcbb25000666"] = doc;
-								ret_handler(null,doc);	
+								if(col_str == "dummy"){								
+									test.equal(col_str,"dummy");								
+									test.equal( doc.test, "test" );
+									test.equal( doc.uid, 620793114 );
+									test.deepEqual( doc.rcpts, [620793114,620793115]);
+									
+									
+									//save doc to db...
+									doc._id = "50187f71556efcbb25000666";
+									dbdocs["50187f71556efcbb25000666"] = doc;
+									ret_handler(null,doc);	
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000666"]});
+									ret_handler(null);
+								}
 							},
 							
 							select:function(col_str, id_str, ret_handler){
@@ -508,7 +532,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(10);		
+		test.expect(12);		
 		test.done();
 	});
 					
@@ -1336,15 +1360,21 @@ exports["server.api.config.newop: create based op"] = function(test){
 		requires:{"./db":{
 							save:function(col_str, doc, ret_handler){
 								
-								test.equal(col_str,"docs");	
-															
-								test.equal( doc.test, myparams.doc.test );
-								test.equal( doc.uid, myparams.uid );
-								//beacause init.rcpts is null the initial rcpts list is [uid]
-								test.deepEqual( doc.rcpts, [myparams.uid]);
-								
-								doc._id="50187f71556efcbb25000001"
-								ret_handler(null,doc);	
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");	
+																
+									test.equal( doc.test, myparams.doc.test );
+									test.equal( doc.uid, myparams.uid );
+									//beacause init.rcpts is null the initial rcpts list is [uid]
+									test.deepEqual( doc.rcpts, [myparams.uid]);
+									
+									doc._id="50187f71556efcbb25000001"
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									ret_handler(null);
+								}	
 							}
 		}}
 	});
@@ -1407,7 +1437,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 		test.ok(flag);
 		test.equal(err,undefined);
 		test.notEqual(val, undefined)
-		test.expect(12);
+		test.expect(14);
 		test.done();	
 	});
 					

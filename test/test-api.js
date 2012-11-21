@@ -158,9 +158,11 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 							save:function(col_str,doc,ret_handler){
 																
 								
-								//this function is not reached
+								//First time not reached, second time executed twice.
 								//save document
-								doc._id = "50187f71556efcbb25000002";
+								if(col_str == "docs")								
+									doc._id = "50187f71556efcbb25000002";								
+										
 								ret_handler(null,doc);	
 							}
 						 }					 
@@ -183,7 +185,7 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																							
-								ret_handler(null,[criteria]);
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./api":api,
@@ -272,22 +274,27 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
 																
-								
-								test.equal( col_str, "docs" );								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-								
-								//because init.rcpts is null the initial rcpts list is [uid]
-								test.deepEqual( doc.rcpts, [params.uid]);
-								
-								test.notEqual(doc.ctime, undefined);
-								test.equal(typeof doc.ctime, "number");	
-								test.equal(doc.catalog,"docs");
-								
-								doc._id = "50187f71556efcbb25000002";										
-								//save doc to db...
-								
-								ret_handler(null,doc);
+								if(col_str == "docs"){
+									test.equal( col_str, "docs" );								
+									test.equal( doc.test, params.doc.test );
+									test.equal( doc.uid, params.uid );
+									
+									//because init.rcpts is null the initial rcpts list is [uid]
+									test.deepEqual( doc.rcpts, [params.uid]);
+									
+									test.notEqual(doc.ctime, undefined);
+									test.equal(typeof doc.ctime, "number");	
+									test.equal(doc.catalog,"docs");
+									
+									doc._id = "50187f71556efcbb25000002";										
+									//save doc to db...
+									
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str, "users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000002"]});
+									ret_handler(null);
+								}
 																								
 							}
 						 }					 
@@ -310,7 +317,7 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																							
-								ret_handler(null,[criteria]);
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./api":api,
@@ -330,7 +337,7 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog"] = fu
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(10);
+		test.expect(12);
 		test.done();			
 	});
 		
@@ -346,7 +353,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
 																
-								
+								if(col_str == "dummy"){
 								test.equal( col_str, "dummy" );								
 								test.equal( doc.test, params.doc.test );
 								test.equal( doc.uid, params.uid );
@@ -362,6 +369,11 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 								//save doc to db...
 								
 								ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000002"]});
+									ret_handler(null);
+								}
 																								
 							}
 						 }					 
@@ -384,7 +396,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																							
-								ret_handler(null,[criteria]);
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./api":api,
@@ -403,7 +415,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog"] = f
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(10);
+		test.expect(12);
 		test.done();			
 	});	    
 	
@@ -419,21 +431,26 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
 																
-								
-								test.equal( col_str, "dummy" );								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-																
-								test.deepEqual( doc.rcpts, [620793114, 620793115]);
-								
-								test.notEqual(doc.ctime, undefined);
-								test.equal(typeof doc.ctime, "number");	
-								test.equal(doc.catalog,"dummy");
-								
-								doc._id = "50187f71556efcbb25000002";										
-								//save doc to db...
-								
-								ret_handler(null,doc);
+								if(col_str == "dummy"){
+									test.equal( col_str, "dummy" );								
+									test.equal( doc.test, params.doc.test );
+									test.equal( doc.uid, params.uid );
+																	
+									test.deepEqual( doc.rcpts, [620793114, 620793115]);
+									
+									test.notEqual(doc.ctime, undefined);
+									test.equal(typeof doc.ctime, "number");	
+									test.equal(doc.catalog,"dummy");
+									
+									doc._id = "50187f71556efcbb25000002";										
+									//save doc to db...
+									
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000002"]});
+									ret_handler(null);
+								}
 																								
 							}
 						 }					 
@@ -457,7 +474,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																							
-								ret_handler(null,[criteria]);
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./api":api,
@@ -481,7 +498,7 @@ exports["api.remote.create: valid params, non init.rcpts, explicit catalog, noti
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(10);
+		test.expect(12);
 		test.done();			
 	});
 	
@@ -497,21 +514,26 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog, notif
 		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
 																
-								
-								test.equal( col_str, "docs" );								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-																
-								test.equal( doc.rcpts, undefined);
-								
-								test.notEqual(doc.ctime, undefined);
-								test.equal(typeof doc.ctime, "number");	
-								test.equal(doc.catalog,"docs");
-								
-								doc._id = "50187f71556efcbb25000002";										
-								//save doc to db...
-								
-								ret_handler(null,doc);
+								if(col_str == "docs"){
+									test.equal( col_str, "docs" );								
+									test.equal( doc.test, params.doc.test );
+									test.equal( doc.uid, params.uid );
+																	
+									test.equal( doc.rcpts, undefined);
+									
+									test.notEqual(doc.ctime, undefined);
+									test.equal(typeof doc.ctime, "number");	
+									test.equal(doc.catalog,"docs");
+									
+									doc._id = "50187f71556efcbb25000002";										
+									//save doc to db...
+									
+									ret_handler(null,doc);
+								}else if( col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000002"]});
+									ret_handler(null);
+								}
 																								
 							}
 						 }					 
@@ -535,7 +557,7 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog, notif
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																							
-								ret_handler(null,[criteria]);
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./api":api,
@@ -555,7 +577,7 @@ exports["api.remote.create: valid params, non init.rcpts, default catalog, notif
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(10);
+		test.expect(12);
 		test.done();			
 	});
 				
@@ -571,22 +593,27 @@ exports["api.remote.create: valid params, non init.rcpts, added catalog"] = func
 		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
 																
-								
-								test.equal( col_str, "dummy" );								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-								
-								//because init.rcpts is null the initial rcpts list is [uid]
-								test.deepEqual( doc.rcpts, [620793114]);
-								
-								test.notEqual(doc.ctime, undefined);
-								test.equal(typeof doc.ctime, "number");	
-								test.equal(doc.catalog,"dummy");
-								
-								doc._id = "50187f71556efcbb25000002";										
-								//save doc to db...
-								
-								ret_handler(null,doc);
+								if(col_str == "dummy"){
+									test.equal( col_str, "dummy" );								
+									test.equal( doc.test, params.doc.test );
+									test.equal( doc.uid, params.uid );
+									
+									//because init.rcpts is null the initial rcpts list is [uid]
+									test.deepEqual( doc.rcpts, [620793114]);
+									
+									test.notEqual(doc.ctime, undefined);
+									test.equal(typeof doc.ctime, "number");	
+									test.equal(doc.catalog,"dummy");
+									
+									doc._id = "50187f71556efcbb25000002";										
+									//save doc to db...
+									
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000002"]});
+									ret_handler(null);
+								}
 																								
 							}
 						 }					 
@@ -610,7 +637,7 @@ exports["api.remote.create: valid params, non init.rcpts, added catalog"] = func
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																							
-								ret_handler(null,[criteria]);
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./api":api,
@@ -630,7 +657,7 @@ exports["api.remote.create: valid params, non init.rcpts, added catalog"] = func
 		test.ok(flag);				
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(10);
+		test.expect(12);
 		test.done();			
 	});	
 	
@@ -647,22 +674,27 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 		requires:{"./db":{							
 							save:function(col_str,doc,ret_handler){
 																
-								
-								test.equal( col_str, "dummy" );								
-								test.equal( doc.test, params.doc.test );
-								test.equal( doc.uid, params.uid );
-								
-								//because init.rcpts is null the initial rcpts list is [uid]
-								test.deepEqual( doc.rcpts, [620793114,620793115]);
-								
-								test.notEqual(doc.ctime, undefined);
-								test.equal(typeof doc.ctime, "number");	
-								test.equal(doc.catalog,"dummy");
-								
-								doc._id = "50187f71556efcbb25000002";										
-								//save doc to db...
-								
-								ret_handler(null,doc);
+								if(col_str == "dummy"){
+									test.equal( col_str, "dummy" );								
+									test.equal( doc.test, params.doc.test );
+									test.equal( doc.uid, params.uid );
+									
+									//because init.rcpts is null the initial rcpts list is [uid]
+									test.deepEqual( doc.rcpts, [620793114,620793115]);
+									
+									test.notEqual(doc.ctime, undefined);
+									test.equal(typeof doc.ctime, "number");	
+									test.equal(doc.catalog,"dummy");
+									
+									doc._id = "50187f71556efcbb25000002";										
+									//save doc to db...
+									
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{wids:["50187f71556efcbb25000002"]});
+									ret_handler(null);
+								}
 																								
 							}
 						 }					 
@@ -693,7 +725,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																							
-								ret_handler(null,[criteria]);
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./api":api,
@@ -718,7 +750,7 @@ exports["api.remote.create: valid params, init.rcpts async, added catalog, ev_ap
 		test.ok(flag);				
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(13);		
+		test.expect(15);		
 		test.done();			
 	});
 		
@@ -1288,6 +1320,10 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 								},10);									
 																
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																							
+								ret_handler(null,[{wids:["50187f71556efcbb25000001"]}]);
 							}							
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}}				 		  
@@ -3003,6 +3039,10 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 									ret_handler(null,dbdocs[id_str]);
 								else
 									ret_handler(null,null);								
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}} 
@@ -3077,6 +3117,10 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 								},50);
 																
+							},
+							criteria:function(col_str,criteria,order,ret_handler){
+																															
+								ret_handler(null,[{wids:[]}]);
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
