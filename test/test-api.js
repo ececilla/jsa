@@ -977,25 +977,10 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module for join procedure							
-							save:function(col_str,doc,ret_handler){
-								
-								if(col_str == "docs"){							
-								
-									test.equal(col_str,"docs");
-									test.deepEqual(doc.rcpts, [620793115, 620793117, 620793114]);
-																	
-									//save doc to db...returns with _id:12345
-									setTimeout(function(){//100ms delay saving document
-										
-										ret_handler(null,doc);
-									},100);	
-								}else if(col_str == "users"){
-									console.log("usersssssssss");
-								}
-							}
+							
 		}}
 	});
-	var dbusers = {620793114:{wids:["50187f71556efcbb25000001"]}, 620793117:{wids:[]}};
+	var dbusers = {620793114:{uid:620793114,wids:[]}, 620793117:{uid:620793117,wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -1008,17 +993,29 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 							},
 							save:function(col_str,doc,ret_handler){
 															
-								//Not executed because join saves document itself
-								flag = 0;
-								ret_handler();	
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");
+									test.deepEqual(doc.rcpts, [620793115, 620793117, 620793114]);
+																	
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
+									ret_handler(null);
+								}
 							},
 							criteria:function(col_str,criteria,order,ret_handler){
 																								
 								test.equal(col_str,"users");
 								if(criteria.uid == 620793114)
-									test.deepEqual(dbusers["620793114"].wids,["50187f71556efcbb25000001"]);
+									test.deepEqual(dbusers["620793114"].wids,[]);
 								else if(criteria.uid == 620793117)
-									test.deepEqual(dbusers["620793117"].wids,[]);
+									test.deepEqual(dbusers["620793117"].wids,["50187f71556efcbb25000001"]);
 																	
 								ret_handler(null,[dbusers["" + criteria.uid]]);
 							}
@@ -1061,7 +1058,7 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 				test.equal(err,null);		
 				test.equal(ctx.retval,1);
 				
-				test.expect(21);
+				test.expect(27);
 				test.done();
 				next();
 				

@@ -605,13 +605,19 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
-					test.equal(col_str,"docs");																								
-					test.deepEqual( doc.rcpts, [620793115, 620793114]);
-										
-					setTimeout(function(){
-						
-						ret_handler(null,doc);
-					},50);	
+					if(col_str == "docs"){
+						test.equal(col_str,"docs");																								
+						test.deepEqual( doc.rcpts, [620793115, 620793114]);
+											
+						setTimeout(function(){
+							
+							ret_handler(null,doc);
+						},50);	
+					}else if(col_str == "users"){
+						test.equal(col_str,"users");
+						test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+						ret_handler(null);						
+					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
@@ -662,7 +668,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(12);		
+		test.expect(14);		
 		test.done();
 	});
 						
