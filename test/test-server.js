@@ -1284,19 +1284,16 @@ exports["server.api.config.newop: invocation"] = function(test){
 
 
 exports["server.api.config.newop: event custom params"] = function(test){
-	
-	var nevents = 0;
+		
 	var rcpts = [5,6,7,8];
 	var myparams = {foo:1, bar:"test"};
 	var db = {
 				
 		save:function(col_str, msg, ret_handler){
-			
-					
-			test.equal(msg.ev_rcpt, rcpts[nevents++] );
+										
 			test.equal(col_str,"events");																
-			test.equal(msg.ev_msg.ev_type, "ev_api_dummy");
-			test.deepEqual( msg.ev_msg.ev_data, {foo:1, bar:"test",catalog:"docs"});
+			test.equal(msg.ev_type, "ev_api_dummy");
+			test.deepEqual( msg.ev_data, {foo:1, bar:"test",catalog:"docs"});
 			
 			//save doc to db & return object					
 			ret_handler(null,msg);	
@@ -1331,8 +1328,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	
 	//eq.on is firstly executed before this event handler.	
 	server.api.events.on("ev_api_dummy", function(msg, rcpts){
-				
-		test.equal(nevents,4);
+						
 		test.deepEqual(msg.ev_ctx.payload,msg.ev_ctx.params);
 		test.deepEqual(rcpts,[5,6,7,8]);				
 					
@@ -1344,7 +1340,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 		
 		test.equal(err,null);
 		test.equal(ctx.retval,1);
-		test.expect(24);
+		test.expect(10);
 		test.done();		
 	});
 			
