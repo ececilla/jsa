@@ -118,16 +118,17 @@ exports["evqueue.remote.subscribe: invocation with tstamp"] = function(test){
 								criteria: function(col_str, criteria, order_field, ret_handler){
 									
 									if(col_str == "events"){
+										
 										test.equal(col_str, "events");
 										test.deepEqual( criteria, {"ev_data.wid":"50b4281ebb0d0db239000002", ev_tstamp:{$gt:79487593593}} );
-										ret_handler(null,[]);
-									}else if(col_str == "users"){
+										ret_handler(null,[{ev_type:"ev_api_join", ev_tstamp:79487592461, ev_data:{uid:620793117, wid:"50b4281ebb0d0db239000002"}}]);
+									}else if(col_str == "users"){//user 620793114 is related to doc 50b4281ebb0d0db239000002
+										
 										test.equal(col_str, "users");
 										test.deepEqual(criteria,{uid:620793114});
 										ret_handler(null,[{wids:["50b4281ebb0d0db239000002"]}]);
 									}
-									
-																																																		
+																																																											
 								}	
 					}
 		}
@@ -139,6 +140,11 @@ exports["evqueue.remote.subscribe: invocation with tstamp"] = function(test){
 						on:function(){ flags[0] = 1;},
 						connection:{
 							on:function(){ flags[1] = 1; }
+						},
+						write: function(str){
+							
+							var json_obj = JSON.parse(str);
+							test.deepEqual(json_obj,{ev_type:"ev_api_join", ev_tstamp:79487592461, ev_data:{uid:620793117, wid:"50b4281ebb0d0db239000002"}});
 						}
 				    }; 
 				 
@@ -148,7 +154,7 @@ exports["evqueue.remote.subscribe: invocation with tstamp"] = function(test){
 	
 	test.deepEqual( eq.get_subscription(params.uid), {http:http_resp});
 	
-	test.expect(7);	
+	test.expect(8);	
 	test.done();				
 }
 
