@@ -51,6 +51,11 @@ exports["module exported functions"] = function(test){
 		
 	test.notEqual( server.eq.events.on, undefined );	
 	test.notEqual( server.db, undefined );
+	test.notEqual( server.db.select, undefined);
+	test.notEqual( server.db.save, undefined);
+	test.notEqual( server.db.criteria, undefined);
+	test.notEqual( server.db.connect, undefined);
+	test.notEqual( server.db.driver, undefined);
 	
 	test.notEqual( server.config.system, undefined);
 	test.notEqual( server.config.add_output_transformer, undefined );
@@ -74,7 +79,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(41);	
+	test.expect(46);	
 	test.done();
 }
 
