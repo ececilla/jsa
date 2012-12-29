@@ -1,7 +1,7 @@
 var sandbox = require("sandboxed-module");
 
 
-exports["module exported function"] = function(test){
+exports["module exported functions"] = function(test){
 	
 	var sb = require("../lib/sandbox");
 	test.notEqual(sb.add_constraint_post,undefined);
@@ -34,21 +34,21 @@ exports["sandbox.add_constraint_post: non satisfied constraints"] = function(tes
 		"./db":{
 							select: function(col_str, id_str, ret_handler){
 										
-								test.equal(col_str,"docs");
-								test.equal(id_str,"5074b135d03a0ac443000001");
-								test.notEqual(dbdocs[id_str], undefined);
-								
-								ret_handler(null,dbdocs[id_str]);		
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443000001");
+									test.notEqual(dbdocs[id_str], undefined);
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							},
 							save: function(col_str, doc,ret_handler){
 								
 								flags[0] = 0;								
 								ret_handler(null,{wid:"5074b135d03a0ac443000001",reach:2});
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -169,11 +169,16 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 		"./db":{
 							select: function(col_str, id_str, ret_handler){
 										
-								test.equal(col_str,"docs");
-								test.equal(id_str,"5074b135d03a0ac443000001");
-								test.notEqual(dbdocs[id_str], undefined);
-								
-								ret_handler(null,dbdocs[id_str]);		
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443000001");
+									test.notEqual(dbdocs[id_str], undefined);
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							},
 							save: function(col_str, doc,ret_handler){
 								
@@ -183,14 +188,9 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:[]});
+									test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -257,21 +257,22 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 		"./db":{
 							select: function(col_str, id_str, ret_handler){
 										
-								test.equal(col_str,"docs");
-								test.equal(id_str,"5074b135d03a0ac443000001");
-								test.notEqual(dbdocs[id_str], undefined);
-								
-								ret_handler(null,dbdocs[id_str]);		
+								if(col_str == "docs"){
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443000001");
+									test.notEqual(dbdocs[id_str], undefined);
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							},
 							save: function(col_str, doc,ret_handler){
 								
 								flag = 0;								
 								ret_handler(null,doc);
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ dummy:function( ctx, ret_handler){
@@ -336,14 +337,15 @@ exports["sandbox.add_constraint_post: wid not found"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){
 										
-								test.equal(col_str,"docs");
-								test.equal(id_str,"5074b135d03a0ac443000002");								
-								
-								ret_handler(null,dbdocs[id_str]);//null		
-							},
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443000002");								
+									
+									ret_handler(null,dbdocs[id_str]);//null
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ join:function( params, doc, ret_handler){
@@ -394,8 +396,12 @@ exports["sandbox.add_constraint_post: no wid, uid"] = function(test){
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
 							select: function(col_str, id_str, ret_handler){
-										
-								flag = 0;		
+								
+								if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}else
+									flag = 0;												
 							},
 				
 							criteria:function(col_str,criteria,order,ret_handler){
@@ -406,7 +412,7 @@ exports["sandbox.add_constraint_post: no wid, uid"] = function(test){
 		"./api":{remote:{ create:function( ctx, ret_handler){
 							 
 							 test.deepEqual(ctx.doc, {});
-							 test.deepEqual(ctx.user,{wids:[]});
+							 test.deepEqual(ctx.user,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 							 test.deepEqual(ctx.params, {uid:620793116,doc:{test:1},catalog:"docs"});
 							 ctx.config.save = 0;
 							 ret_handler(null, {wid:"5074b135d03a0ac443000001"} );
@@ -448,9 +454,14 @@ exports["sandbox.add_constraint_post: wid, no uid"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){
 										
-								test.equal(col_str,"docs");
-								test.equal(id_str,"5074b135d03a0ac443000001");
-								ret_handler(null,dbdocs["5074b135d03a0ac443000001"]);		
+								if( col_str == "docs"){
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443000001");
+									ret_handler(null,dbdocs["5074b135d03a0ac443000001"]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							},
 				
 							criteria:function(col_str,criteria,order,ret_handler){
@@ -504,13 +515,12 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
 							select: function(col_str, id_str, ret_handler){
-										
-								flags[0] = 0;		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								
+								if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}else		
+									flags[0] = 0;		
 							}
 		},
 		"./api":{remote:{ create:function( ctx, ret_handler){
@@ -530,7 +540,7 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 				
 		test.deepEqual(ctx.params, {uid:620793116,doc:"not an object",catalog:"docs"});
 		test.deepEqual(ctx.doc, {});
-		test.deepEqual(ctx.user,{wids:[]});
+		test.deepEqual(ctx.user,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 		
 		if(!ctx.params || !(ctx.params.uid && ctx.params.doc ) ){
 						
@@ -568,12 +578,13 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if( col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -611,12 +622,12 @@ exports["sandbox.add_constraint_post: constraints.is_owner"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs"){	
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -652,12 +663,13 @@ exports["sandbox.add_constraint_post: constraints.has_joined"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -692,12 +704,13 @@ exports["sandbox.add_constraint_post: constraints.not_system_catalog"] = functio
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "timers"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -732,12 +745,12 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "dummy"){	
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -778,12 +791,13 @@ exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test)
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ join:function( ctx, ret_handler){
@@ -819,12 +833,13 @@ exports["sandbox.add_constraint_post: constraints.is_reserved"] = function(test)
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs"){	
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ set:function( ctx, ret_handler){
@@ -860,12 +875,13 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if( col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ set:function( ctx, ret_handler){
@@ -902,12 +918,13 @@ exports["sandbox.add_constraint_post: constraints.field_type object"] = function
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ set:function( ctx, ret_handler){
@@ -944,12 +961,13 @@ exports["sandbox.add_constraint_post: constraints.field_type array"] = function(
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if( col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ push:function( ctx, ret_handler){
@@ -987,12 +1005,13 @@ exports["sandbox.add_constraint_post: constraints.is_required"] = function(test)
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ set:function( ctx, ret_handler){
@@ -1041,10 +1060,14 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								test.equal(col_str,"docs");
-								test.equal(id_str,"5074b135d03a0ac443000001");
-								
-								ret_handler(null,dbdocs[id_str]);		
+								if( col_str == "docs"){
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443000001");									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});
+								}		
 							},
 							save: function(col_str, doc,ret_handler){
 																								
@@ -1053,14 +1076,9 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 									ret_handler(null,{doc:doc});
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:[]});
+									test.deepEqual(doc,{_id:620793116, name:"enric",wids:["5074b135d03a0ac443000001"]});
 									ret_handler(null);
 								}
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":api,
@@ -1097,12 +1115,7 @@ exports["sandbox.add_constraint_post: method not found"] = function(test){
 	var api = require("../lib/api");	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 			"./api":api,
-			"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{foooooo:1}}}},
-			"./db":{
-					criteria:function(col_str,criteria,order,ret_handler){
-																													
-						ret_handler(null,[{wids:[]}]);
-					}}
+			"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{foooooo:1}}}},			
 	}});				
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 		
@@ -1125,12 +1138,10 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs")
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});	
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1180,12 +1191,10 @@ exports["sandbox.add_plugout: custom plugout, ctx.retval interception"] = functi
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs")
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});			
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1236,8 +1245,12 @@ exports["sandbox.add_plugout: custom plugout, ctx.doc interception"] = function(
 							select: function(col_str, id_str, ret_handler){																																		
 								
 								//load document
-								test.equal(dbdocs["5074b135d03a0ac443000001"].test, "test");
-								ret_handler(null,dbdocs[id_str]);		
+								if(col_str == "docs"){
+									test.equal(dbdocs["5074b135d03a0ac443000001"].test, "test");
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});	
+																										
 							},
 							save: function(col_str, doc, ret_handler){
 								
@@ -1248,14 +1261,9 @@ exports["sandbox.add_plugout: custom plugout, ctx.doc interception"] = function(
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:[]});
+									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["5074b135d03a0ac443000001"]});
 									ret_handler(null);
 								}
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1318,9 +1326,13 @@ exports["sandbox.add_plugout: custom plugout, ctx.payload interception"] = funct
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
+								
 								//load document
-								test.equal(dbdocs["5074b135d03a0ac443000001"].test, "test");
-								ret_handler(null,dbdocs[id_str]);		
+								if(col_str == "docs"){
+									test.equal(dbdocs["5074b135d03a0ac443000001"].test, "test");
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});		
 							},
 							save: function(col_str, doc, ret_handler){
 								
@@ -1331,14 +1343,9 @@ exports["sandbox.add_plugout: custom plugout, ctx.payload interception"] = funct
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:[]});
+									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["5074b135d03a0ac443000001"]});
 									ret_handler(null);
 								}
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":api,
@@ -1382,18 +1389,16 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if(col_str == "docs"){
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 							
 							 flag = 1;
-							 test.deepEqual(ctx.user,{wids:[]});
+							 test.deepEqual(ctx.user,{_id:620793115, name:"enric",wids:["5074b135d03a0ac443000001"]});
 							 ctx.config.save = 0;
 							 test.deepEqual(ctx.params.rcpts,[620793115]);							 
 							 ret_handler( null, 1 );
@@ -1432,12 +1437,10 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if( col_str == "docs")
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1482,12 +1485,10 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if( col_str == "docs" )
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1531,12 +1532,10 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if( col_str == "docs" )
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1579,12 +1578,10 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform overwrite"] = functio
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if( col_str == "docs")
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -1621,18 +1618,16 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform overwrite"] = functio
 exports["sandbox.add_plugin: sandbox.plugins.external_config"] = function(test){
 	
 	var  dbdocs = {};
-		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115, rcpts:[620793115] };
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", catalog:"dummy", uid:620793115, rcpts:[620793115] };
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
 							select: function(col_str, id_str, ret_handler){																																		
 								
-								ret_handler(null,dbdocs[id_str]);		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
+								if( col_str == "dummy")
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});			
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
