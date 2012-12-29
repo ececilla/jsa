@@ -199,20 +199,26 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}	
 							}
+							
 		}}
 	});	
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
 				"./api":api,
-				"./db": {criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
-						}},
+				"./db": {
+							select: function(col_str, id_str, ret_handler){
+																														
+								if(col_str == "users"){
+																																	
+									ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+								}							
+							}
+					},
 				"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}}
 		
 	});
@@ -275,10 +281,14 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 		requires:{
 					"./api":api,
 					"./db":{
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
-							}},
+								select: function(col_str, id_str, ret_handler){
+																														
+									if(col_str == "users"){
+																																		
+										ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+									}							
+							}
+							},
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 						
 				}
@@ -321,7 +331,7 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}	
 							}
@@ -332,10 +342,14 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 		requires:{
 					"./api":api,
 					"./db":{
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
-							}},
+								select: function(col_str, id_str, ret_handler){
+																														
+									if(col_str == "users"){
+																																		
+										ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+									}							
+								}
+							},
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 					}
 		
@@ -395,7 +409,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}	
 							}
@@ -406,10 +420,14 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 		requires:{
 					"./api":api,
 					"./db":{
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
-							}},
+								select: function(col_str, id_str, ret_handler){
+																														
+									if(col_str == "users"){
+																																		
+										ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+									}							
+								}
+							},
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 				}
 		
@@ -477,7 +495,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 									ret_handler(null,doc);	
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:["50187f71556efcbb25000666"]});
+									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000666"]});
 									ret_handler(null);
 								}
 							},
@@ -500,10 +518,14 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 		requires:{
 					"./api":api,
 					"./db":{
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
-							}},
+								select: function(col_str, id_str, ret_handler){
+																														
+									if(col_str == "users"){
+																																		
+										ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+									}							
+								}
+							},
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 				}
 	});	
@@ -569,18 +591,18 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 				
 				select:function(col_str, id_str, ret_handler){
 					
-					test.equal(col_str, "docs");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					
-					setTimeout(function(){//50ms delay retrieving document
+					if( col_str == "docs"){
+						test.equal(col_str, "docs");
+						test.equal(id_str, "50187f71556efcbb25000001");
 						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				},
-				
-				criteria:function(col_str,criteria,order,ret_handler){
-																												
-					ret_handler(null,[{wids:[]}]);
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}else if( col_str == "users"){
+						
+						ret_handler(null,{_id:id_str, name:"enric",wids:[]});
+					}
 				}
 	};
 		
@@ -644,25 +666,25 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 						},50);	
 					}else if(col_str == "users"){
 						test.equal(col_str,"users");
-						test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+						test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
 						ret_handler(null);						
 					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
 					
-					test.equal(col_str, "docs");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					
-					setTimeout(function(){//50ms delay retrieving document
+					if( col_str == "docs"){
+						test.equal(col_str, "docs");
+						test.equal(id_str, "50187f71556efcbb25000001");
 						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				},
-				
-				criteria:function(col_str,criteria,order,ret_handler){
-																												
-					ret_handler(null,[{wids:[]}]);
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}else if( col_str == "users"){
+						
+						ret_handler(null,{_id:id_str, name:"enric",wids:[]});
+					}
 				}
 	};
 	   
@@ -726,25 +748,26 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 					}else if( col_str == "users"){
 						
 						test.equal(col_str,"users");
-						test.deepEqual(doc,{wids:[]});
+						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000555"]});
 						ret_handler(null);	
 					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
 					
-					test.equal(col_str, "docs");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					
-					setTimeout(function(){//50ms delay retrieving document
+					if( col_str == "docs"){
 						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				},
-				
-				criteria:function(col_str,criteria,order,ret_handler){
-																												
-					ret_handler(null,[{wids:["50187f71556efcbb25000001"]}]);
+						test.equal(col_str, "docs");
+						test.equal(id_str, "50187f71556efcbb25000001");
+						
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}else if( col_str == "users"){
+						
+						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001","50187f71556efcbb25000555"]});
+					}
 				}
 	};
 	   
@@ -809,25 +832,25 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 					}else if(col_str == "users"){
 						
 						test.equal(col_str,"users");
-						test.deepEqual(doc,{wids:[]});
+						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 						ret_handler(null);
 					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
 					
-					test.equal(col_str, "dummy");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					
-					setTimeout(function(){//50ms delay retrieving document
+					if( col_str == "dummy"){
+						test.equal(col_str, "dummy");
+						test.equal(id_str, "50187f71556efcbb25000001");
 						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				},
-				
-				criteria:function(col_str,criteria,order,ret_handler){
-																												
-					ret_handler(null,[{wids:[]}]);
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}else if( col_str == "users"){
+						
+						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+					}
 				}
 	};
 	   
@@ -893,26 +916,26 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 					}else if(col_str == "users"){
 						
 						test.equal(col_str,"users");
-						test.deepEqual(doc,{wids:[]});
+						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 						ret_handler(null);
 					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
 					
-					test.equal(col_str, "dummy");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					test.equal(dbdocs[id_str].a,1);
-					
-					setTimeout(function(){//50ms delay retrieving document
+					if( col_str == "dummy"){
+						test.equal(col_str, "dummy");
+						test.equal(id_str, "50187f71556efcbb25000001");
+						test.equal(dbdocs[id_str].a,1);
 						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				},
-				
-				criteria:function(col_str,criteria,order,ret_handler){
-																												
-					ret_handler(null,[{wids:[]}]);
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}else if( col_str == "users"){
+						
+						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+					}
 				}
 	};
 	   
@@ -975,26 +998,26 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 						},50);	
 					}else if(col_str == "users"){
 						test.equal(col_str,"users");
-						test.deepEqual(doc,{wids:[]});
+						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 						ret_handler(null);
 					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
 					
-					test.equal(col_str, "dummy");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					test.deepEqual(dbdocs[id_str].a,[4,6]);
-					
-					setTimeout(function(){//50ms delay retrieving document
+					if( col_str == "dummy"){
+						test.equal(col_str, "dummy");
+						test.equal(id_str, "50187f71556efcbb25000001");
+						test.deepEqual(dbdocs[id_str].a,[4,6]);
 						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				},
-				
-				criteria:function(col_str,criteria,order,ret_handler){
-																												
-					ret_handler(null,[{wids:[]}]);
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}else if( col_str == "users"){
+						
+						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+					}
 				}
 	};
 	   
@@ -1061,26 +1084,26 @@ exports["server.api.pop: internal events, explicit catalog"] = function(test){
 						},50);	
 					}else if(col_str == "users"){
 						test.equal(col_str,"users");
-						test.deepEqual(doc,{wids:[]});
+						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 						ret_handler(null);
 					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
 					
-					test.equal(col_str, "dummy");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					test.deepEqual(dbdocs[id_str].a,[-4,"foo",6]);
-					
-					setTimeout(function(){//50ms delay retrieving document
+					if(col_str == "dummy"){
+						test.equal(col_str, "dummy");
+						test.equal(id_str, "50187f71556efcbb25000001");
+						test.deepEqual(dbdocs[id_str].a,[-4,"foo",6]);
 						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				},
-				
-				criteria:function(col_str,criteria,order,ret_handler){
-																												
-					ret_handler(null,[{wids:[]}]);
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}else if( col_str == "users"){
+						
+						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+					}
 				}
 	};
 	   
@@ -1143,26 +1166,26 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 						},50);	
 					}else if(col_str == "users"){
 						test.equal(col_str,"users");
-						test.deepEqual(doc,{wids:[]});
+						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 						ret_handler(null);
 					}
 				},
 				
 				select:function(col_str, id_str, ret_handler){
 					
-					test.equal(col_str, "dummy");
-					test.equal(id_str, "50187f71556efcbb25000001");
-					test.deepEqual(dbdocs[id_str].a,[-4,"foo",6]);
-					
-					setTimeout(function(){//50ms delay retrieving document
+					if( col_str == "dummy"){
+						test.equal(col_str, "dummy");
+						test.equal(id_str, "50187f71556efcbb25000001");
+						test.deepEqual(dbdocs[id_str].a,[-4,"foo",6]);
 						
-						ret_handler(null,dbdocs[id_str]);
-					},50);	
-				},
-				
-				criteria:function(col_str,criteria,order,ret_handler){
-																												
-					ret_handler(null,[{wids:[]}]);
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}else if( col_str == "users"){
+						
+						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+					}
 				}
 	};
 	   
@@ -1373,7 +1396,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["66667f71556efcbb25000008","50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}	
 							}
@@ -1384,10 +1407,14 @@ exports["server.api.config.newop: create based op"] = function(test){
 		requires:{	"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1, newop1:1}}}},
 				 	"./db":{				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
-							}}
+								select:function(col_str, id_str, ret_handler){
+					
+									if( col_str == "users"){
+										
+										ret_handler(null,{_id:id_str, name:"enric",wids:["66667f71556efcbb25000008"]});
+									}
+								}
+							}
 				 }
 	});
 	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
