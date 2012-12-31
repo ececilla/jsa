@@ -79,7 +79,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(46);	
+	test.expect(45);	
 	test.done();
 }
 
@@ -175,6 +175,77 @@ exports["server.api.events.on: custom api events"] = function(test){
 	});
 	
 	server.api.events.emit("ev_api_dummyop", ctx, rcpts );	
+	
+}
+
+exports["server.api.register: internal api events"] = function(test){
+	
+	var params = {user:{name:"test", email:"test@test.com"}};
+	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for register procedure
+							save:function(col_str, user, ret_handler){
+																							
+								test.equal(col_str,"users");
+								test.equal(user.name,"test");
+								test.equal(user.email,"test@test.com");
+								test.deepEqual(user.wids,[]);
+								test.equal(typeof user.ctime, "number");
+								//test.deepEqual(user,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+								user._id = "50187f71556efcbb25000001";
+								ret_handler(null,user);
+									
+							}							
+		}}
+	});	
+	
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+				"./api":api,
+				"./db": {
+							select: function(col_str, id_str, ret_handler){
+								
+								//no wid, no uid, so no object is loaded from db
+								flag = 0;																																			
+							}
+					},
+				"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{register:1}}}}}
+		
+	});	
+				
+	var server = sandbox.require("../lib/server",{
+		requires:{"./sandbox":sb,"./api":api}
+		
+	});
+	
+	server.config.app = {status:1};
+	
+	//two ev_api_register handlers.				
+	server.api.events
+				.on("ev_api_register", function(msg){
+							
+					test.equal(msg.ev_type,"ev_api_register");					
+					test.equal(msg.ev_ctx.params.catalog, "users");
+					test.equal(msg.ev_ctx.doc.uid, "50187f71556efcbb25000001");									
+					
+				})				
+				.on("ev_api_register",function(msg){
+										
+					test.equal(msg.ev_type,"ev_api_register");
+					
+				});
+	
+	server.api.register(params, function(err,val){
+				
+		test.ok(flag);
+		test.equal(err,undefined);
+		test.notEqual(val, undefined);								
+				
+		test.expect(12);		
+		test.done();
+	});
+					
 	
 }
 
