@@ -24,6 +24,170 @@ exports["module exported functions"] = function(test){
 	test.done();
 }
 
+exports["api.remote.register: missing params"] = function(test){
+				
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							save:function(col_str, user, ret_handler){
+																
+								//Not executed								
+								user._id = "50187f71556efcbb25000002";
+								ret_handler(null,doc);	
+							}
+						 }					 
+		}
+	});
+	
+	var flag = 1;	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								//Not executed because uid is not provided at register operation.
+								flag = 0;
+								ret_handler();
+															
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because constraint is not satisfied.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{register:1}}}}	 
+		}
+	});
+	sb.add_constraint_pre("register","param_user",sb.constraints.is_required("user"))
+	  .add_constraint_pre("register","user_type",sb.constraints.param_type("user","object"));
+		
+	//user missing
+	var params = {miss_user:{name:"dummy", email:"dummy@foobar.com"}};
+	sb.execute("register", params, function(err,ctx){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-12, message: "user parameter required"});
+		test.expect(2)
+		test.done();
+		
+	});
+ 			
+}
+
+
+exports["api.remote.register: invalid params: user != object"] = function(test){
+				
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							save:function(col_str, user, ret_handler){
+																
+								//Not executed								
+								user._id = "50187f71556efcbb25000002";
+								ret_handler(null,doc);	
+							}
+						 }					 
+		}
+	});
+	
+	var flag = 1;	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								//Not executed because uid is not provided at register operation.
+								flag = 0;
+								ret_handler();
+															
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because constraint is not satisfied.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{register:1}}}}	 
+		}
+	});
+	sb.add_constraint_pre("register","param_user",sb.constraints.is_required("user"))
+	  .add_constraint_pre("register","user_type",sb.constraints.param_type("user","object"));
+		
+	//user missing
+	var params = {user:"wrong type user"};
+	sb.execute("register", params, function(err,ctx){
+		
+		test.ok(flag);		
+		test.deepEqual(err, {code:-11, message: "Wrong parameter type: user not object"});
+		test.expect(2)
+		test.done();
+		
+	});
+ 		
+	
+}
+
+
+exports["api.remote.register: valid params"] = function(test){
+				
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							save:function(col_str, user, ret_handler){
+																
+								//Not executed
+								test.equal(col_str,"users");
+								test.deepEqual(user.wids,[]);
+								test.equal( typeof user.ctime, "number" );
+																
+								user._id = "50187f71556efcbb25000002";
+								ret_handler(null,user);	
+							}
+						 }					 
+		}
+	});
+	
+	var flag = 1;	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								//Not executed because uid is not provided at register operation.
+								flag = 0;
+								ret_handler();
+															
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								//Not executed because constraint is not satisfied.
+								flag = 0;
+								ret_handler();	
+							}
+						 },
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{register:1}}}}	 
+		}
+	});
+	sb.add_constraint_pre("register","param_user",sb.constraints.is_required("user"))
+	  .add_constraint_pre("register","user_type",sb.constraints.param_type("user","object"));
+		
+	//user missing
+	var params = {user:{name:"dummy", email:"dummy@foobar.com", password:"foo"}};
+	sb.execute("register", params, function(err,ctx){
+		
+		test.ok(flag);				
+		test.equal(ctx.retval._id, undefined);
+		test.equal(ctx.retval.wids, undefined);
+		test.equal(ctx.retval.uid,"50187f71556efcbb25000002");
+		test.expect(7);		
+		test.done();
+		
+	});
+ 		
+	
+}
+
+
 exports["api.remote.create: missing params"] = function(test){
 				
 	var api = sandbox.require("../lib/api",{
