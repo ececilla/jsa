@@ -1,4 +1,5 @@
 var sandbox = require("sandboxed-module");
+var querystring = require("querystring");
 
 exports["module exported functions"] = function(test){
 	
@@ -16,7 +17,8 @@ exports["module exported functions"] = function(test){
 exports["endpoint.rpc: incorrect jsonstring"] = function(test){
 	
 	var endpoint = require("../lib/endpoint");
-	var req_str = '{"jsonrpc":"2.1""method":"test","id":123'; //missing ending }
+	var jsonreq_str = '{"jsonrpc":"2.1""method":"test","id":123'; //missing ending }
+	var req_str = querystring.stringify({request:jsonreq_str});
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -38,7 +40,8 @@ exports["endpoint.rpc: incorrect jsonstring"] = function(test){
 exports["endpoint.rpc: incorrect json-rpc version"] = function(test){
 	
 	var endpoint = require("../lib/endpoint");
-	var req_str = '{"jsonrpc":"2.1","method":"test","id":123}';
+	var jsonreq_str = '{"jsonrpc":"2.1","method":"test","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str});	
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -80,7 +83,8 @@ exports["endpoint.rpc: method not available"] = function(test){
 		requires:{"./sandbox":sb } 
 	});
 	
-	var req_str = '{"jsonrpc":"2.0","method":"create","id":123}';
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"create","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str});
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -122,7 +126,8 @@ exports["endpoint.rpc: method not found"] = function(test){
 		requires:{"./sandbox":sb } 
 	});
 	
-	var req_str = '{"jsonrpc":"2.0","method":"nonexisting","id":123}';
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"nonexisting","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str});
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -171,7 +176,8 @@ exports["endpoint.rpc + add_plugin:custom plugin"] = function(test){
 		return  "["+ str_in + "]";
 	});
 	
-	var req_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str});
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -214,7 +220,8 @@ exports["endpoint.rpc: method invocation: with result, no params"] = function(te
 				}
 	});
 	
-	var req_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str});
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -261,7 +268,8 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 	});
 								
 	
-	var req_str = JSON.stringify(req);
+	var jsonreq_str = JSON.stringify(req);
+	var req_str = querystring.stringify({request:jsonreq_str});
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -302,7 +310,8 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 	});
 		
 	
-	var req_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str});
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -346,7 +355,8 @@ exports["endpoint.rpc: method invocation without id"] = function(test){
 	});
 			
 	
-	var req_str = '{"jsonrpc":"2.0","method":"test"}';
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"test"}';
+	var req_str = querystring.stringify({request:jsonreq_str});
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 					
@@ -387,6 +397,7 @@ exports["endpoint.events: subscribe invocation"] = function(test){
 	
 	//json request sent to subscribe to the events channel for uid 620793114
 	var req_str = '{"jsonrpc":"2.0","method":"subscribe", "params":{"uid":620793114}}';
+	
 	var http_resp = {	myhttp:true,
 						writeHead: function(status, header_data){
 						
