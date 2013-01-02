@@ -171,13 +171,22 @@ exports["endpoint.rpc + add_plugin:custom plugin"] = function(test){
 				}
 	});
 			
-	endpoint.add_plugin(function(str_in){
+	endpoint.add_plugin(function(url_data){
+								
+		
+		test.equal(url_data.request,'{"jsonrpc":"2.0","method":"test","id":123}'); 
+		test.equal(url_data.signature,"abcdef");
+		test.equal(url_data.apikey,"50187f71556efcbb25000001");
+		url_data.signature = "uvwxyz";
+	});
+	endpoint.add_plugin(function(url_data){
 						
-		return  "["+ str_in + "]";
+		test.equal(url_data.signature,"uvwxyz");		
+		
 	});
 	
 	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
-	var req_str = querystring.stringify({request:jsonreq_str});
+	var req_str = querystring.stringify({request:jsonreq_str, signature:"abcdef", apikey:"50187f71556efcbb25000001"});	
 	
 	endpoint.rpc( {writeHead: function(status, header_data){
 							
@@ -187,7 +196,58 @@ exports["endpoint.rpc + add_plugin:custom plugin"] = function(test){
 			 		end: function( out_str ){
 			 	
 					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",result:{test:1}, id:"123"},out_obj[0]);								
+					 		test.deepEqual({jsonrpc:"2.0",result:{test:1}, id:"123"},out_obj);								
+							test.done();				 							 	
+					}		
+			} , req_str );
+			
+}
+
+
+exports["endpoint.rpc + add_plugin:custom plugin, error"] = function(test){
+	
+	var api = {	remote:{
+						test: function(ctx, ret_handler){
+							
+							ctx.config.save = 0;								
+							ret_handler(null,{test:1});
+							
+						}}
+			 };
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		
+			}
+	});		
+	
+	var endpoint = sandbox.require("../lib/endpoint",{
+		requires:{	
+					"./sandbox":sb,											 
+				}
+	});
+				
+	endpoint.add_plugin(function(url_data){//Some test logic related with apikey
+		
+		if(url_data.apikey != "00000000000001")						
+			return {code:-32701, message:"Apikey error."};
+		
+	});
+	
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str, signature:"abcdef", apikey:"50187f71556efcbb25000001"});	
+	
+	endpoint.rpc( {writeHead: function(status, header_data){
+							
+							test.equal(status, 400);
+							test.deepEqual(header_data,{"Content-Type":"application/json"});
+			 		},
+			 		end: function( out_str ){
+			 	
+					 		var out_obj = JSON.parse(out_str);
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32701, message:"Apikey error."}, id:null},out_obj);								
 							test.done();				 							 	
 					}		
 			} , req_str );
