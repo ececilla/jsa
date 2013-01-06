@@ -229,9 +229,9 @@ exports["endpoint.rpc + add_plugin:custom plugin, error"] = function(test){
 				}
 	});
 				
-	endpoint.add_plugin(function(url_data){//Some test logic related with apikey
+	endpoint.add_plugin(function(post_data){//Some test logic related with apikey
 		
-		if(url_data.apikey != "00000000000001")						
+		if(post_data.apikey != "00000000000001")						
 			return {code:-32701, message:"Apikey error."};
 		
 	});
