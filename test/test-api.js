@@ -8,14 +8,14 @@ exports["module exported functions"] = function(test){
 		
 	test.notEqual(api.remote,undefined);
 	test.notEqual(api.remote.create,undefined);
+	test.notEqual(api.remote.register,undefined);
 	test.notEqual(api.remote.dispose,undefined);
 	test.notEqual(api.remote.join,undefined);	
 	test.notEqual(api.remote.remove,undefined);
 	test.notEqual(api.remote.set,undefined);
 	test.notEqual(api.remote.push,undefined);
 	test.notEqual(api.remote.pop,undefined);
-	test.notEqual(api.remote.shift,undefined);
-	test.notEqual(api.remote.ack,undefined);
+	test.notEqual(api.remote.shift,undefined);	
 	
 	test.notEqual(api.on,undefined);
 	test.equal(api.rcpts, null);
@@ -3352,6 +3352,54 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 						
 		test.equal(err,null);		
 		test.deepEqual(ctx.retval,{wid:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"});	
+		test.expect(4);	
+		test.done();		
+		
+	});
+		
+	
+}
+
+
+exports["api.remote.get: valid params, existing doc, user catalog, db async"] = function(test){
+	
+	
+	var dbdocs = {users:{}};//users at db
+		dbdocs["users"]["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", name:"enric", b:[4,5,6]};
+		
+				
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"users");
+								test.equal(id_str,"50187f71556efcbb25000001");								
+								
+								setTimeout(function(){ //db 50ms delay retrieving document
+									
+									ret_handler(null,dbdocs[col_str]["50187f71556efcbb25000001"]);
+								},50);
+																
+							}
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
+		}
+	});
+	
+	sb.add_constraint_pre("get","not_system_catalog",sb.constraints.not_system_catalog)	
+	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"))	  	  	    	  
+	  .add_constraint_post("get","exists",sb.constraints.field_exists)
+	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+		
+	
+	var params = {url:"#users/50187f71556efcbb25000001"};
+
+						
+	sb.execute("get", params, function(err,ctx){
+						
+						
+		test.equal(err,null);		
+		test.deepEqual(ctx.retval,{uid:"50187f71556efcbb25000001", name:"enric", b:[4,5,6]});	
 		test.expect(4);	
 		test.done();		
 		
