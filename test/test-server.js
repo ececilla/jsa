@@ -1,5 +1,6 @@
 var sandbox = require("sandboxed-module");
 
+
 exports["module exported functions"] = function(test){
 	
 	var flag = 0		
@@ -57,6 +58,10 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.db.connect, undefined);
 	test.notEqual( server.db.driver, undefined);
 	
+	test.notEqual( server.rpc, undefined);
+	test.notEqual( server.rpc.config, undefined);
+	test.notEqual( server.rpc.config.add_plugin, undefined);
+	
 	test.notEqual( server.config.system, undefined);
 	test.notEqual( server.config.add_output_transformer, undefined );
 	
@@ -79,7 +84,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(45);	
+	test.expect(48);	
 	test.done();
 }
 
@@ -88,40 +93,43 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	var server = require("../lib/server");
 	//default values
 	test.ok( server.api.config.procedures.create );
+	test.ok( server.api.config.procedures.dispose );
+	test.ok( server.api.config.procedures.register );
 	test.ok( server.api.config.procedures.join );
 	test.ok( server.api.config.procedures.unjoin );	
 	test.ok( server.api.config.procedures.remove );
 	test.ok( server.api.config.procedures.set );
 	test.ok( server.api.config.procedures.push );
 	test.ok( server.api.config.procedures.pop );
-	test.ok( server.api.config.procedures.shift );
-	test.ok( server.api.config.procedures.ack );
+	test.ok( server.api.config.procedures.shift );	
 	
 	//disable procedures
 	server.api.config.disable_procedures();
 	test.equal( server.api.config.procedures.create,0 );
+	test.equal( server.api.config.procedures.dispose,0 );
+	test.equal( server.api.config.procedures.register,0 );
 	test.equal( server.api.config.procedures.join,0 );
 	test.equal( server.api.config.procedures.unjoin,0 );	
 	test.equal( server.api.config.procedures.remove,0 );
 	test.equal( server.api.config.procedures.set,0 );
 	test.equal( server.api.config.procedures.push,0 );
 	test.equal( server.api.config.procedures.pop,0 );
-	test.equal( server.api.config.procedures.shift,0 );
-	test.equal( server.api.config.procedures.ack,0 );
-	server.api.config.enable_procedures();
+	test.equal( server.api.config.procedures.shift,0 );	
 	
 	//enable procedures
+	server.api.config.enable_procedures();		
 	test.ok( server.api.config.procedures.create );
+	test.ok( server.api.config.procedures.dispose );
+	test.ok( server.api.config.procedures.register );
 	test.ok( server.api.config.procedures.join );
 	test.ok( server.api.config.procedures.unjoin );	
 	test.ok( server.api.config.procedures.remove );
 	test.ok( server.api.config.procedures.set );
 	test.ok( server.api.config.procedures.push );
 	test.ok( server.api.config.procedures.pop );
-	test.ok( server.api.config.procedures.shift );
-	test.ok( server.api.config.procedures.ack );
+	test.ok( server.api.config.procedures.shift );	
 	
-	test.expect(27);
+	test.expect(30);
 	test.done();
 	
 }
