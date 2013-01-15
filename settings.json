@@ -3,6 +3,7 @@
  "dbport":27017,
  "dbname":"jsa",
  "httpaddr":"127.0.0.1",
+ "httpif":"wlan0",
  "httpport":8080,
  "redishost":"127.0.0.1",
  "redisport":15000,
