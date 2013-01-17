@@ -62,8 +62,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.rpc.config, undefined);
 	test.notEqual( server.rpc.config.add_plugin, undefined);
 	
-	test.notEqual( server.config.system, undefined);
-	test.notEqual( server.config.add_output_transformer, undefined );
+	test.notEqual( server.config.system, undefined);	
 	
 	
 	//check exported functions can be invoked.
@@ -84,7 +83,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(48);	
+	test.expect(47);	
 	test.done();
 }
 
