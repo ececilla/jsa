@@ -726,7 +726,7 @@ exports["sandbox.add_constraint_post: constraints.not_system_catalog"] = functio
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"timers"};
 	
-	sb .add_constraint_post("join","not_system_catalog",sb.constraints.not_system_catalog);
+	sb .add_constraint_post("join","not_system_catalog",sb.constraints.not_system_catalog,"timers");
 	
 	sb.execute("join", params, function(err,result){
 		
@@ -770,7 +770,7 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"dummy"};//non-valid user catalog
 	
-	sb .add_constraint_post("test","user_catalog",sb.constraints.user_catalog);
+	sb .add_constraint_post("test","user_catalog",sb.constraints.user_catalog,"dummy");
 	
 	sb.execute("test", params, function(err,result){
 		
@@ -1646,7 +1646,7 @@ exports["sandbox.add_plugin: sandbox.plugins.external_config"] = function(test){
 	
 	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", config:{test:1} };
 	
-	sb.add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog)	  	  	  
+	sb.add_constraint_pre("test","not_system_catalog",sb.constraints.not_system_catalog,"dummy")	  	  	  
 	  .add_plugin("test",sb.plugins.external_config);
 	
 	sb.execute("test", params, function(err,ctx){
