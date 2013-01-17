@@ -294,7 +294,7 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 	});
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"events")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"events")
-	  .add_constraint_post("create","not_system_catalog",sb.constraints.not_system_catalog,"events");
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events");
 	  
 		
 	//uid missing
@@ -302,7 +302,7 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 	sb.execute("create", params, function(err,result){
 		
 		test.ok(flag);		
-		test.deepEqual(err, {code:-5, message: "No access permission: system catalog"});
+		test.deepEqual(err, {code:-5, message: "No access permission: restricted catalog"});
 		test.expect(3);
 		test.done();
 	});
@@ -357,7 +357,9 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 	});
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
-	  .add_constraint_post("create","not_system_catalog",sb.constraints.not_system_catalog)
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"users")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"));	  			
 		
 	
@@ -491,7 +493,8 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 	
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
-	  .add_constraint_post("create","not_system_catalog",sb.constraints.not_system_catalog)
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
 	  .add_plugin("create",sb.plugins.notifying_doc);
 	  	  		   
@@ -568,7 +571,8 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 	
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"dummy")
-	  .add_constraint_post("create","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy");
 	  	  		   
 				
@@ -644,7 +648,8 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 	
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"dummy")
-	  .add_constraint_post("create","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy")
 	  .add_plugin("create",function(ctx,end_handler){
 	  		
@@ -725,7 +730,8 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 	
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
-	  .add_constraint_post("create","not_system_catalog",sb.constraints.not_system_catalog)
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
 	  .add_plugin("create", sb.plugins.notifying_doc);
 	  	  		   
@@ -803,7 +809,8 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 	
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"dummy")
-	  .add_constraint_post("create","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy")
 	  .add_plugin("create", sb.plugins.notifying_catalog("dummy"));
 	  	  		   
@@ -889,7 +896,8 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 	
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"dummy")
-	  .add_constraint_post("create","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy")
 	  .add_plugin("create",sb.plugins.notifying_catalog("dummy"))
 	  .add_plugin("create",function(ctx,end_handler){
@@ -1000,7 +1008,8 @@ exports["api.remote.dispose: valid params, wid not found, not owner"] = function
 	});
 	sb.add_constraint_post("dispose","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("dispose","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_post("dispose","not_system_catalog",sb.constraints.not_system_catalog)
+	  .add_constraint_pre("dispose","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("dispose","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("dispose","is_owner",sb.constraints.is_owner);		
 	
 	//wid not found
@@ -1087,7 +1096,8 @@ exports["api.remote.dispose: valid params, default catalog"] = function(test){
 	
 	sb.add_constraint_post("dispose","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("dispose","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_post("dispose","not_system_catalog",sb.constraints.not_system_catalog)
+	  .add_constraint_post("dispose","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("dispose","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("dispose","is_owner",sb.constraints.is_owner);		
 	
 		
@@ -1217,7 +1227,8 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 		}
 	});
 	
-	sb.add_constraint_post("join","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
 	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
@@ -1295,7 +1306,8 @@ exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(
 		}
 	});
 	
-	sb.add_constraint_post("join","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
 	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
@@ -1349,7 +1361,8 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 		}
 	});
 	
-	sb.add_constraint_post("unjoin","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("unjoin","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("unjoin","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("unjoin","is_joinable",sb.constraints.is_joinable)
@@ -1451,7 +1464,8 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 		}
 	});
 	
-	sb.add_constraint_post("unjoin","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("unjoin","has_joined",sb.constraints.has_joined)	
 	  .add_constraint_post("unjoin","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("unjoin","param_uid",sb.constraints.is_required("uid"))
@@ -1505,7 +1519,8 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 		}
 	});
 	
-	sb.add_constraint_post("unjoin","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("unjoin","has_joined",sb.constraints.has_joined)	
 	  .add_constraint_post("unjoin","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("unjoin","param_uid",sb.constraints.is_required("uid"))
@@ -1556,7 +1571,8 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 		}
 	});
 	
-	sb.add_constraint_post("remove","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"events") 
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("remove",sb.constraints.is_required("fname"))	//anonymous constraint  
@@ -1705,7 +1721,8 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 		}
 	});
 	
-	sb.add_constraint_post("remove","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
@@ -1779,7 +1796,8 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 		}
 	});
 	
-	sb.add_constraint_post("remove","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
@@ -1854,7 +1872,8 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 		}
 	});
 	
-	sb.add_constraint_post("remove","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"events") 
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
@@ -1922,7 +1941,8 @@ exports["api.remote.remove: valid params, non existing array index, explicit cat
 		}
 	});
 	
-	sb.add_constraint_post("remove","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
@@ -1971,7 +1991,8 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 		}
 	});
 	
-	sb.add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("set","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("set","param_fname",sb.constraints.is_required("fname"))
@@ -2126,7 +2147,8 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 		}
 	});
 	
-	sb.add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("set","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("set","param_fname",sb.constraints.is_required("fname"),"dummy")	
@@ -2201,7 +2223,8 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 		}
 	});
 	
-	sb.add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("set","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("set","param_fname",sb.constraints.is_required("fname"),"dummy")	
@@ -2277,7 +2300,8 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 		}
 	});
 	
-	sb.add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("set","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("set","param_fname",sb.constraints.is_required("fname"),"dummy")	
@@ -2345,7 +2369,8 @@ exports["api.remote.set: valid params,non existing inner array field, explicit c
 		}
 	});
 	
-	sb.add_constraint_post("set","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("set","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("set","param_fname",sb.constraints.is_required("fname"),"dummy")	
@@ -2395,7 +2420,8 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 		}
 	});
 	
-	sb.add_constraint_post("push","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("push","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("push","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("push","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("push","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("push","param_fname",sb.constraints.is_required("fname"))
@@ -2567,7 +2593,8 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 		}
 	});
 	
-	sb.add_constraint_post("push","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("push","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("push","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("push","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("push","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("push","param_fname",sb.constraints.is_required("fname"),"dummy")
@@ -2640,7 +2667,10 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 		}
 	});
 	
-	sb.add_constraint_post("push","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_pre("push","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("push","not_catalog",sb.constraints.not_catalog,"foo")
+	  .add_constraint_pre("push","not_catalog",sb.constraints.not_catalog,"bar")
+	  .add_constraint_pre("push","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("push","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("push","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("push","param_fname",sb.constraints.is_required("fname"),"dummy")
@@ -2693,7 +2723,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 		}
 	});
 	
-	sb.add_constraint_post("pop","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("pop","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("pop","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"))	    
@@ -2855,7 +2885,8 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 		}
 	});
 	
-	sb.add_constraint_post("pop","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("pop","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("pop","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"),"dummy")	  
@@ -2927,7 +2958,8 @@ exports["api.remote.pop: valid params, existing inner field as array, explicit c
 		}
 	});
 	
-	sb.add_constraint_post("pop","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"events") 
 	  .add_constraint_post("pop","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("pop","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"),"dummy")	  	  
@@ -2977,7 +3009,8 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 		}
 	});
 	
-	sb.add_constraint_post("shift","not_system_catalog",sb.constraints.not_system_catalog)
+	sb.add_constraint_post("shift","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("shift","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("shift","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("shift","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("shift","param_fname",sb.constraints.is_required("fname"))	    
@@ -3140,7 +3173,7 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 		}
 	});
 	
-	sb.add_constraint_post("shift","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_pre("shift","not_catalog",sb.constraints.not_catalog,"fooooo")
 	  .add_constraint_post("shift","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("shift","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("shift","param_fname",sb.constraints.is_required("fname"),"dummy")	  
@@ -3213,7 +3246,7 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 		}
 	});
 	
-	sb.add_constraint_post("shift","not_system_catalog",sb.constraints.not_system_catalog,"dummy")
+	sb.add_constraint_post("shift","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("shift","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("shift","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("shift","param_fname",sb.constraints.is_required("fname"),"dummy")	  	  
@@ -3260,7 +3293,7 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 		}
 	});
 	
-	sb.add_constraint_pre("get","not_system_catalog",sb.constraints.not_system_catalog,"timers")	
+	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"))	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists);
 	  	  							
@@ -3268,7 +3301,7 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 	var params = {catalog:"timers", wid:"50187f71556efcbb25000002"};
 	sb.execute("get", params, function(err,result){
 					
-		test.deepEqual(err, {code:-5, message:"No access permission: system catalog"});
+		test.deepEqual(err, {code:-5, message:"No access permission: restricted catalog"});
 				
 	});
 	
@@ -3338,7 +3371,8 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 		}
 	});
 	
-	sb.add_constraint_pre("get","not_system_catalog",sb.constraints.not_system_catalog,"dummy")	
+	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
 	  .add_plugin("get","url_transform", sb.plugins.url_transform);
@@ -3386,7 +3420,8 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 		}
 	});
 	
-	sb.add_constraint_pre("get","not_system_catalog",sb.constraints.not_system_catalog,"users")	
+	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"users")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"users")
 	  .add_plugin("get","url_transform", sb.plugins.url_transform);
@@ -3433,7 +3468,7 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 		}
 	});
 	
-	sb.add_constraint_pre("get","not_system_catalog",sb.constraints.not_system_catalog,"dummy")	
+	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
 	  .add_plugin("get","url_transform", sb.plugins.url_transform);
