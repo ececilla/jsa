@@ -514,7 +514,8 @@ exports["endpoint.events: subscribe invocation"] = function(test){
 	});
 	
 	//json request sent to subscribe to the events channel for uid 620793114
-	var req_str = '{"jsonrpc":"2.0","method":"subscribe", "params":{"uid":620793114}}';
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"subscribe", "params":{"uid":620793114}}';
+	var req_str = querystring.stringify({request:jsonreq_str, version:"0.0.14"});
 	
 	var http_resp = {	myhttp:true,
 						writeHead: function(status, header_data){
