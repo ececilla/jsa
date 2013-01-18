@@ -231,6 +231,78 @@ exports["evqueue.on: custom event, explicit rcpts, subscription"] = function(tes
 }
 
 
+exports["evqueue.on: custom event, explicit ctx.config.rcpts, subscription"] = function(test){
+
+	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rcpts = [620793119, 620793115];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+		
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	"./api":api,
+					"./db":{	
+								save: function(col_str, msg, ret_handler){
+									
+									test.equal(col_str,"events");
+									test.equal(msg.ev_type,"ev_dummy");
+									test.equal( typeof msg.ev_tstamp, "number");
+									test.deepEqual(msg.ev_data, rpc_params);																										
+									
+									ret_handler();
+																										
+								}	
+					}
+		}
+	});
+	
+			
+	/*
+	 * 620793115 gets subscribed to the ev channel  
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){//called from within push
+																							
+								var json_obj = JSON.parse(str);														
+								test.equal(json_obj.ev_type,"ev_dummy");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data, rpc_params);
+																												
+						}
+						
+				    }; 
+				 
+	eq.remote.subscribe(http_resp,subs_params);	
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	eq.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	eq.on("ev_eq_push", function(msg, rcpt){
+		
+		test.equal(msg.ev_type, "ev_eq_push");		
+		var out = JSON.parse( msg.ev_data.msg_str);
+		test.deepEqual(out.ev_data, rpc_params);		
+		test.equal(rcpt,620793115);
+		
+	});
+	var ctx = {doc:undefined,params:rpc_params,config:{rcpts:rcpts}};//payload a emitir
+	ctx.payload = ctx.params;
+	api.emit("ev_dummy", ctx); //explicit rcpts are passed via ctx object.
+		
+		
+	test.expect(13);
+	test.done();
+	
+}
+
+
 exports["evqueue.on: listening custom event, wrong event emitted"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
