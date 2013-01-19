@@ -2,7 +2,7 @@ var sandbox = require("sandboxed-module");
 
 exports["module exported functions"] = function(test){
 	
-	var eq = require("../lib/evqueue");
+	var eq = require("../lib/evmngr");
 	test.notEqual( eq.remote.subscribe, undefined);
 	test.notEqual( eq.get_subscription, undefined );
 	test.notEqual( eq.rem_subscription, undefined);
@@ -11,9 +11,9 @@ exports["module exported functions"] = function(test){
 	test.done();
 }
 
-exports["evqueue.add_subscription"] = function(test){
+exports["evmngr.add_subscription"] = function(test){
 	
-	var eq = require("../lib/evqueue"),
+	var eq = require("../lib/evmngr"),
 		http_resp = {foo:1},
 		uid = 620793114;
 	 
@@ -24,9 +24,9 @@ exports["evqueue.add_subscription"] = function(test){
 	test.done();
 }
 
-exports["evqueue.is_subscribed"] = function(test){
+exports["evmngr.is_subscribed"] = function(test){
 	
-	var eq = require("../lib/evqueue"),
+	var eq = require("../lib/evmngr"),
 		http_resp = {foo:1},
 		uid = 620793114;
 	 
@@ -37,9 +37,9 @@ exports["evqueue.is_subscribed"] = function(test){
 	test.done();
 }
 
-exports["evqueue.remove_subscription"] = function(test){
+exports["evmngr.remove_subscription"] = function(test){
 	
-	var eq = require("../lib/evqueue"),
+	var eq = require("../lib/evmngr"),
 		http_resp = {foo:1},
 		uid = 620793114;
 	 
@@ -52,10 +52,10 @@ exports["evqueue.remove_subscription"] = function(test){
 }
 
 
-exports["evqueue.remote.subscribe: no params"] = function(test){
+exports["evmngr.remote.subscribe: no params"] = function(test){
 	
 	
-	var eq = require("../lib/evqueue");
+	var eq = require("../lib/evmngr");
 	
 	var flags = [0];	
 	var http_resp = {   
@@ -68,10 +68,10 @@ exports["evqueue.remote.subscribe: no params"] = function(test){
 	test.done();				
 }
 
-exports["evqueue.remote.subscribe: no uid"] = function(test){
+exports["evmngr.remote.subscribe: no uid"] = function(test){
 	
 	
-	var eq = require("../lib/evqueue");
+	var eq = require("../lib/evmngr");
 	var params = {}
 	var flags = [0];	
 	var http_resp = {   
@@ -86,10 +86,10 @@ exports["evqueue.remote.subscribe: no uid"] = function(test){
 
 
 
-exports["evqueue.remote.subscribe: invocation"] = function(test){
+exports["evmngr.remote.subscribe: invocation"] = function(test){
 	
 	
-	var eq = require("../lib/evqueue");
+	var eq = require("../lib/evmngr");
 	
 	var flags = [0,0];
 	var params = {uid:620793114};
@@ -109,10 +109,10 @@ exports["evqueue.remote.subscribe: invocation"] = function(test){
 	test.done();				
 }
 
-exports["evqueue.remote.subscribe: invocation with tstamp"] = function(test){
+exports["evmngr.remote.subscribe: invocation with tstamp"] = function(test){
 	
 	var flags = [0,0];
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	
 					"./db":{	
 								criteria: function(col_str, criteria, order_field, ret_handler){
@@ -159,7 +159,7 @@ exports["evqueue.remote.subscribe: invocation with tstamp"] = function(test){
 }
 
 
-exports["evqueue.on: custom event, explicit rcpts, subscription"] = function(test){
+exports["evmngr.on: custom event, explicit rcpts, subscription"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -167,7 +167,7 @@ exports["evqueue.on: custom event, explicit rcpts, subscription"] = function(tes
 		requires:{"./db":{}}
 	});
 		
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){
@@ -231,7 +231,7 @@ exports["evqueue.on: custom event, explicit rcpts, subscription"] = function(tes
 }
 
 
-exports["evqueue.on: custom event, explicit ctx.config.rcpts, subscription"] = function(test){
+exports["evmngr.on: custom event, explicit ctx.config.rcpts, subscription"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -239,7 +239,7 @@ exports["evqueue.on: custom event, explicit ctx.config.rcpts, subscription"] = f
 		requires:{"./db":{}}
 	});
 		
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){
@@ -303,7 +303,7 @@ exports["evqueue.on: custom event, explicit ctx.config.rcpts, subscription"] = f
 }
 
 
-exports["evqueue.on: listening custom event, wrong event emitted"] = function(test){
+exports["evmngr.on: listening custom event, wrong event emitted"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [620793119, 620793115];
@@ -312,7 +312,7 @@ exports["evqueue.on: listening custom event, wrong event emitted"] = function(te
 	});
 	
 	var flag = 1;	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, signal, ret_handler){
@@ -333,7 +333,7 @@ exports["evqueue.on: listening custom event, wrong event emitted"] = function(te
 
 
 
-exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpts"] = function(test){
+exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts"] = function(test){
 		
 	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy", rcpts:[620793114, 620793115, 620793119]},
 	    ircpts = [620793115, 620793119];
@@ -361,7 +361,7 @@ exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpt
 							}
 		}}
 	}),
-	eq = sandbox.require("../lib/evqueue",{
+	eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -417,7 +417,7 @@ exports["evqueue.on: ev_api_create, reportable document, subscribed in init.rcpt
 }
 
 
-exports["evqueue.on: ev_api_create, unreportable document, subscribed"] = function(test){
+exports["evmngr.on: ev_api_create, unreportable document, subscribed"] = function(test){
 		
 	var rpc_params = {uid:620793114, doc:{test:"ouuug test"}, catalog:"dummy"};
 	    
@@ -445,7 +445,7 @@ exports["evqueue.on: ev_api_create, unreportable document, subscribed"] = functi
 							}
 		}}
 	}), eq_flag = 1,
-	eq = sandbox.require("../lib/evqueue",{
+	eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, doc, ret_handler){
@@ -492,7 +492,7 @@ exports["evqueue.on: ev_api_create, unreportable document, subscribed"] = functi
 		
 }
 
-exports["evqueue.on: ev_api_dispose, subscribed in rcpts"] = function(test){
+exports["evmngr.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114,catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -512,7 +512,7 @@ exports["evqueue.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 		}
 	});
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -578,7 +578,7 @@ exports["evqueue.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 
 
 
-exports["evqueue.on: ev_api_join, subscribed in rcpts"] = function(test){
+exports["evmngr.on: ev_api_join, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -587,7 +587,7 @@ exports["evqueue.on: ev_api_join, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -647,7 +647,7 @@ exports["evqueue.on: ev_api_join, subscribed in rcpts"] = function(test){
 
 
 
-exports["evqueue.on: ev_api_join, subscribed not in rcpts"] = function(test){
+exports["evmngr.on: ev_api_join, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
@@ -655,7 +655,7 @@ exports["evqueue.on: ev_api_join, subscribed not in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api"),
-	eq = sandbox.require("../lib/evqueue",{
+	eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -701,7 +701,7 @@ exports["evqueue.on: ev_api_join, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_join autolistening, explicit rcpts"] = function(test){
+exports["evmngr.on: ev_api_join autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var dbdocs = {};//documents at db
@@ -713,7 +713,7 @@ exports["evqueue.on: ev_api_join autolistening, explicit rcpts"] = function(test
 	});
 	
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){
@@ -738,7 +738,7 @@ exports["evqueue.on: ev_api_join autolistening, explicit rcpts"] = function(test
 
 
 
-exports["evqueue.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
+exports["evmngr.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
 	
 	//explicit or implit, always there's a param catalog in the context	
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"}; 
@@ -748,7 +748,7 @@ exports["evqueue.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -804,7 +804,7 @@ exports["evqueue.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
+exports["evmngr.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -812,7 +812,7 @@ exports["evqueue.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -858,7 +858,7 @@ exports["evqueue.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_unjoin autolistening, explicit rcpts"] = function(test){
+exports["evmngr.on: ev_api_unjoin autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var doc = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115,620793114], uid:620793115};
@@ -867,7 +867,7 @@ exports["evqueue.on: ev_api_unjoin autolistening, explicit rcpts"] = function(te
 		requires:{"./db":{}}
 	});
 		
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){
@@ -894,7 +894,7 @@ exports["evqueue.on: ev_api_unjoin autolistening, explicit rcpts"] = function(te
 
 
 
-exports["evqueue.on: ev_api_remove, subscribed in rcpts"] = function(test){
+exports["evmngr.on: ev_api_remove, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -903,7 +903,7 @@ exports["evqueue.on: ev_api_remove, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -962,7 +962,7 @@ exports["evqueue.on: ev_api_remove, subscribed in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
+exports["evmngr.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -971,7 +971,7 @@ exports["evqueue.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1019,14 +1019,14 @@ exports["evqueue.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_remove autolistening, explicit rcpts"] = function(test){
+exports["evmngr.on: ev_api_remove autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115};
 	var rcpts = [620793119, 620793115];
 	var api = sandbox.require("../lib/api");
 		
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){
@@ -1051,7 +1051,7 @@ exports["evqueue.on: ev_api_remove autolistening, explicit rcpts"] = function(te
 }
 
 
-exports["evqueue.on: ev_api_set, subscribed in rcpts"] = function(test){
+exports["evmngr.on: ev_api_set, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5, catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -1060,7 +1060,7 @@ exports["evqueue.on: ev_api_set, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1119,7 +1119,7 @@ exports["evqueue.on: ev_api_set, subscribed in rcpts"] = function(test){
 		
 }
 
-exports["evqueue.on: ev_api_set, subscribed not in rcpts"] = function(test){
+exports["evmngr.on: ev_api_set, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", value:5, uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -1128,7 +1128,7 @@ exports["evqueue.on: ev_api_set, subscribed not in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1175,14 +1175,14 @@ exports["evqueue.on: ev_api_set, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_set autolistening, explicit rcpts"] = function(test){
+exports["evmngr.on: ev_api_set autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115};
 	var rcpts = [620793119, 620793115];
 	var api = sandbox.require("../lib/api");
 		
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){
@@ -1210,7 +1210,7 @@ exports["evqueue.on: ev_api_set autolistening, explicit rcpts"] = function(test)
 
 
 
-exports["evqueue.on: ev_api_push, subscribed in rcpts"] = function(test){
+exports["evmngr.on: ev_api_push, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5, catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -1219,7 +1219,7 @@ exports["evqueue.on: ev_api_push, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1279,7 +1279,7 @@ exports["evqueue.on: ev_api_push, subscribed in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_push, subscribed not in rcpts"] = function(test){
+exports["evmngr.on: ev_api_push, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a",value:5, uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -1288,7 +1288,7 @@ exports["evqueue.on: ev_api_push, subscribed not in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1336,14 +1336,14 @@ exports["evqueue.on: ev_api_push, subscribed not in rcpts"] = function(test){
 
 
 
-exports["evqueue.on: ev_api_push autolistening, explicit rcpts"] = function(test){
+exports["evmngr.on: ev_api_push autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var rcpts = [620793119, 620793115];
 	var api = sandbox.require("../lib/api");
 	var doc = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115, 620793114], uid:620793115};
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){
@@ -1368,7 +1368,7 @@ exports["evqueue.on: ev_api_push autolistening, explicit rcpts"] = function(test
 	
 }
 
-exports["evqueue.on: ev_api_pop, subscribed in rcpts"] = function(test){
+exports["evmngr.on: ev_api_pop, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -1376,7 +1376,7 @@ exports["evqueue.on: ev_api_pop, subscribed in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1435,7 +1435,7 @@ exports["evqueue.on: ev_api_pop, subscribed in rcpts"] = function(test){
 		
 }
 
-exports["evqueue.on: ev_api_pop, subscribed not in rcpts"] = function(test){
+exports["evmngr.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -1443,7 +1443,7 @@ exports["evqueue.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1491,7 +1491,7 @@ exports["evqueue.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_pop autolistening, explicit rcpts"] = function(test){
+exports["evmngr.on: ev_api_pop autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var doc = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115};
@@ -1499,7 +1499,7 @@ exports["evqueue.on: ev_api_pop autolistening, explicit rcpts"] = function(test)
 	var api = sandbox.require("../lib/api");
 	
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){
@@ -1524,7 +1524,7 @@ exports["evqueue.on: ev_api_pop autolistening, explicit rcpts"] = function(test)
 	
 }
 
-exports["evqueue.on: ev_api_shift, subscribed in rcpts"] = function(test){
+exports["evmngr.on: ev_api_shift, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -1533,7 +1533,7 @@ exports["evqueue.on: ev_api_shift, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
-	eq = sandbox.require("../lib/evqueue",{
+	eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1591,7 +1591,7 @@ exports["evqueue.on: ev_api_shift, subscribed in rcpts"] = function(test){
 		
 }
 
-exports["evqueue.on: ev_api_shift, subscribed not in rcpts"] = function(test){
+exports["evmngr.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
@@ -1599,7 +1599,7 @@ exports["evqueue.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
-	eq = sandbox.require("../lib/evqueue",{
+	eq = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./db":{
 								save: function(col_str, msg, ret_handler){
@@ -1646,7 +1646,7 @@ exports["evqueue.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 }
 
 
-exports["evqueue.on: ev_api_shift autolistening, explicit rcpts"] = function(test){
+exports["evmngr.on: ev_api_shift autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var doc = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115};
@@ -1656,7 +1656,7 @@ exports["evqueue.on: ev_api_shift autolistening, explicit rcpts"] = function(tes
 	});
 	
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var eq = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./db":{	
 								save: function(col_str, msg, ret_handler){

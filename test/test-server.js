@@ -50,7 +50,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.events.on, undefined );
 	test.notEqual( server.api.events.emit, undefined );
 		
-	test.notEqual( server.eq.events.on, undefined );	
+	test.notEqual( server.evmngr.events.on, undefined );	
 	test.notEqual( server.db, undefined );
 	test.notEqual( server.db.select, undefined);
 	test.notEqual( server.db.save, undefined);
@@ -150,22 +150,22 @@ exports["server.events.on: custom server events"] = function(test){
 	
 }
 
-exports["server.eq.events.on: custom eq events"] = function(test){
+exports["server.evmngr.events.on: custom eq events"] = function(test){
 	
-	var eq = sandbox.require("../lib/evqueue");
+	var evmngr = sandbox.require("../lib/evmngr");
 	var server = sandbox.require("../lib/server",{requires:{
-							"./evqueue":eq
+							"./evmngr":evmngr
 	}});
 	
 	
-	server.eq.events.on("ev_eq_push", function( params, rcpts){
+	server.evmngr.events.on("ev_eq_push", function( params, rcpts){
 		
 		test.deepEqual( params.ev_data, {test:1} );
 		test.deepEqual( rcpts,[1,2,3,4]);
 		test.done();
 	});
 	
-	eq.emit("ev_eq_push", {test:1}, [1,2,3,4] );	
+	evmngr.emit("ev_eq_push", {test:1}, [1,2,3,4] );	
 	
 }
 
@@ -332,9 +332,94 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		test.expect(13);		
 		test.done();
 	});
-					
-	
+						
 }
+
+
+exports["server.api.create: internal api events, custom rcpts plugin, default catalog"] = function(test){
+	
+	var params = {uid:620793114, doc:{test:"test"}};
+	    
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for create procedure
+							save:function(col_str,doc,ret_handler){
+																
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");								
+									test.equal( doc.test, "test" );
+									test.equal( doc.uid,  620793114);
+									test.deepEqual( doc.rcpts, [620793114]);									
+									test.equal(typeof doc.ctime, "number");								
+									
+									//save doc to db...returns with _id:12345
+									doc._id = "50187f71556efcbb25000001";
+									ret_handler(null,doc);
+								}else if(col_str == "users"){
+									test.equal(col_str,"users");
+									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+									ret_handler(null);
+								}	
+							}
+							
+		}}
+	});	
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+				"./api":api,
+				"./db": {
+							select: function(col_str, id_str, ret_handler){
+																														
+								if(col_str == "users"){
+																																	
+									ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+								}							
+							}
+					},
+				"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}}
+		
+	});
+	sb.add_plugin("create",sb.plugins.notifying_doc);
+	sb.add_plugin("create",function(ctx,next){
+		
+		ctx.config.rcpts = [999999];
+		next();
+	});
+				
+	var server = sandbox.require("../lib/server",{
+		requires:{"./sandbox":sb,"./api":api}
+		
+	});
+	//"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+	server.config.app = {status:1};
+	
+	//two ev_api_create handlers.				
+	server.api.events
+				.on("ev_api_create", function(msg){
+							
+					test.equal(msg.ev_type,"ev_api_create");
+					test.equal(msg.ev_ctx.params.uid, 620793114);
+					test.equal(msg.ev_ctx.params.catalog, "docs");
+					test.deepEqual( msg.ev_ctx.config.rcpts,[999999]);
+					//console.log(msg.ev_ctx.doc);				
+				})				
+				.on("ev_api_create",function(msg){
+										
+					test.equal(msg.ev_type,"ev_api_create");
+					
+				});
+	
+	server.api.create(params, function(err,val){
+				
+		test.equal(err,undefined);
+		test.notEqual(val, undefined);								
+				
+		test.expect(14);		
+		test.done();
+	});
+						
+}
+
 
 exports["server.api.create: throw error when no ret_handler handles the error"] = function(test){
 	
@@ -1409,7 +1494,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 					
 	var api = require("../lib/api");
 	
-	var eq = sandbox.require("../lib/evqueue",{
+	var evmngr = sandbox.require("../lib/evmngr",{
 		requires:{ "./db":db, "./api":api }
 	});
 		
@@ -1418,7 +1503,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	});
 	
 	var server = sandbox.require("../lib/server",{
-		requires:{ "./evqueue":eq, "./sandbox":sb, "./api":api }
+		requires:{ "./evmngr":evmngr, "./sandbox":sb, "./api":api }
 	});						
 	
 	server.api.config.newop("dummy", function(ctx, ret_handler){

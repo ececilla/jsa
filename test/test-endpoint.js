@@ -502,7 +502,7 @@ exports["endpoint.events: subscribe invocation"] = function(test){
 	
 		
 	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{"./evqueue":{	remote:{
+		requires:{"./evmngr":{	remote:{
 								subscribe: function( http_resp, params ){
 																	
 									test.notEqual( http_resp, undefined);
