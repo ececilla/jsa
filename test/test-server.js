@@ -49,8 +49,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.events, undefined );
 	test.notEqual( server.api.events.on, undefined );
 	test.notEqual( server.api.events.emit, undefined );
-		
-	test.notEqual( server.evmngr.events.on, undefined );	
+			
 	test.notEqual( server.db, undefined );
 	test.notEqual( server.db.select, undefined);
 	test.notEqual( server.db.save, undefined);
@@ -83,7 +82,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(47);	
+	test.expect(46);	
 	test.done();
 }
 
@@ -150,24 +149,7 @@ exports["server.events.on: custom server events"] = function(test){
 	
 }
 
-exports["server.evmngr.events.on: custom eq events"] = function(test){
-	
-	var evmngr = sandbox.require("../lib/evmngr");
-	var server = sandbox.require("../lib/server",{requires:{
-							"./evmngr":evmngr
-	}});
-	
-	
-	server.evmngr.events.on("ev_eq_push", function( params, rcpts){
-		
-		test.deepEqual( params.ev_data, {test:1} );
-		test.deepEqual( rcpts,[1,2,3,4]);
-		test.done();
-	});
-	
-	evmngr.emit("ev_eq_push", {test:1}, [1,2,3,4] );	
-	
-}
+
 
 exports["server.api.events.on: custom api events"] = function(test){
 	
