@@ -27,6 +27,33 @@ exports["util.get_field:non existing field-path"] = function(test){
 }
 
 
+exports["util.get_field:existing array index"] = function(test){
+	
+	var util = require("../lib/util");	
+	var doc = {x:{y:{z:[1,2,3]}}};
+	test.equal(util.get_field(doc,"x.y.z.2"), 3);
+	test.done();
+}
+
+
+exports["util.get_field:non existing array index"] = function(test){
+	
+	var util = require("../lib/util");	
+	var doc = {x:{y:{z:[1,2,3]}}};
+	test.equal(util.get_field(doc,"x.y.z.10"), undefined);
+	test.done();
+}
+
+
+exports["util.get_field:existing subarray"] = function(test){
+	
+	var util = require("../lib/util");	
+	var doc = {x:{y:{z:[1,2,3,4,5,6,7]}}};
+	test.deepEqual(util.get_field(doc,"x.y.z.2-5"), [3,4,5,6]);
+	test.done();
+}
+
+
 exports["util.set_field:existing field-path"] = function(test){
 		
 	var util = require("../lib/util");	
