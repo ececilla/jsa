@@ -54,6 +54,15 @@ exports["util.get_field:existing subarray"] = function(test){
 }
 
 
+exports["util.get_field:existing subarray, no second index"] = function(test){
+	
+	var util = require("../lib/util");	
+	var doc = {x:{y:{z:[1,2,3,4,5,6,7]}}};
+	test.deepEqual(util.get_field(doc,"x.y.z.1-"), [2,3,4,5,6,7]);
+	test.done();
+}
+
+
 exports["util.set_field:existing field-path"] = function(test){
 		
 	var util = require("../lib/util");	
