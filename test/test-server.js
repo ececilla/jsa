@@ -1459,25 +1459,20 @@ exports["server.api.config.newop: invocation"] = function(test){
 exports["server.api.config.newop: event custom params"] = function(test){
 		
 	var rcpts = [5,6,7,8];
-	var myparams = {foo:1, bar:"test"};
-	var db = {
-				
-		save:function(col_str, msg, ret_handler){
-										
-			test.equal(col_str,"events");																
-			test.equal(msg.ev_type, "ev_api_dummy");
-			test.deepEqual( msg.ev_data, {foo:1, bar:"test",catalog:"docs"});
-			
-			//save doc to db & return object					
-			ret_handler(null,msg);	
-		}	
-		
-	};
+	var myparams = {foo:1, bar:"test"};	
 					
 	var api = require("../lib/api");
 	
 	var evmngr = sandbox.require("../lib/evmngr",{
-		requires:{ "./db":db, "./api":api }
+		requires:{ "./api":api,"./evqueue":{
+			save:function(ev_msg, ret_handler){
+				
+				
+				test.equal(ev_msg.ev_type,"ev_api_dummy");
+				test.deepEqual(ev_msg.ev_data,{ foo:1, bar:"test", catalog:"docs" });
+				ret_handler();
+			}
+		} }
 	});
 		
 	var sb = sandbox.require("../lib/sandbox",{
@@ -1513,7 +1508,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 		
 		test.equal(err,null);
 		test.equal(ctx.retval,1);
-		test.expect(10);
+		test.expect(9);
 		test.done();		
 	});
 			
