@@ -1612,6 +1612,72 @@ exports["server.api.config.newop: create based op"] = function(test){
 }
 
 
+exports["server.api.config.newop: get based op"] = function(test){
+	
+	var myparams = {wid:"50187f71556efcbb25000001", fname:"a", uid:620793115, catalog:"dummy"};
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[{c:1},{c:1},{c:2},{c:1},{c:3}], b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
+	
+	var api = sandbox.require("../lib/api");	    		
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{	"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{get:1, newop1:1}}}},
+				 	"./db":{				
+								select:function(col_str, id_str, ret_handler){
+									
+									if( col_str == "users"){
+										
+										test.equal(col_str,"users");
+										ret_handler(null,{_id:id_str, name:"enric",wids:["66667f71556efcbb25000008"]});
+									}else if(col_str == "dummy"){
+										
+										test.equal(col_str,"dummy");
+										ret_handler(null,dbdocs[id_str]);
+									}
+								}
+							}
+				 }
+	});	
+	
+	var server = sandbox.require("../lib/server",{
+		requires:{"./sandbox":sb,"./api":api}
+	});	
+	
+	
+	server.api.config.newop("newop1", function(ctx, ret_handler){
+				
+		
+		test.deepEqual(ctx.params, myparams);
+		test.deepEqual(ctx.doc, dbdocs["50187f71556efcbb25000001"]);															
+					
+		server.api.get( ctx, function(err){
+			
+			for(i=0; i < ctx.retval.length;){
+				if(ctx.retval[i].c == 2 )
+					ctx.retval.splice(i,1);
+				else
+					i++;
+			}															
+			ret_handler(err,ctx.retval);				
+		});	
+						
+	});	
+	test.notEqual(api.remote.newop1, undefined);
+	test.notEqual( server.api.newop1, undefined );		
+	
+	
+	server.api.newop1(myparams, function(err,ctx){
+					
+		test.equal(err,undefined);
+		test.deepEqual(ctx.retval, [{c:1},{c:1},{c:1},{c:3}]);
+		test.expect(10);
+		test.done();	
+	});
+					
+}
+
+
 /*
 exports["server.api.config.newop: db raw access based op"] = function(test){
 	
