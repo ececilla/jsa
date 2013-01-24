@@ -58,6 +58,14 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 					
 		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
 		
+	});
+	
+	//inner index exists: index 4 not found in array test
+	params = {wid:"50187f71556efcbb25000002", fname:"test.4"};
+	sb.execute("get", params, function(err,result){
+					
+		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:test.4"});		
+		
 	});			
 	
 	//document exists
@@ -219,6 +227,54 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 		
 	
 }
+
+exports["api.remote.get: valid params, existing inner index, explicit catalog, db async"] = function(test){
+	
+	
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"docs"};
+		
+				
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"dummy");
+								test.equal(id_str,"50187f71556efcbb25000001");								
+								
+								setTimeout(function(){ //db 50ms delay retrieving document
+									
+									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+								},50);
+																
+							}
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
+		}
+	});
+	
+	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
+	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
+	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+		
+	
+	var params = {url:"#dummy/50187f71556efcbb25000001:b.2"};
+
+						
+	sb.execute("get", params, function(err,ctx){
+												
+		test.equal(err,null);		
+		test.equal(ctx.retval,6);	
+		test.expect(4);	
+		test.done();		
+		
+	});
+		
+	
+}
+
+
 
 exports["api.remote.get: valid params, existing inner index range, explicit catalog, db async"] = function(test){
 	
