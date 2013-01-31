@@ -4,6 +4,7 @@ var sandbox = require("sandboxed-module");
 exports["module exported functions"] = function(test){
 	
 	var sb = require("../lib/sandbox");
+	
 	test.notEqual(sb.add_constraint_post,undefined);
 	test.notEqual(sb.add_constraint_pre,undefined);
 	test.notEqual(sb.add_plugin,undefined);
@@ -21,6 +22,12 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.constraints.param_type,undefined);
 	test.notEqual(sb.constraints.is_required,undefined);
 	test.notEqual(sb.constraints.is_protected,undefined);
+	test.notEqual(sb.plugins.url_transform, undefined);
+	test.notEqual(sb.plugins.notifying_doc, undefined);
+	test.notEqual(sb.plugins.notifying_catalog, undefined);
+	test.notEqual(sb.plugins.rewrite_id, undefined);
+	test.notEqual(sb.plugins.external_config, undefined);
+	test.expect(22);
 	test.done();
 	
 }
@@ -1743,6 +1750,50 @@ exports["sandbox.add_plugin: sandbox.plugins.external_config"] = function(test){
 		test.equal(err,null);
 		test.equal(ctx.retval,1)										
 		test.expect(4);
+		test.done();
+	});		
+		
+}
+
+
+exports["sandbox.add_plugout: sandbox.plugins.rewrite_id"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", catalog:"dummy", uid:620793115, rcpts:[620793115] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								if( col_str == "dummy")
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});			
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 
+							 ctx.config.save = 0;							 							 							 							 				 							
+							 ret_handler( null, dbdocs["5074b135d03a0ac443000001"] );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers", "events"]}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001" };
+	
+	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
+	  .add_plugout("test",sb.plugins.rewrite_id);
+	
+	sb.execute("test", params, function(err,ctx){
+				
+		test.equal(err,null);
+		test.deepEqual(ctx.retval,{wid:"5074b135d03a0ac443000001", test:"test", catalog:"dummy", uid:620793115, rcpts:[620793115] });										
+		test.expect(2);
 		test.done();
 	});		
 		
