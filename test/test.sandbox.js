@@ -20,6 +20,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.constraints.field_type,undefined);
 	test.notEqual(sb.constraints.param_type,undefined);
 	test.notEqual(sb.constraints.is_required,undefined);
+	test.notEqual(sb.constraints.is_protected,undefined);
 	test.done();
 	
 }
@@ -1076,6 +1077,49 @@ exports["sandbox.add_constraint_post: constraints.is_required"] = function(test)
 	sb.execute("set", params, function(err,result){
 										
 		test.deepEqual(err,{code:-12, message:"wid parameter required"});										
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint_post: constraints.is_protected"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:6, test2:7, uid:620793114, rcpts:[620793114] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								if(col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
+							}
+		},
+		"./api":{remote:{ set:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}
+	}
+	});
+	
+	var params = {uid:620793116, fname:["test","test2"], value:4};
+		
+	sb.add_constraint_pre("set","protected_test",sb.constraints.is_protected("test"))	  
+	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"events");
+	
+	sb.execute("set", params, function(err,ctx){
+												
+		test.deepEqual(err,{code:-13, message:"Protected field not allowed as field name: test"});										
 		test.done();
 	});
 		
