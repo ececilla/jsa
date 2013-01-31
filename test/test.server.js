@@ -82,7 +82,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(46);	
+	test.expect(48);	
 	test.done();
 }
 
