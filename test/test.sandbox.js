@@ -326,7 +326,6 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 }
 
 
-
 exports["sandbox.add_constraint_post: wid not found"] = function(test){
 	
 	var  dbdocs = {};
@@ -388,6 +387,54 @@ exports["sandbox.add_constraint_post: wid not found"] = function(test){
 		
 }
 
+
+exports["sandbox.add_constraint_post: uid not found"] = function(test){
+	
+	var  dbusers = {};
+		 dbusers["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", name:"enric", email:"test@test.com"};
+		 
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443666666"] = {_id:"5074b135d03a0ac443666666", a:1, b:2, c:3};		 
+	
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){
+										
+								if(col_str == "docs"){
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443666666");								
+									
+									ret_handler(null,dbdocs[id_str]);//null
+								}else if( col_str == "users"){
+									
+									test.equal(id_str,"5074b135d03a0ac443000002");																		
+									ret_handler(null,dbusers[id_str]);//user not found
+								}		
+							}
+		},
+		"./api":{remote:{ join:function( params, doc, ret_handler){
+							 
+							 flag = 0;
+							 							 
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}}
+	}
+	});
+	
+	var params = {uid:"5074b135d03a0ac443000002",wid:"5074b135d03a0ac443666666"}; //uid not found		
+	
+	sb.execute("join", params, function(err,result){
+		
+		test.deepEqual(err, { code: -1, message: 'User not found: #users/5074b135d03a0ac443000002' });
+		test.expect(4);
+		test.done();
+	});
+		
+}
+
 exports["sandbox.add_constraint_post: no wid, uid"] = function(test){
 	
 	var  dbdocs = {};
@@ -402,11 +449,6 @@ exports["sandbox.add_constraint_post: no wid, uid"] = function(test){
 									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 								}else
 									flag = 0;												
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								ret_handler(null,[{wids:[]}]);
 							}
 		},
 		"./api":{remote:{ create:function( ctx, ret_handler){
@@ -462,11 +504,6 @@ exports["sandbox.add_constraint_post: wid, no uid"] = function(test){
 																											
 									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 								}		
-							},
-				
-							criteria:function(col_str,criteria,order,ret_handler){
-																															
-								flag = 0;
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
