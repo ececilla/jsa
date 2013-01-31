@@ -185,7 +185,7 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 	
 	
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"};
 		
 				
 	var sb = sandbox.require("../lib/sandbox",{
@@ -220,6 +220,52 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 						
 		test.equal(err,null);		
 		test.deepEqual(ctx.retval,[4,5,6]);	
+		test.expect(4);	
+		test.done();		
+		
+	});
+		
+	
+}
+
+exports["api.remote.get: valid params, existing inner fields as array, explicit catalog, db async"] = function(test){
+	
+	
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6],a:"test",c:{d:1}, rcpts:[620793114,620793117], catalog:"dummy"};
+		
+				
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+																														
+								test.equal(col_str,"dummy");
+								test.equal(id_str,"50187f71556efcbb25000001");								
+								
+								setTimeout(function(){ //db 50ms delay retrieving document
+									
+									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+								},50);
+																
+							}
+						 },
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
+		}
+	});
+	
+	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  	  
+	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+		
+	
+	var params = {catalog:"dummy",wid:"50187f71556efcbb25000001",fname:["b.0","a","c.d","nonexisting_field"]};
+
+						
+	sb.execute("get", params, function(err,ctx){
+						
+						
+		test.equal(err,null);		
+		test.deepEqual(ctx.retval,{ b:{"0":4}, a:"test", c:{d:1} });					
 		test.expect(4);	
 		test.done();		
 		
