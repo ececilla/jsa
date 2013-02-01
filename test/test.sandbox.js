@@ -7,8 +7,8 @@ exports["module exported functions"] = function(test){
 	
 	test.notEqual(sb.add_constraint_post,undefined);
 	test.notEqual(sb.add_constraint_pre,undefined);
-	test.notEqual(sb.add_plugin,undefined);
-	test.notEqual(sb.add_plugout,undefined);
+	test.notEqual(sb.add_plugin_in,undefined);
+	test.notEqual(sb.add_plugin_out,undefined);
 	test.notEqual(sb.execute,undefined);
 	test.notEqual(sb.constraints.is_owner,undefined);
 	test.notEqual(sb.constraints.has_joined,undefined);
@@ -1220,7 +1220,7 @@ exports["sandbox.add_constraint_post: method not found"] = function(test){
 }
 
 
-exports["sandbox.add_plugin: custom plugin"] = function(test){
+exports["sandbox.add_plugin_in: custom plugin"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -1253,7 +1253,7 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_plugin("test",function(ctx, end_handler){
+	  .add_plugin_in("test",function(ctx, end_handler){
 	  			
 	  		  			  		
 	  		setTimeout(function(){
@@ -1274,7 +1274,7 @@ exports["sandbox.add_plugin: custom plugin"] = function(test){
 		
 }
 
-exports["sandbox.add_plugout: custom plugout, ctx.retval interception"] = function(test){
+exports["sandbox.add_plugin_out: custom plugout, ctx.retval interception"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -1307,7 +1307,7 @@ exports["sandbox.add_plugout: custom plugout, ctx.retval interception"] = functi
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_plugout("test",function(ctx, end_handler){
+	  .add_plugin_out("test",function(ctx, end_handler){
 	  			
 	  		  			  		
 	  		setTimeout(function(){ //change return value.
@@ -1328,7 +1328,7 @@ exports["sandbox.add_plugout: custom plugout, ctx.retval interception"] = functi
 		
 }
 
-exports["sandbox.add_plugout: custom plugout, ctx.doc interception"] = function(test){
+exports["sandbox.add_plugin_out: custom plugout, ctx.doc interception"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -1376,7 +1376,7 @@ exports["sandbox.add_plugout: custom plugout, ctx.doc interception"] = function(
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_plugout("test",function(ctx, end_handler){
+	  .add_plugin_out("test",function(ctx, end_handler){
 	  			
 	  		  			  		
 	  		setTimeout(function(){ //change saved document.
@@ -1398,7 +1398,7 @@ exports["sandbox.add_plugout: custom plugout, ctx.doc interception"] = function(
 }
 
 
-exports["sandbox.add_plugout: custom plugout, ctx.payload interception"] = function(test){
+exports["sandbox.add_plugin_out: custom plugout, ctx.payload interception"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
@@ -1451,7 +1451,7 @@ exports["sandbox.add_plugout: custom plugout, ctx.payload interception"] = funct
 	
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
-	  .add_plugout("test",function(ctx, end_handler){
+	  .add_plugin_out("test",function(ctx, end_handler){
 	  			
 	  		  			  		
 	  		setTimeout(function(){ //change payload:add param 
@@ -1474,7 +1474,7 @@ exports["sandbox.add_plugout: custom plugout, ctx.payload interception"] = funct
 
 
 
-exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
+exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
@@ -1507,7 +1507,7 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 	
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_plugin("test",sb.plugins.notifying_doc);
+	  .add_plugin_in("test",sb.plugins.notifying_doc);
 	
 	sb.execute("test", params, function(err,ctx){
 		
@@ -1522,7 +1522,7 @@ exports["sandbox.add_plugin: sandbox.plugins.notifying_doc"] = function(test){
 
 
 
-exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
+exports["sandbox.add_plugin_in: sandbox.plugins.url_transform1"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
@@ -1557,7 +1557,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_plugin("test",sb.plugins.url_transform);
+	  .add_plugin_in("test",sb.plugins.url_transform);
 	
 	sb.execute("test", params, function(err,ctx){
 		
@@ -1571,7 +1571,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform1"] = function(test){
 }
 
 
-exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
+exports["sandbox.add_plugin_in: sandbox.plugins.url_transform2"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
@@ -1605,7 +1605,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
 	
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_plugin("test",sb.plugins.url_transform);
+	  .add_plugin_in("test",sb.plugins.url_transform);
 	
 	sb.execute("test", params, function(err,ctx){
 		
@@ -1618,7 +1618,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform2"] = function(test){
 		
 }
 
-exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
+exports["sandbox.add_plugin_in: sandbox.plugins.url_transform3"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
@@ -1651,7 +1651,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 	var params = {uid:620793115, url:"#docs/"};
 	
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")	  	  	  
-	  .add_plugin("test",sb.plugins.url_transform);
+	  .add_plugin_in("test",sb.plugins.url_transform);
 	
 	sb.execute("test", params, function(err,ctx){
 		
@@ -1664,7 +1664,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform3"] = function(test){
 		
 }
 
-exports["sandbox.add_plugin: sandbox.plugins.url_transform overwrite"] = function(test){
+exports["sandbox.add_plugin_in: sandbox.plugins.url_transform overwrite"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793115 };
@@ -1697,7 +1697,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform overwrite"] = functio
 	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:test.5", catalog:"dummy", wid:"5074b135d03a0ac443000006", fname:"no-test"};
 	
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin("test",sb.plugins.url_transform);
+	  .add_plugin_in("test",sb.plugins.url_transform);
 	
 	sb.execute("test", params, function(err,ctx){
 		
@@ -1710,7 +1710,7 @@ exports["sandbox.add_plugin: sandbox.plugins.url_transform overwrite"] = functio
 		
 }
 
-exports["sandbox.add_plugin: sandbox.plugins.external_config"] = function(test){
+exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", catalog:"dummy", uid:620793115, rcpts:[620793115] };
@@ -1743,7 +1743,7 @@ exports["sandbox.add_plugin: sandbox.plugins.external_config"] = function(test){
 	
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin("test",sb.plugins.external_config);
+	  .add_plugin_in("test",sb.plugins.external_config);
 	
 	sb.execute("test", params, function(err,ctx){
 				
@@ -1756,7 +1756,7 @@ exports["sandbox.add_plugin: sandbox.plugins.external_config"] = function(test){
 }
 
 
-exports["sandbox.add_plugout: sandbox.plugins.rewrite_id"] = function(test){
+exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id"] = function(test){
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", catalog:"dummy", uid:620793115, rcpts:[620793115] };
@@ -1787,7 +1787,7 @@ exports["sandbox.add_plugout: sandbox.plugins.rewrite_id"] = function(test){
 	
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugout("test",sb.plugins.rewrite_id);
+	  .add_plugin_out("test",sb.plugins.rewrite_id);
 	
 	sb.execute("test", params, function(err,ctx){
 				

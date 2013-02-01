@@ -113,7 +113,7 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 	  .add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
-	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
 		
 	
 	var params = {url:"#dummy/50187f71556efcbb25000001"};
@@ -162,7 +162,7 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 	  .add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"users")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"users")
-	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
 		
 	
 	var params = {url:"#users/50187f71556efcbb25000001"};
@@ -209,7 +209,7 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
-	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
 		
 	
 	var params = {url:"#dummy/50187f71556efcbb25000001:b"};
@@ -255,7 +255,7 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 	
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  	  
-	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
 		
 	
 	var params = {catalog:"dummy",wid:"50187f71556efcbb25000001",fname:["b.0","a","c.d","nonexisting_field"]};
@@ -302,7 +302,7 @@ exports["api.remote.get: valid params, existing inner index, explicit catalog, d
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
-	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
 		
 	
 	var params = {url:"#dummy/50187f71556efcbb25000001:b.2"};
@@ -350,7 +350,7 @@ exports["api.remote.get: valid params, existing inner index range, explicit cata
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
-	  .add_plugin("get","url_transform", sb.plugins.url_transform);
+	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
 		
 	
 	var params = {url:"#dummy/50187f71556efcbb25000001:b.0-1"};

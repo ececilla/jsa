@@ -269,7 +269,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
-	  .add_plugin("create",sb.plugins.notifying_doc);
+	  .add_plugin_in("create",sb.plugins.notifying_doc);
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -424,7 +424,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy")
-	  .add_plugin("create",function(ctx,end_handler){
+	  .add_plugin_in("create",function(ctx,end_handler){
 	  		
 	  		ctx.params.rcpts = [ctx.params.uid, 620793115];
 	  		end_handler();
@@ -506,7 +506,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
-	  .add_plugin("create", sb.plugins.notifying_doc);
+	  .add_plugin_in("create", sb.plugins.notifying_doc);
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -585,7 +585,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy")
-	  .add_plugin("create", sb.plugins.notifying_catalog("dummy"));
+	  .add_plugin_in("create", sb.plugins.notifying_catalog("dummy"));
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -672,8 +672,8 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy")
-	  .add_plugin("create",sb.plugins.notifying_catalog("dummy"))
-	  .add_plugin("create",function(ctx,end_handler){
+	  .add_plugin_in("create",sb.plugins.notifying_catalog("dummy"))
+	  .add_plugin_in("create",function(ctx,end_handler){
 	  		
 	  		ctx.params.rcpts.push(620793115);
 	  		setTimeout(end_handler,500);

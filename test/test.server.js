@@ -42,8 +42,8 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.config.enable_procedures, undefined );
 	test.notEqual( server.api.config.disable_procedures, undefined );
 	test.notEqual( server.api.config.newop, undefined );
-	test.notEqual( server.api.config.add_plugin, undefined );
-	test.notEqual( server.api.config.add_plugout, undefined );	
+	test.notEqual( server.api.config.add_plugin_in, undefined );
+	test.notEqual( server.api.config.add_plugin_out, undefined );	
 	test.notEqual( server.api.config.add_constraint_pre, undefined );
 	test.notEqual( server.api.config.add_constraint_post, undefined );	
 	test.notEqual( server.api.events, undefined );
@@ -282,7 +282,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 				"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}}
 		
 	});
-	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
+	sb.add_plugin_in("create",sb.plugins.notifying_catalog("docs"));
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./sandbox":sb,"./api":api}
@@ -361,8 +361,8 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 				"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}}
 		
 	});
-	sb.add_plugin("create",sb.plugins.notifying_doc);
-	sb.add_plugin("create",function(ctx,next){
+	sb.add_plugin_in("create",sb.plugins.notifying_doc);
+	sb.add_plugin_in("create",function(ctx,next){
 		
 		ctx.config.rcpts = [999999];
 		next();
@@ -439,7 +439,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 				}
 		
 	});
-	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
+	sb.add_plugin_in("create",sb.plugins.notifying_catalog("docs"));
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
@@ -577,8 +577,8 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 				}
 		
 	});
-	sb.add_plugin("create",sb.plugins.notifying_catalog("dummy"))
-	  .add_plugin("create", function(ctx,end_handler){
+	sb.add_plugin_in("create",sb.plugins.notifying_catalog("dummy"))
+	  .add_plugin_in("create", function(ctx,end_handler){
 	  		
 	  		ctx.params.rcpts.push(620793115);
 	  		end_handler();
@@ -674,8 +674,8 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}
 				}
 	});	
-	sb.add_plugin("create",sb.plugins.notifying_catalog("dummy"))
-	  .add_plugin("create", function(ctx,end_handler){
+	sb.add_plugin_in("create",sb.plugins.notifying_catalog("dummy"))
+	  .add_plugin_in("create", function(ctx,end_handler){
 	  			  		
 	  		server.db.select("dummy","50187f71556efcbb25000002",function(err,val){
 			
@@ -1557,7 +1557,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 							}
 				 }
 	});
-	sb.add_plugin("create",sb.plugins.notifying_catalog("docs"));
+	sb.add_plugin_in("create",sb.plugins.notifying_catalog("docs"));
 	
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
