@@ -1370,6 +1370,65 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 						
 }
 
+exports["server.api.get: internal events, explicit catalog"] = function(test){
+	
+	var params = {wid:"50187f71556efcbb25000001", fname:"a", catalog:"dummy"};			
+	
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[-4,"foo",6], b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
+	
+	var db =  {					
+				
+				select:function(col_str, id_str, ret_handler){
+					
+					if( col_str == "dummy"){
+						
+						test.equal(col_str, "dummy");
+						test.equal(id_str, "50187f71556efcbb25000001");						
+						
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,dbdocs[id_str]);
+						},50);	
+					}
+				}
+	};
+	   
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":db}
+	});
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		
+		requires:{"./api":api, "./db":db, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{get:1}}}}}		
+	});
+					
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
+	});
+	server.config.app = {status:1};
+							
+	server.api.events.on("ev_api_get", function(msg){
+				
+		test.equal(msg.ev_type,"ev_api_get");
+		test.notEqual(msg.ev_tstamp, undefined);		
+		test.deepEqual(msg.ev_ctx.params, {wid:"50187f71556efcbb25000001", fname:"a", catalog:"dummy"});							
+		
+		test.expect(7);
+		test.done();													
+	});
+				
+	
+	server.api.get(params, function(err,ctx){
+				
+		test.equal(err,null);
+		test.deepEqual(ctx.retval,[-4,"foo",6]);												
+	});
+						
+}
+
 
 exports["server.api.events.emit"] = function(test){
 	
