@@ -1,4 +1,5 @@
 var sandbox = require("sandboxed-module");
+var CONST = require("../lib/constants");
 
 
 exports["module exported functions"] = function(test){
@@ -48,6 +49,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.api.config.add_constraint_post, undefined );	
 	test.notEqual( server.api.events, undefined );
 	test.notEqual( server.api.events.on, undefined );
+	test.notEqual( server.api.events.remote_func.on, undefined );	
 	test.notEqual( server.api.events.emit, undefined );
 			
 	test.notEqual( server.db, undefined );
@@ -82,7 +84,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(48);	
+	test.expect(49);	
 	test.done();
 }
 
@@ -99,7 +101,10 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	test.ok( server.api.config.procedures.set );
 	test.ok( server.api.config.procedures.push );
 	test.ok( server.api.config.procedures.pop );
-	test.ok( server.api.config.procedures.shift );	
+	test.ok( server.api.config.procedures.shift );
+	test.ok( server.api.config.procedures.get );
+	test.ok( server.api.config.procedures.search );
+		
 	
 	//disable procedures
 	server.api.config.disable_procedures();
@@ -112,7 +117,9 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	test.equal( server.api.config.procedures.set,0 );
 	test.equal( server.api.config.procedures.push,0 );
 	test.equal( server.api.config.procedures.pop,0 );
-	test.equal( server.api.config.procedures.shift,0 );	
+	test.equal( server.api.config.procedures.shift,0 );
+	test.equal( server.api.config.procedures.get,0 );
+	test.equal( server.api.config.procedures.search,0 );	
 	
 	//enable procedures
 	server.api.config.enable_procedures();		
@@ -125,9 +132,11 @@ exports["server.api.config.disable/enable_procedures"] = function(test){
 	test.ok( server.api.config.procedures.set );
 	test.ok( server.api.config.procedures.push );
 	test.ok( server.api.config.procedures.pop );
-	test.ok( server.api.config.procedures.shift );	
+	test.ok( server.api.config.procedures.shift );
+	test.ok( server.api.config.procedures.get );
+	test.ok( server.api.config.procedures.search );	
 	
-	test.expect(30);
+	test.expect(36);
 	test.done();
 	
 }
@@ -1415,9 +1424,17 @@ exports["server.api.get: internal events, explicit catalog"] = function(test){
 		test.equal(msg.ev_type,"ev_api_get");
 		test.notEqual(msg.ev_tstamp, undefined);		
 		test.deepEqual(msg.ev_ctx.params, {wid:"50187f71556efcbb25000001", fname:"a", catalog:"dummy"});							
+															
+	});
+	
+	server.api.events.get.on(function(msg){
 		
-		test.expect(7);
-		test.done();													
+		test.equal(msg.ev_type,"ev_api_get");
+		test.notEqual(msg.ev_tstamp, undefined);		
+		test.deepEqual(msg.ev_ctx.params, {wid:"50187f71556efcbb25000001", fname:"a", catalog:"dummy"});
+		
+		test.expect(10);
+		test.done();	
 	});
 				
 	
@@ -1560,6 +1577,13 @@ exports["server.api.config.newop: event custom params"] = function(test){
 		test.deepEqual(rcpts,[5,6,7,8]);				
 					
 	});
+	
+	//Another way to intercept the ev_api_dummy event.
+	server.api.events.dummy.on(function(msg){
+		
+		test.deepEqual(msg.ev_ctx.payload,msg.ev_ctx.params);
+		test.deepEqual(rcpts,[5,6,7,8]);
+	});
 		
 	test.notEqual( api.remote["dummy"], undefined );	
 	test.notEqual( server.api["dummy"], undefined );
@@ -1567,7 +1591,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 		
 		test.equal(err,null);
 		test.equal(ctx.retval,1);
-		test.expect(9);
+		test.expect(11);
 		test.done();		
 	});
 			
@@ -1650,11 +1674,15 @@ exports["server.api.config.newop: create based op"] = function(test){
 					
 		
 		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[620793114]} );		
-				
-			
+						
 	}).on("ev_api_create", function(params, rcpts){
 				
 		flag = 0;
+	});
+	
+	server.api.events.newop1.on(function(msg){
+		
+		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[620793114]} );
 	});
 	
 	
@@ -1664,7 +1692,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 		test.ok(flag);
 		test.equal(err,undefined);
 		test.notEqual(val, undefined)
-		test.expect(14);
+		test.expect(15);
 		test.done();	
 	});
 					
@@ -1709,6 +1737,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 		
 		test.deepEqual(ctx.params, myparams);
 		test.deepEqual(ctx.doc, dbdocs["50187f71556efcbb25000001"]);															
+		ctx.config.emit = CONST.DISABLE(); 
 					
 		server.api.get( ctx, function(err){
 			
@@ -1717,20 +1746,32 @@ exports["server.api.config.newop: get based op"] = function(test){
 					ctx.retval.splice(i,1);
 				else
 					i++;
-			}															
+			}	
+			server.api.events.emit("ev_api_newop1",ctx);														
 			ret_handler(err,ctx.retval);				
 		});	
 						
 	});	
 	test.notEqual(api.remote.newop1, undefined);
-	test.notEqual( server.api.newop1, undefined );		
+	test.notEqual( server.api.newop1, undefined );
+	
+	var not_get_event_flag = 1;
+	server.api.events.get.on(function(msg){
+		
+		not_get_event_flag = 0;
+	});
+	server.api.events.newop1.on(function(msg){
+		
+		console.log(msg);
+	});		
 	
 	
 	server.api.newop1(myparams, function(err,ctx){
 					
+		test.ok(not_get_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, [{c:1},{c:1},{c:1},{c:3}]);
-		test.expect(10);
+		test.expect(11);
 		test.done();	
 	});
 					
