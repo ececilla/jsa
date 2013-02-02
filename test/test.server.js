@@ -1747,7 +1747,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 				else
 					i++;
 			}	
-			server.api.events.emit("ev_api_newop1",ctx);														
+			server.api.events.emit("ev_api_newop1",ctx);																	
 			ret_handler(err,ctx.retval);				
 		});	
 						
@@ -1762,7 +1762,9 @@ exports["server.api.config.newop: get based op"] = function(test){
 	});
 	server.api.events.newop1.on(function(msg){
 		
-		console.log(msg);
+		test.equal(msg.ev_type,"ev_api_newop1");
+		//intercept ctx.retval
+		msg.ev_ctx.retval = 5;//cannot intercept ctx, can only read		
 	});		
 	
 	
@@ -1771,7 +1773,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 		test.ok(not_get_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, [{c:1},{c:1},{c:1},{c:3}]);
-		test.expect(11);
+		test.expect(12);
 		test.done();	
 	});
 					
