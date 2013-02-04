@@ -1,7 +1,8 @@
 {
   "name": "jsa",
   "version": "0.0.13",
-  "description": "json synchronization service",  
+  "description": "json synchronization service", 
+  "keywords":["synchronization","rpc"],	 
   "author": {
     "name": "Enric Cecilla",
     "email": "ececilla@gmail.com"
@@ -18,7 +19,8 @@
 	"redis":"0.8.x",
 	"hiredis":"0.1.x",
 	"colors":"0.6.x",
-	"prettyjson":"0.7.x"
+	"prettyjson":"0.7.x",
+	"underscore":"1.4.x"
   },
   "devDependencies":{
  	"nodeunit":"0.7.x"	
