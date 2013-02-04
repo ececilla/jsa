@@ -9,6 +9,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.add_constraint_pre,undefined);
 	test.notEqual(sb.add_plugin_in,undefined);
 	test.notEqual(sb.add_plugin_out,undefined);
+	test.notEqual(sb.copy_constraints,undefined);
 	test.notEqual(sb.execute,undefined);
 	test.notEqual(sb.constraints.is_owner,undefined);
 	test.notEqual(sb.constraints.has_joined,undefined);
@@ -27,7 +28,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.plugins.notifying_catalog, undefined);
 	test.notEqual(sb.plugins.rewrite_id, undefined);
 	test.notEqual(sb.plugins.external_config, undefined);
-	test.expect(22);
+	test.expect(23);
 	test.done();
 	
 }
@@ -606,6 +607,49 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 		test.ok(flags[1]);
 		test.deepEqual(err,{code:-11, message:"Wrong parameter type doc: must be an object"});
 		test.expect(6);
+		test.done();
+	});
+		
+}
+
+exports["sandbox.copy_constraints: constraints.is_owner"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								if(col_str == "dummy"){	
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 							 														 														 							 
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"dummy"};
+	
+	sb.add_constraint_post("test","is_owner",sb.constraints.is_owner)
+	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"events");
+	  
+	sb.copy_constraints("docs","dummy"); 
+	
+	sb.execute("test", params, function(err,result){
+		
+		test.deepEqual(err,{code:-2, message:"No access permission: not owner"});										
 		test.done();
 	});
 		
