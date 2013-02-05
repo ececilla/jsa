@@ -150,6 +150,16 @@ exports["api.remote.register: valid params"] = function(test){
 	sb.init();
 	sb.add_constraint_pre("register","param_user",sb.constraints.is_required("user"))
 	  .add_constraint_pre("register","user_type",sb.constraints.param_type("user","object"));
+	  
+	api.on("ev_api_register",function(msg,rcpts){
+				
+		test.equal(msg.ev_type,"ev_api_register");
+		test.notEqual(msg.ev_tstamp,undefined);
+		test.equal(msg.ev_ctx.payload.name,"dummy");
+		test.equal(msg.ev_ctx.payload.email,"dummy@foobar.com");
+		test.equal(msg.ev_ctx.payload.password,"rL0Y20zC+Fzt72VPzMSk2A==");
+		test.equal(msg.ev_ctx.payload.uid,"50187f71556efcbb25000002");
+	}) 
 		
 	//user missing
 	var params = {user:{name:"dummy", email:"dummy@foobar.com", password:"foo"}};
@@ -159,7 +169,7 @@ exports["api.remote.register: valid params"] = function(test){
 		test.equal(ctx.retval._id, undefined);
 		test.equal(ctx.retval.wids, undefined);
 		test.equal(ctx.retval.uid,"50187f71556efcbb25000002");
-		test.expect(7);		
+		test.expect(13);		
 		test.done();
 		
 	});
