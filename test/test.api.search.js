@@ -10,17 +10,7 @@ exports["api.remote.search: missing & wrong params"] = function(test){
 	dbusers["50187f71556efcbb25aaaa"] = {_id:"50187f71556efcbb25aaaa",name:"enric",wids:["50187f71556efcbb25000002"]};		
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-																																						
-								if(col_str == "docs")								
-									ret_handler(null,dbdocs[id_str]);
-								else if (col_str == "users"){
-									ret_handler(null,dbusers[id_str]);
-								}
-																	
-							}
-						 },
+		requires:{
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"], user_catalogs:["docs","dummy"]}},api:{config:{procedures:{search:1}}}} 
 		}
 	});
@@ -139,7 +129,7 @@ exports["api.remote.search: valid params with no results"] = function(test){
 																																						
 								test.equal(col_str,"docs");
 								test.deepEqual(criteria,{$and:[{keywords:"test1"},{keywords:"test2"}]});
-								ret_handler(null,[]);//return both documents									
+								ret_handler(null,[]);//no results found.									
 							}
 						 },
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"], user_catalogs:["docs","dummy"]}},api:{config:{procedures:{search:1}}}} 
