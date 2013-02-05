@@ -1810,7 +1810,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 		test.ok(not_get_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, [{c:1},{c:1},{c:1},{c:3}]);
-		test.expect(12);
+		test.expect(10);
 		test.done();	
 	});
 					
