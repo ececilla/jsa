@@ -34,6 +34,7 @@ exports["api.remote.join: missing params"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{join:1}}}} 
 		}
 	});
+	sb.init();
 	sb.add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
 		
@@ -114,7 +115,7 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
@@ -193,7 +194,7 @@ exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	

@@ -22,7 +22,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"))
@@ -178,7 +178,7 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"),"dummy")
@@ -254,7 +254,7 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"),"dummy")
@@ -331,7 +331,7 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"),"dummy")
@@ -388,7 +388,7 @@ exports["api.remote.set: valid params, existing inner fields as array, explicit 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
-				  	  	  	    	  	  	 		
+	sb.init();			  	  	  	    	  	  	 		
 	
 	var params = {catalog:"dummy",wid:"50187f71556efcbb25000001",fname:["b.0","a","c.d"],value:0};
 
@@ -448,7 +448,7 @@ exports["api.remote.set: valid params,non existing inner array field, explicit c
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{set:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"),"dummy")

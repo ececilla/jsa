@@ -36,6 +36,7 @@ exports["api.remote.register: missing params"] = function(test){
 					"./server":{config:{app:{status:1},db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{register:1}}}}	 
 		}
 	});
+	sb.init();
 	sb.add_constraint_pre("register","param_user",sb.constraints.is_required("user"))
 	  .add_constraint_pre("register","user_type",sb.constraints.param_type("user","object"));
 		
@@ -88,6 +89,7 @@ exports["api.remote.register: invalid params: user != object"] = function(test){
 					"./server":{config:{app:{status:1},db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{register:1}}}}	 
 		}
 	});
+	sb.init();
 	sb.add_constraint_pre("register","param_user",sb.constraints.is_required("user"))
 	  .add_constraint_pre("register","user_type",sb.constraints.param_type("user","object"));
 		
@@ -145,6 +147,7 @@ exports["api.remote.register: valid params"] = function(test){
 					"./server":{config:{app:{status:1},db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{register:1}}}}	 
 		}
 	});
+	sb.init();
 	sb.add_constraint_pre("register","param_user",sb.constraints.is_required("user"))
 	  .add_constraint_pre("register","user_type",sb.constraints.param_type("user","object"));
 		

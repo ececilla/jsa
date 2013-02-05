@@ -22,7 +22,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{shift:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("shift","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("shift","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("shift","param_wid",sb.constraints.is_required("wid"))
@@ -186,7 +186,7 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{shift:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("shift","not_catalog",sb.constraints.not_catalog,"fooooo")
 	  .add_constraint_post("shift","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("shift","param_uid",sb.constraints.is_required("uid"),"dummy")
@@ -259,7 +259,7 @@ exports["api.remote.shift: valid params, existing inner field as array, explicit
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{shift:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("shift","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("shift","param_wid",sb.constraints.is_required("wid"),"dummy")
 	  .add_constraint_post("shift","param_uid",sb.constraints.is_required("uid"),"dummy")

@@ -24,7 +24,7 @@ exports["api.remote.search: missing & wrong params"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"], user_catalogs:["docs","dummy"]}},api:{config:{procedures:{search:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
@@ -100,7 +100,7 @@ exports["api.remote.search: valid params with results"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"], user_catalogs:["docs","dummy"]}},api:{config:{procedures:{search:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
@@ -163,7 +163,7 @@ exports["api.remote.search: valid params with no results"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"], user_catalogs:["docs","dummy"]}},api:{config:{procedures:{search:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)

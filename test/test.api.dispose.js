@@ -25,6 +25,7 @@ exports["api.remote.dispose: missing params"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dispose:1}}}} 
 		}
 	});
+	sb.init();
 	sb.add_constraint_post("dispose","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("dispose","param_uid",sb.constraints.is_required("uid"));
 		
@@ -86,6 +87,7 @@ exports["api.remote.dispose: valid params, wid not found, not owner"] = function
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{dispose:1}}}} 
 		}
 	});
+	sb.init();
 	sb.add_constraint_post("dispose","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("dispose","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_pre("dispose","not_catalog",sb.constraints.not_catalog,"timers")
@@ -173,7 +175,7 @@ exports["api.remote.dispose: valid params, default catalog"] = function(test){
 				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{dispose:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("dispose","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("dispose","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("dispose","not_catalog",sb.constraints.not_catalog,"timers")

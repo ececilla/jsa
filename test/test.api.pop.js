@@ -26,7 +26,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{pop:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("pop","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("pop","param_uid",sb.constraints.is_required("uid"))
@@ -188,7 +188,7 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{pop:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("pop","param_wid",sb.constraints.is_required("wid"),"dummy")
@@ -261,7 +261,7 @@ exports["api.remote.pop: valid params, existing inner field as array, explicit c
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{pop:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"events") 
 	  .add_constraint_post("pop","param_wid",sb.constraints.is_required("wid"),"dummy")

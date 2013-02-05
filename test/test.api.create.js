@@ -40,6 +40,7 @@ exports["api.remote.create: missing params"] = function(test){
 					"./server":{config:{app:{status:1},db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"));
 		
@@ -105,6 +106,7 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 					"./server":{config:{app:{status:1}, db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"events")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"events")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events");
@@ -168,6 +170,7 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 					"./server":{config:{app:{status:1}, db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
@@ -263,7 +266,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
@@ -341,7 +344,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 					"./server":{config:{app:{status:1}, db:{system_catalogs:["timers","events"],default_catalog:"docs"}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"dummy")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
@@ -418,7 +421,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"dummy")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
@@ -500,7 +503,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"))
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
@@ -579,7 +582,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs",system_catalogs:["timers","events"]}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"dummy")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
@@ -666,7 +669,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{create:1}}}}	 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("create","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("create","param_doc",sb.constraints.is_required("doc"),"dummy")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")

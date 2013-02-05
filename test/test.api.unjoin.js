@@ -32,7 +32,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("unjoin","param_wid",sb.constraints.is_required("wid"))
@@ -135,7 +135,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}}				 		  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("unjoin","has_joined",sb.constraints.has_joined)	
@@ -190,7 +190,7 @@ exports["api.remote.unjoin: valid params, wid not found"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}}				 		  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("unjoin","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("unjoin","has_joined",sb.constraints.has_joined)	

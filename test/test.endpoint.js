@@ -222,7 +222,7 @@ exports["endpoint.rpc + add_plugin:custom plugin"] = function(test){
 		
 			}
 	});		
-	
+	sb.init();
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{	
 					"./sandbox":sb,"./server":{config:{app:{version:"0.0.14"}}}											 
@@ -331,7 +331,7 @@ exports["endpoint.rpc: method invocation: with result, no params"] = function(te
 		
 			}
 	});		
-	
+	sb.init();
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{	
 					"./sandbox":sb,"./server":{config:{app:{version:"0.0.14"}}}											 
@@ -380,7 +380,7 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 					"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}}
 	});			 				
-	
+	sb.init();
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{"./sandbox":sb,"./server":{config:{app:{version:"0.0.14"}}}}
 	});
@@ -422,7 +422,7 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 		}
 	});			 				
-	
+	sb.init();
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{"./sandbox":sb, "./server":{config:{app:{version:"0.0.14"}}}}
 	});
@@ -467,7 +467,7 @@ exports["endpoint.rpc: method invocation without id"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
 					}
 	});			 				
-	
+	sb.init();
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{"./sandbox":sb, "./server":{config:{app:{version:"0.0.14"}}}}
 	});

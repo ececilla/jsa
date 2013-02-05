@@ -74,6 +74,7 @@ exports["sandbox.add_constraint_post: non satisfied constraints"] = function(tes
 	});
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
+	sb.init();
 	sb.add_constraint_post("join","params",function( ctx ){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
@@ -141,6 +142,7 @@ exports["sandbox.add_constraint_pre: non satisfied anonymous constraints"] = fun
 	});
 	
 	var params = {miss_uid:620793116,wid:"5074b135d03a0ac443000001"};
+	sb.init();
 	sb.add_constraint_pre("join",function( ctx ){
 						
 		test.equal(ctx.doc, undefined);
@@ -223,7 +225,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 	});
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
-	
+	sb.init();
 	sb.add_constraint_post("join","wid.length",function(ctx){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
@@ -301,7 +303,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 	});
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
-	
+	sb.init();
 	sb.add_constraint_post("dummy","wid.length",function(ctx){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
@@ -368,7 +370,7 @@ exports["sandbox.add_constraint_post: wid not found"] = function(test){
 	});
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000002"}; //wid not found
-	
+	sb.init();
 	sb.add_constraint_post("join","params",function( ctx ){ //executed constraint
 				
 		
@@ -434,7 +436,7 @@ exports["sandbox.add_constraint_post: uid not found"] = function(test){
 	});
 	
 	var params = {uid:"5074b135d03a0ac443000002",wid:"5074b135d03a0ac443666666"}; //uid not found		
-	
+	sb.init();
 	sb.execute("join", params, function(err,result){
 		
 		test.deepEqual(err, { code: -1, message: 'User not found: #users/5074b135d03a0ac443000002' });
@@ -475,7 +477,7 @@ exports["sandbox.add_constraint_post: no wid, uid"] = function(test){
 	});
 	
 	var params = {uid:620793116,doc:{test:1}};
-		
+	sb.init();	
 	sb.add_constraint_post("create","params",function( ctx ){
 		
 		test.deepEqual(ctx.params, {uid:620793116,doc:{test:1},catalog:"docs"});
@@ -529,7 +531,7 @@ exports["sandbox.add_constraint_post: wid, no uid"] = function(test){
 	});
 	
 	var params = {wid:"5074b135d03a0ac443000001",doc:{test:1}};
-		
+	sb.init();	
 	sb.add_constraint_post("test","params",function( ctx ){
 		
 		test.deepEqual(ctx.params, {wid:"5074b135d03a0ac443000001",doc:{test:1},catalog:"docs"});
@@ -581,7 +583,7 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 	});
 	
 	var params = {uid:620793116,doc:"not an object"};
-		
+	sb.init();	
 	sb.add_constraint_post("create","params",function( ctx ){
 				
 		test.deepEqual(ctx.params, {uid:620793116,doc:"not an object",catalog:"docs"});
@@ -640,7 +642,7 @@ exports["sandbox.copy_constraints: constraints.is_owner"] = function(test){
 	});
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"dummy"};
-	
+	sb.init();
 	sb.add_constraint_post("test","is_owner",sb.constraints.is_owner)
 	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"events");
@@ -689,6 +691,7 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
+	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"events");
@@ -733,6 +736,7 @@ exports["sandbox.add_constraint_post: constraints.is_owner"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
+	sb.init();
 	sb.add_constraint_post("join","is_owner",sb.constraints.is_owner)
 	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events");
@@ -776,6 +780,7 @@ exports["sandbox.add_constraint_post: constraints.has_joined"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
+	sb.init();
 	sb .add_constraint_post("join","has_joined",sb.constraints.has_joined);
 	
 	sb.execute("join", params, function(err,result){
@@ -817,6 +822,7 @@ exports["sandbox.add_constraint_post: constraints.not_catalog"] = function(test)
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"timers"};
 	
+	sb.init();
 	sb .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers");
 	
 	sb.execute("join", params, function(err,result){
@@ -861,6 +867,7 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"dummy"};//non-valid user catalog
 	
+	sb.init();
 	sb .add_constraint_post("test","user_catalog",sb.constraints.user_catalog,"dummy");
 	
 	sb.execute("test", params, function(err,result){
@@ -904,6 +911,7 @@ exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test)
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
+	sb.init();
 	sb.add_constraint_post("join","is_joinable",sb.constraints.is_joinable)
 	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers");
 	
@@ -946,6 +954,7 @@ exports["sandbox.add_constraint_post: constraints.is_reserved"] = function(test)
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"_id", value:4};
 	
+	sb.init();
 	sb.add_constraint_post("set","is_reserved",sb.constraints.is_reserved)
 	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers");
 	
@@ -988,6 +997,7 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:4};
 	
+	sb.init();
 	sb.add_constraint_post("set","field_exists",sb.constraints.field_exists)
 	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers");
 	
@@ -1031,6 +1041,7 @@ exports["sandbox.add_constraint_post: constraints.field_type object"] = function
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 	
+	sb.init();
 	sb.add_constraint_post("set","field_type",sb.constraints.field_type("object"))
 	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events");
 	
@@ -1074,6 +1085,7 @@ exports["sandbox.add_constraint_post: constraints.field_type array"] = function(
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:5};
 	
+	sb.init();
 	sb.add_constraint_pre("push","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("push","field_type",sb.constraints.field_type("array"));
 	  
@@ -1117,7 +1129,8 @@ exports["sandbox.add_constraint_pre: constraints.is_required"] = function(test){
 	});
 	
 	var params = {uid:620793116, fname:"test", value:4};
-		
+	
+	sb.init();	
 	sb.add_constraint_pre("set","param_required_uid",sb.constraints.is_required("uid"))
 	  .add_constraint_pre("set","param_required_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_pre("set","param_required_fname",sb.constraints.is_required("fname"))
@@ -1163,7 +1176,8 @@ exports["sandbox.add_constraint_pre: constraints.is_protected"] = function(test)
 	});
 	
 	var params = {uid:620793116, fname:["test","test2"], value:4};
-		
+	
+	sb.init();	
 	sb.add_constraint_pre("set","protected_test",sb.constraints.is_protected("test"))	  
 	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"events");
@@ -1206,7 +1220,8 @@ exports["sandbox.add_constraint_pre: constraints.is_protected array"] = function
 	});
 	
 	var params = {uid:620793116, fname:["test","test2"], value:4};
-		
+	
+	sb.init();	
 	sb.add_constraint_pre("set","protected_test",sb.constraints.is_protected(["test3","test"]))	  
 	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"events");
@@ -1234,7 +1249,8 @@ exports["sandbox.add_constraint_pre: constraints.is_disabled"] = function(test){
 	});
 	
 	var params = {catalog:"dummy"};
-		
+	
+	sb.init();	
 	sb.add_constraint_pre("test","is_disabled_test",sb.constraints.is_disabled,"dummy");	  	  
 	  
 	
@@ -1300,7 +1316,8 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 	});	
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
-		
+	
+	sb.init();	
 	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers");
 	
 	sb.execute("set", params, function(err,result){
@@ -1325,7 +1342,7 @@ exports["sandbox.add_constraint_post: method not found"] = function(test){
 	}});				
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 		
-		
+	sb.init();	
 	sb.execute("foooooo", params, function(err,result){
 						
 		test.deepEqual(err,{ code: -32601, message: "Method not found." });									
@@ -1364,7 +1381,7 @@ exports["sandbox.add_plugin_in: custom plugin"] = function(test){
 	});
 	
 	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
-	
+	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
@@ -1415,7 +1432,7 @@ exports["sandbox.add_plugin_in: custom plugin, ctx.err returned"] = function(tes
 	
 	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
 	
-	
+	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_plugin_in("test",function(ctx, end_handler){
@@ -1470,6 +1487,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.retval interception"] = fun
 	
 	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
 	
+	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
@@ -1539,6 +1557,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.doc interception"] = functi
 	
 	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
 	
+	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
@@ -1615,6 +1634,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.payload interception"] = fu
 	
 	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
 	
+	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_plugin_out("test",function(ctx, end_handler){
@@ -1671,6 +1691,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 	
 	var params = {uid:620793115,wid:"5074b135d03a0ac443000001",notifiable:1};
 	
+	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_plugin_in("test",sb.plugins.notifying_doc);
@@ -1720,6 +1741,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform1"] = function(test
 	
 	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:a.b.3.c"};
 	
+	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
@@ -1769,6 +1791,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform2"] = function(test
 	
 	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:"};
 	
+	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_plugin_in("test",sb.plugins.url_transform);
@@ -1816,6 +1839,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform3"] = function(test
 	
 	var params = {uid:620793115, url:"#docs/"};
 	
+	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")	  	  	  
 	  .add_plugin_in("test",sb.plugins.url_transform);
 	
@@ -1862,6 +1886,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform overwrite"] = func
 	
 	var params = {uid:620793115, url:"#docs/5074b135d03a0ac443000001:test.5", catalog:"dummy", wid:"5074b135d03a0ac443000006", fname:"no-test"};
 	
+	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
 	  .add_plugin_in("test",sb.plugins.url_transform);
 	
@@ -1907,6 +1932,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 	
 	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", config:{test:1} };
 	
+	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
 	  .add_plugin_in("test",sb.plugins.external_config);
@@ -1951,6 +1977,7 @@ exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id"] = function(test){
 	
 	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001" };
 	
+	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
 	  .add_plugin_out("test",sb.plugins.rewrite_id);
@@ -1994,6 +2021,7 @@ exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id over array"] = funct
 	
 	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001" };
 	
+	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
 	  .add_plugin_out("test",sb.plugins.rewrite_id);

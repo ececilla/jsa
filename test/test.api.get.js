@@ -22,7 +22,7 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"))	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists);
@@ -108,7 +108,7 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
@@ -157,7 +157,7 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"users")	  	  	    	  
@@ -205,7 +205,7 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
@@ -252,7 +252,7 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  	  
 	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
@@ -298,7 +298,7 @@ exports["api.remote.get: valid params, existing inner index, explicit catalog, d
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
@@ -346,7 +346,7 @@ exports["api.remote.get: valid params, existing inner index range, explicit cata
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
 	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")

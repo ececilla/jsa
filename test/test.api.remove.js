@@ -27,7 +27,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}} 
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"events") 
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"))
@@ -177,7 +177,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
@@ -252,7 +252,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
@@ -328,7 +328,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"events") 
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
@@ -397,7 +397,7 @@ exports["api.remote.remove: valid params, non existing array index, explicit cat
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs",system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
-	
+	sb.init();
 	sb.add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
