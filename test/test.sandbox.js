@@ -505,28 +505,39 @@ exports["sandbox.add_constraint_post: wid, no uid"] = function(test){
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
-										
-								if( col_str == "docs"){
-									test.equal(col_str,"docs");
-									test.equal(id_str,"5074b135d03a0ac443000001");
-									ret_handler(null,dbdocs["5074b135d03a0ac443000001"]);
-								}else if( col_str == "users"){
-																											
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
-								}		
-							}
-		},
-		"./api":{remote:{ test:function( ctx, ret_handler){
-							 
-							 test.deepEqual(ctx.doc, {_id:12345, test:"test", uid:620793114, rcpts:[620793114] });
-							 test.deepEqual(ctx.params, {wid:"5074b135d03a0ac443000001",doc:{test:1},catalog:"docs"});
-							 ctx.config.save = 0;
-							 ret_handler(null, {foo:66} );
-						  }
+				select: function(col_str, id_str, ret_handler){
+							
+					if( col_str == "docs"){
+						test.equal(col_str,"docs");
+						test.equal(id_str,"5074b135d03a0ac443000001");
+						ret_handler(null,dbdocs["5074b135d03a0ac443000001"]);
+					}		
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		"./api":{remote:{ 
+						test:function( ctx, ret_handler){
+							 
+							test.deepEqual(ctx.doc, {_id:12345, test:"test", uid:620793114, rcpts:[620793114] });
+							test.deepEqual(ctx.params, {wid:"5074b135d03a0ac443000001",doc:{test:1},catalog:"docs"});
+							ctx.config.save = 0;
+							
+							//change doc object
+							ctx.doc.test = "test changed";
+							 
+							//change params object
+							ctx.params.doc.test = 5;
+							 
+							ret_handler(null, {foo:66} );
+						},
+						foo: function(ctx,ret_handler){
+						 	
+							test.deepEqual(ctx.doc,{_id:12345, test:"test changed", uid:620793114, rcpts:[620793114] });
+							test.deepEqual(ctx.params,{wid:"5074b135d03a0ac443000001",doc:{test:5},catalog:"docs"});						 							 	
+						 	ret_handler(null,{bar:1});
+						}
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1,foo:1}}}}
 	}
 	});
 	
@@ -548,8 +559,13 @@ exports["sandbox.add_constraint_post: wid, no uid"] = function(test){
 		
 		test.ok(flag);
 		test.deepEqual(ctx.retval,{foo:66});
-		test.expect(9);
-		test.done();
+		sb.execute("foo",ctx,function(err,ctx){
+			
+			test.deepEqual(ctx.retval,{bar:1});
+			test.expect(12);
+			test.done();	
+		});
+		
 	});
 		
 }
