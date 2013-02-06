@@ -305,7 +305,8 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 								test.equal( doc.rcpts, undefined);
 								
 								test.notEqual(doc.ctime, undefined);
-								test.equal(typeof doc.ctime, "number");	
+								test.equal(typeof doc.ctime, "number");
+								test.equal(typeof doc.utime, "number");
 								test.equal(doc.catalog,"dummy");
 								
 								doc._id = "50187f71556efcbb25000002";										
@@ -357,7 +358,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(13);
+		test.expect(14);
 		test.done();			
 	});	    
 	
@@ -381,6 +382,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 									test.deepEqual( doc.rcpts, [620793114, 620793115]);
 									
 									test.notEqual(doc.ctime, undefined);
+									test.notEqual(doc.utime, undefined);
 									test.equal(typeof doc.ctime, "number");	
 									test.equal(doc.catalog,"dummy");
 									
@@ -439,7 +441,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(13);
+		test.expect(14);
 		test.done();			
 	});
 	
@@ -464,6 +466,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	
+									test.equal(typeof doc.utime, "number");
 									test.equal(doc.catalog,"docs");
 									
 									doc._id = "50187f71556efcbb25000002";										
@@ -517,7 +520,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(13);
+		test.expect(14);
 		test.done();			
 	});
 				
@@ -543,6 +546,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	
+									test.equal(typeof doc.utime, "number");
 									test.equal(doc.catalog,"dummy");
 									
 									doc._id = "50187f71556efcbb25000002";										
@@ -596,7 +600,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 		test.ok(flag);				
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(13);
+		test.expect(14);
 		test.done();			
 	});	
 	
@@ -623,6 +627,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	
+									test.equal(typeof doc.utime, "number");
 									test.equal(doc.catalog,"dummy");
 									
 									doc._id = "50187f71556efcbb25000002";										
@@ -688,7 +693,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 		test.ok(flag);				
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(16);		
+		test.expect(17);		
 		test.done();			
 	});
 		
