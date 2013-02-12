@@ -5,7 +5,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 			
 	var flag = 1;
 	var dbdocs = {};
-	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, catalog:"dummy", test:"test", rcpts:[620793114,620793115]};
+	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, catalog:"dummy", test:"test", rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-115",push_type:"gcm"}]};
 		
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -88,7 +88,7 @@ exports["api.remote.unjoin: missing & wrong params"] = function(test){
 exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db async"] = function(test){
 	
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[620793115,620793117], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{push_id:"gcm-115",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 				
 	
 	var sb = sandbox.require("../lib/sandbox",{
@@ -109,7 +109,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 									test.equal(col_str,"users");
 									setTimeout(function(){//10ms delay loading user document
 									
-										ret_handler(null,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+										ret_handler(null,{_id:620793114, push_id:"gcm-117", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 									},10);																		
 								}																																																																															
 							},
@@ -117,7 +117,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 								
 								if(col_str == "docs"){	//autosaving doc.																						
 									test.equal(col_str,"docs");
-									test.deepEqual(doc.rcpts,[620793115]);
+									test.deepEqual(doc.rcpts,[{push_id:"gcm-115",push_type:"gcm"}]);
 									
 									setTimeout(function(){//100ms delay saving document
 										
@@ -126,7 +126,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 								}else if(col_str == "users"){ //autosaving user.
 									
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:[]});
+									test.deepEqual(doc,{_id:620793114,push_id:"gcm-117",push_type:"gcm", name:"enric",wids:[]});
 									ret_handler(null,doc);
 								}
 									
