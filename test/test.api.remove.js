@@ -4,7 +4,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 	
 
 	var dbdocs = {};
-	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, catalog:"docs", test:"test", z:{y:1}, rcpts:[620793114,620793115]};
+	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, catalog:"docs", test:"test", z:{y:1}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-115",push_type:"gcm"}]};
 		
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -17,8 +17,11 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 									
 								}else if(col_str == "users"){
 									
-									test.equal(col_str,"users");																		
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000002"]});
+									test.equal(col_str,"users");
+									if(id_str == 620793114)																		
+										ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+									else if(id_str == 620793999)
+										ret_handler(null,{_id:id_str, push_id:"gcm-999", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}else
 									ret_handler(null,null);																														
 																
@@ -130,7 +133,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 	
 	
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:"test1234", rcpts:[620793114,620793117], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:"test1234", rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 		
 				
 	var sb = sandbox.require("../lib/sandbox",{
@@ -150,7 +153,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 								}else if(col_str == "users"){
 									
 									test.equal(col_str,"users");																		
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+									ret_handler(null,{_id:id_str, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 								}																																																						
 																
 							},
@@ -168,7 +171,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 								}else if( col_str == "users"){
 									
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}
 								
@@ -207,7 +210,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 exports["api.remote.remove: valid params, existing inner field, explicit catalog, db async"] = function(test){
 					
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,b:2}, rcpts:[620793114,620793117], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,b:2}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 		
 				
 	var sb = sandbox.require("../lib/sandbox",{
@@ -226,7 +229,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 								}else if( col_str == "users"){
 									
 									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+									ret_handler(null,{_id:id_str,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 								}
 																
 							},
@@ -243,7 +246,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 								}else if( col_str == "users"){
 									
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}
 								
@@ -283,7 +286,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 		
 	
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,b:[4,5,6]}, rcpts:[620793114,620793117], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,b:[4,5,6]}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 		
 				
 	var sb = sandbox.require("../lib/sandbox",{
@@ -302,7 +305,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 								}else if( col_str == "users"){
 									
 									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 								}
 																
 							},
@@ -319,7 +322,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 								}else if( col_str == "users"){
 									
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}
 								
