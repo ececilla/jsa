@@ -3,7 +3,7 @@ var sandbox = require("sandboxed-module");
 exports["api.remote.push: missing & wrong params"] = function(test){
 	
 	var dbdocs = {};
-	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, test:[4,5,6], z:{y:1}, rcpts:[620793114,620793115]};
+	dbdocs["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, test:[4,5,6], z:{y:1}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-115",push_type:"gcm"}]};
 		
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -12,8 +12,11 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 								if(col_str == "docs")								
 									ret_handler(null,dbdocs[id_str]);
 								else if( col_str == "users"){
-																											
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000002"]});
+									
+									if(id_str == 620793114)																		
+										ret_handler(null,{_id:id_str, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+									else if(id_str == 620793999)
+										ret_handler(null,{_id:id_str, push_id:"gcm-999", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}	
 								else
 									ret_handler(null,null);								
@@ -151,7 +154,7 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 	
 
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 		
 				
 	var sb = sandbox.require("../lib/sandbox",{
@@ -169,7 +172,7 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 									},50);
 								}else if( col_str == "users"){
 																											
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000002"]});
+									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}
 																
 							},
@@ -186,7 +189,7 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 								}else if(col_str == "users"){
 									
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000002"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 									ret_handler(null);
 								}
 								
@@ -226,7 +229,7 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 	
 		
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{b:[4,5,6],c:1}, rcpts:[620793114,620793117], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{b:[4,5,6],c:1}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 		
 				
 	var sb = sandbox.require("../lib/sandbox",{
@@ -244,7 +247,7 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 									},50);
 								}else if( col_str == "users"){
 																											
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000002"]});
+									ret_handler(null,{_id:id_str,push_id:"gcm-114", push_type:"gcm" , name:"enric",wids:["50187f71556efcbb25000002"]});
 								}
 																
 							},
@@ -260,7 +263,7 @@ exports["api.remote.push: valid params, existing inner field as array, explicit 
 									},50);
 								}else if( col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000002"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 									ret_handler(null);
 								}
 								
