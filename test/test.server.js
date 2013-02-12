@@ -815,15 +815,15 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	
 	var dbdocs = {};//documents at db	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115], uid:620793115, catalog:"docs"},
-		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115], uid:620793115, catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[{push_id:"gcm-115",push_type:"gcm"}], uid:620793115, catalog:"docs"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[{push_id:"gcm-115",push_type:"gcm"}], uid:620793115, catalog:"docs"};
 	
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
 					if(col_str == "docs"){
 						test.equal(col_str,"docs");																								
-						test.deepEqual( doc.rcpts, [620793115, 620793114]);
+						test.deepEqual( doc.rcpts, [{push_id:"gcm-115",push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm"}]);
 											
 						setTimeout(function(){
 							
@@ -831,7 +831,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 						},50);	
 					}else if(col_str == "users"){
 						test.equal(col_str,"users");
-						test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+						test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 						ret_handler(null);						
 					}
 				},
@@ -848,7 +848,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 						},50);	
 					}else if( col_str == "users"){
 						
-						ret_handler(null,{_id:id_str, name:"enric",wids:[]});
+						ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});
 					}
 				}
 	};
@@ -876,7 +876,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 		test.equal(msg.ev_ctx.params.uid, params.uid);
 		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_ctx.params.catalog, "docs");					
-		test.deepEqual(msg.ev_ctx.doc.rcpts, [620793115,620793114]);							
+		test.deepEqual(msg.ev_ctx.doc.rcpts, [{push_id:"gcm-115",push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm"}]);							
 	});
 				
 	
