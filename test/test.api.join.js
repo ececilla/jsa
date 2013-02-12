@@ -67,7 +67,7 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 	
 		
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[620793115,620793117], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
 		
 	
 	var api = sandbox.require("../lib/api",{
@@ -75,7 +75,7 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 							
 		}}
 	});
-	var dbusers = {620793114:{name:"enric",wids:[]}, 620793117:{uid:"foo",wids:["50187f71556efcbb25000001"]}};
+	var dbusers = {620793114:{name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -96,7 +96,7 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 															
 								if(col_str == "docs"){								
 									test.equal(col_str,"docs");
-									test.deepEqual(doc.rcpts, [620793115, 620793117, 620793114]);
+									test.deepEqual(doc.rcpts, [{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm"}]);
 																	
 									//save doc to db...returns with _id:12345
 									setTimeout(function(){//100ms delay saving document
@@ -131,7 +131,7 @@ exports["api.remote.join: valid params, default catalog, db async"] = function(t
 								
 				test.ok(flag);				
 				test.equal(err,null);		
-				test.deepEqual(ctx.retval.rcpts, [620793115, 620793117, 620793114]);
+				test.deepEqual(ctx.retval.rcpts, [{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm"}]);
 				test.equal(ctx.retval._id, undefined);		
 				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
 				test.equal(ctx.retval.catalog, "docs");		
