@@ -19,6 +19,17 @@ exports["util.has_joined: false"] = function(test){
 	
 }
 
+
+exports["util.has_joined: undefined"] = function(test){
+	
+	var util = require("../lib/util");
+	var rcpts_arr = [{push_id:"123", push_type:"web"},{push_id:"456",push_type:"gcm"},{push_id:"789",push_type:"gcm"}];
+	test.equal( false, util.has_joined(rcpts_arr,undefined));
+	test.done();
+	
+}
+
+
 exports["util.is_array: true"] = function(test){
 	
 	var util = require("../lib/util");
