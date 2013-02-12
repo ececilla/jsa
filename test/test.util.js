@@ -1,6 +1,49 @@
 
 var sandbox = require("sandboxed-module");
 
+exports["util.has_joined: true"] = function(test){
+	
+	var util = require("../lib/util");
+	var rcpts_arr = [{push_id:"123", push_type:"web"},{push_id:"456",push_type:"gcm"},{push_id:"789",push_type:"gcm"}];
+	test.ok(util.has_joined(rcpts_arr,"123"));
+	test.done();
+	
+}
+
+exports["util.has_joined: false"] = function(test){
+	
+	var util = require("../lib/util");
+	var rcpts_arr = [{push_id:"123", push_type:"web"},{push_id:"456",push_type:"gcm"},{push_id:"789",push_type:"gcm"}];
+	test.equal( false, util.has_joined(rcpts_arr,"124"));
+	test.done();
+	
+}
+
+exports["util.is_array: true"] = function(test){
+	
+	var util = require("../lib/util");
+	var obj = [1,2,3];
+	test.ok( util.is_array(obj) );
+	test.done();	
+	
+}
+
+
+exports["util.is_array: false"] = function(test){
+	
+	var util = require("../lib/util");
+	var obj = {};
+	test.equal( false, util.is_array(obj) );
+	obj = "";
+	test.equal( false, util.is_array(obj) );
+	obj = 5;
+	test.equal( false, util.is_array(obj) );
+	obj = function(){}
+	test.equal( false, util.is_array(obj) );
+	test.done();	
+	
+}
+
 exports["util.get_field:existing field-path"] = function(test){
 	
 	var util = require("../lib/util");	
