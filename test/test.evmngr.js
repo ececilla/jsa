@@ -6,12 +6,77 @@ exports["module exported functions"] = function(test){
 	test.notEqual( em.remote.subscribe, undefined);
 	test.notEqual( em.add_push_provider, undefined);
 	test.notEqual( em.api.listen, undefined);
+	test.notEqual( em.emit, undefined);
+	test.notEqual( em.on, undefined);
 	
-	test.expect(3);
+	test.expect(5);
 	test.done();
 }
 
-exports["evmngr.api.listen: custom event, explicit ctx.config.rcpts, removed uid"] = function(test){
+exports["evmngr.api.listen: custom event, explicit rcpts, different push_providers"] = function(test){
+
+	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"gcm"}];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+		
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	
+					"./db":{	
+								save: function(col_str, msg, ret_handler){
+																																																			
+									test.equal(col_str,"events");
+									test.equal(msg.ev_type,"ev_dummy");
+									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+									
+									ret_handler();
+																										
+								}	
+					}
+		}
+	});
+		
+	var em = sandbox.require("../lib/evmngr",{
+		requires:{	"./api":api,"./evqueue":eq }
+	});
+	
+	em.add_push_provider("web",{ 
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,620793119);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+						
+		}
+	});
+	em.add_push_provider("gcm",{ //overwrite existing web push provider
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,620793115);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+						
+		}
+	});
+				
+	
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	
+	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
+	ctx.payload = ctx.params;
+	api.emit("ev_dummy", ctx, rcpts);
+		
+		
+	test.expect(9);
+	test.done();
+	
+}
+
+exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
@@ -54,7 +119,7 @@ exports["evmngr.api.listen: custom event, explicit ctx.config.rcpts, removed uid
 	
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
 	
-	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793115, push_type:"web"}};//payload a emitir
+	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 		
@@ -64,9 +129,116 @@ exports["evmngr.api.listen: custom event, explicit ctx.config.rcpts, removed uid
 	
 }
 
+exports["evmngr.api.listen: custom event, ctx.config.rcpts, removed uid"] = function(test){
+
+	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+		
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	
+					"./db":{	
+								save: function(col_str, msg, ret_handler){
+																																																			
+									test.equal(col_str,"events");
+									test.equal(msg.ev_type,"ev_dummy");
+									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+									
+									ret_handler();
+																										
+								}	
+					}
+		}
+	});
+		
+	var em = sandbox.require("../lib/evmngr",{
+		requires:{	"./api":api,"./evqueue":eq }
+	});
+	
+	em.add_push_provider("web",{ //overwrite existing web push provider
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,620793119);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+						
+		}
+	});
+				
+	
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	
+	var ctx = {doc:undefined, params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{rcpts:rcpts}};//payload a emitir
+	ctx.payload = ctx.params;
+	api.emit("ev_dummy", ctx); //rcpts encoded into ctx.config 
+		
+		
+	test.expect(6);
+	test.done();
+	
+}
+
+exports["evmngr.api.listen: custom event, ctx.doc.rcpts, removed uid"] = function(test){
+
+	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+		
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	
+					"./db":{	
+								save: function(col_str, msg, ret_handler){
+																																																			
+									test.equal(col_str,"events");
+									test.equal(msg.ev_type,"ev_dummy");
+									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+									
+									ret_handler();
+																										
+								}	
+					}
+		}
+	});
+		
+	var em = sandbox.require("../lib/evmngr",{
+		requires:{	"./api":api,"./evqueue":eq }
+	});
+	
+	em.add_push_provider("web",{ //overwrite existing web push provider
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,620793119);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+						
+		}
+	});
+				
+	
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	
+	var ctx = {doc:{rcpts:rcpts}, params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{}};//payload a emitir
+	ctx.payload = ctx.params;
+	api.emit("ev_dummy", ctx); //rcpts encoded into ctx.config 
+		
+		
+	test.expect(6);
+	test.done();
+	
+}
 
 
-exports["evmngr.api.listen: custom event, explicit ctx.config.rcpts, subscription"] = function(test){
+
+
+exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
@@ -134,6 +306,7 @@ exports["evmngr.api.listen: custom event, explicit ctx.config.rcpts, subscriptio
 	test.done();
 	
 }
+
 
 
 exports["evmngr.on: listening custom event, wrong event emitted"] = function(test){
