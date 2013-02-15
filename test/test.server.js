@@ -1637,7 +1637,7 @@ exports["server.api.config.newop: invocation"] = function(test){
 
 exports["server.api.config.newop: event custom params"] = function(test){
 		
-	var rcpts = [5,6,7,8];
+	var rcpts = [{push_id:5, push_type:"web"},{push_id:6, push_type:"web"},{push_id:7, push_type:"web"},{push_id:8, push_type:"web"}];
 	var myparams = {foo:1, bar:"test"};	
 					
 	var api = require("../lib/api");
@@ -1678,7 +1678,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	server.api.events.on("ev_api_dummy", function(msg, rcpts){
 						
 		test.deepEqual(msg.ev_ctx.payload,msg.ev_ctx.params);
-		test.deepEqual(rcpts,[5,6,7,8]);				
+		test.deepEqual(rcpts,[{push_id:5, push_type:"web"},{push_id:6, push_type:"web"},{push_id:7, push_type:"web"},{push_id:8, push_type:"web"}]);				
 					
 	});
 	
@@ -1686,7 +1686,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	server.api.events.dummy.on(function(msg){
 		
 		test.deepEqual(msg.ev_ctx.payload,msg.ev_ctx.params);
-		test.deepEqual(rcpts,[5,6,7,8]);
+		test.deepEqual(rcpts,[{push_id:5, push_type:"web"},{push_id:6, push_type:"web"},{push_id:7, push_type:"web"},{push_id:8, push_type:"web"}]);
 	});
 		
 	test.notEqual( api.remote["dummy"], undefined );	
