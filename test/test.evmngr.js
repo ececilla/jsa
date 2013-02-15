@@ -13,7 +13,7 @@ exports["module exported functions"] = function(test){
 	test.done();
 }
 
-exports["evmngr.api.listen: custom event, explicit rcpts, different push_providers"] = function(test){
+exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch push_providers"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"gcm"}];
@@ -62,6 +62,14 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different push_provide
 						
 		}
 	});
+	var flag = 1;
+	em.add_push_provider("batch",{
+		
+		push:function(ids, push_msg){
+			
+			flag = 0;
+		}
+	},true)
 				
 	
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
@@ -70,11 +78,94 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different push_provide
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 		
-		
-	test.expect(9);
+	test.ok(flag);	
+	test.expect(10);
 	test.done();
 	
 }
+
+exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch push_providers"] = function(test){
+
+	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:"gcm-115",push_type:"gcm"},{push_id:620793116,push_type:"batch1"},{push_id:620793117,push_type:"batch1"},{push_id:620793118,push_type:"batch2"}];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+		
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	
+					"./db":{	
+								save: function(col_str, msg, ret_handler){
+																																																			
+									test.equal(col_str,"events");
+									test.equal(msg.ev_type,"ev_dummy");
+									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+									
+									ret_handler();
+																										
+								}	
+					}
+		}
+	});
+		
+	var em = sandbox.require("../lib/evmngr",{
+		requires:{	"./api":api,"./evqueue":eq }
+	});
+	
+	em.add_push_provider("web",{//overwrite existing non-batch web push provider 
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,620793119);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+						
+		}
+	});//default value for is_batch is false
+	em.add_push_provider("gcm",{ //is non-batch push provider
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,"gcm-115");
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+						
+		}
+	},false);
+	
+	em.add_push_provider("batch1",{//is batch push provider
+		
+		push:function(push_ids, push_msg){
+			
+			test.deepEqual(push_ids,[620793116, 620793117]);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});			
+		}
+	},true);
+	
+	em.add_push_provider("batch2",{//is batch push provider
+		
+		push:function(push_ids, push_msg){
+			
+			test.deepEqual(push_ids,[620793118]);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});			
+		}
+	},true);
+				
+	
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	
+	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
+	ctx.payload = ctx.params;
+	api.emit("ev_dummy", ctx, rcpts);
+				
+	test.expect(15);
+	test.done();
+	
+}
+
 
 exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = function(test){
 
