@@ -1759,5 +1759,72 @@ exports["evmngr.on: ev_api_shift autolistening, explicit rcpts"] = function(test
 	
 }
 
+exports["evmngr.on: ev_api_search, subscribed in rcpts"] = function(test){
+		
+	var rpc_params = {uid:620793114, keyword:"foo", catalog:"docs"};
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",keywords:["foo","test"], rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	
+	var api = sandbox.require("../lib/api");
+	
+	em = sandbox.require("../lib/evmngr",{
+		requires:{"./api":api,
+					"./evqueue":{
+								save: function(msg, ret_handler){
+																		
+									test.equal(msg.ev_type,"ev_api_search");
+									test.deepEqual(msg.ev_data,{uid:620793114, keyword:"foo", catalog:"docs"});
+																	
+									ret_handler();
+								}	
+					}
+		}
+	});			
+	
+	
+	/*
+	 * 620793115 gets subscribed to the ev channel which means hes in rcpts list 
+	 * so http_resp.write(...) should be called with the ev_api_create payload.	 
+	 */ 
+	var subs_flags = [0,0]; 	
+	var subs_params = {uid:620793115};
+	var http_resp = {   //mock http response oject
+						on:function(){ subs_flags[0] = 1;},
+						connection:{
+							on:function(){ subs_flags[1] = 1; }
+						},
+						write:function(str){
+															
+								var json_obj = JSON.parse(str);	
+													
+								test.equal(json_obj.ev_type,"ev_api_search");
+								test.notEqual(json_obj.ev_tstamp, undefined);
+								test.equal(typeof json_obj.ev_tstamp, "number");
+								test.deepEqual(json_obj.ev_data,{uid:620793114,keyword:"foo",catalog:"docs"});								
+																								
+						}
+						
+				    }; 
+				    					    
+	//620793115 subscribes to event queue			 
+	em.remote.subscribe(http_resp,subs_params);
+	test.ok(subs_flags[0]);
+	test.ok(subs_flags[1]);
+	
+	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
+	//because it belongs to the notification list (rcpts).
+	//rcpts are pushed via config not document rcpts list.
+	setTimeout(function(){
+		var ctx = {params:rpc_params, config:{rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}]}, doc:{}, retval:[dbdocs["50187f71556efcbb25000001"]], user:{push_id:620793114, push_type:"web"}};
+		ctx.payload = ctx.params;
+		api.emit("ev_api_search",ctx);
+		
+		test.expect(8);
+		test.done();
+	},500);
+		
+}
+
 
 
