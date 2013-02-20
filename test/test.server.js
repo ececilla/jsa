@@ -594,12 +594,12 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 	});
 	
 	sb.init();
-	sb.add_plugin_in("create",sb.plugins.notifying_catalog("dummy"))
-	  .add_plugin_in("create", function(ctx,end_handler){
+	sb.add_plugin_in("create","notif_catalog",sb.plugins.notifying_catalog("dummy"),"dummy")
+	  .add_plugin_in("create","custom_plugin", function(ctx,end_handler){
 	  		
 	  		ctx.params.rcpts.push(620793115);
 	  		end_handler();
-	  });
+	  },"dummy");
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./sandbox":sb,"./api":api}
@@ -693,8 +693,8 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 	});	
 	
 	sb.init();
-	sb.add_plugin_in("create",sb.plugins.notifying_catalog("dummy"))
-	  .add_plugin_in("create", function(ctx,end_handler){
+	sb.add_plugin_in("create","notif_plugin",sb.plugins.notifying_catalog("dummy"),"dummy")
+	  .add_plugin_in("create","custom_plugin", function(ctx,end_handler){
 	  			  		
 	  		server.db.select("dummy","50187f71556efcbb25000002",function(err,val){
 			
@@ -702,7 +702,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 				ctx.params.rcpts.push(val.uid);				
 				end_handler();
 			});	  		
-	  });		
+	  },"dummy");		
 	
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./db":db,"./sandbox":sb}

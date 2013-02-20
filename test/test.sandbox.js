@@ -1904,7 +1904,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform overwrite"] = func
 	
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin_in("test",sb.plugins.url_transform);
+	  .add_plugin_in("test","url_transform",sb.plugins.url_transform,"dummy");
 	
 	sb.execute("test", params, function(err,ctx){
 		
@@ -1951,7 +1951,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin_in("test",sb.plugins.external_config);
+	  .add_plugin_in("test","external_config",sb.plugins.external_config,"dummy");
 	
 	sb.execute("test", params, function(err,ctx){
 				
@@ -1995,9 +1995,9 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_hashtags"] = function(te
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin_in("test",sb.plugins.extract_hashtags("body"))
-	  .add_plugin_in("test",sb.plugins.extract_hashtags("subject"))
-	  .add_plugin_in("test",sb.plugins.extract_hashtags("baaaaaaaaar"));
+	  .add_plugin_in("test","extract_hashtags_body",sb.plugins.extract_hashtags("body"),"dummy")
+	  .add_plugin_in("test","extract_hashtags_subject",sb.plugins.extract_hashtags("subject"),"dummy")
+	  .add_plugin_in("test","extract_hashtags_baaaaaaar",sb.plugins.extract_hashtags("baaaaaaaaar"),"dummy");
 	
 	sb.execute("test", params, function(err,ctx){
 				
@@ -2043,7 +2043,7 @@ exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id"] = function(test){
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin_out("test",sb.plugins.rewrite_id);
+	  .add_plugin_out("test","rewrite_id",sb.plugins.rewrite_id,"dummy");
 	
 	sb.execute("test", params, function(err,ctx){
 				
@@ -2087,7 +2087,7 @@ exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id over array"] = funct
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin_out("test",sb.plugins.rewrite_id);
+	  .add_plugin_out("test","rewrite_id",sb.plugins.rewrite_id,"dummy");
 	
 	sb.execute("test", params, function(err,ctx){
 				
