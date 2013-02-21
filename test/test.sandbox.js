@@ -1990,14 +1990,16 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_hashtags"] = function(te
 	}
 	});
 	
-	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", doc:{body:"this is a #test body #foo",subject:"this is a #subject test aswell #hashtagtest"} };
+	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", doc:{body:"this is a #test body #foo",subject:"this is a #subject #test aswell #hashtagtest",num:1} };
 	
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
 	  .add_plugin_in("test","extract_hashtags_body",sb.plugins.extract_hashtags("body"),"dummy")
 	  .add_plugin_in("test","extract_hashtags_subject",sb.plugins.extract_hashtags("subject"),"dummy")
-	  .add_plugin_in("test","extract_hashtags_baaaaaaar",sb.plugins.extract_hashtags("baaaaaaaaar"),"dummy");
+	  .add_plugin_in("test","extract_hashtags_baaaaaaar",sb.plugins.extract_hashtags("baaaaaaaaar"),"dummy")
+	  .add_plugin_in("test","extract_hashtags_num",sb.plugins.extract_hashtags("num"),"dummy");
+	  
 	
 	sb.execute("test", params, function(err,ctx){
 				
