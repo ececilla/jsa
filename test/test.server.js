@@ -1,6 +1,9 @@
 var sandbox = require("sandboxed-module");
-var CONST = require("../lib/constants");
+var async = require("async");
 
+
+var CONST = require("../lib/constants");
+var time = require("../lib/time");
 
 exports["module exported functions"] = function(test){
 	
@@ -1880,6 +1883,120 @@ exports["server.api.config.newop: get based op"] = function(test){
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, [{c:1},{c:1},{c:1},{c:3}]);
 		test.expect(10);
+		test.done();	
+	});
+					
+}
+
+
+exports["server.api.config.newop: reply"] = function(test){
+	
+	var ObjectID = require('mongodb').ObjectID;
+	var myparams = {wid:"50187f71556efcbb25000001", txt:"This is a reply", uid:"50187f71556efcbb25004444", catalog:"dummy"};
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:new ObjectID("50187f71556efcbb25000001"),replies:[], uid:"50187f71556efcbb25005555", catalog:"dummy"};
+	var dbusers = {};
+		dbusers["50187f71556efcbb25005555"] = {_id:new ObjectID("50187f71556efcbb25005555"), name:"enric", karma:5, wids:["50187f71556efcbb25000001"]};	
+		dbusers["50187f71556efcbb25004444"] = {_id:new ObjectID("50187f71556efcbb25004444"), name:"peter", karma:60, wids:[]};
+	var api = sandbox.require("../lib/api");	    		
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{	"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1,get:1, push:1, reply:1}}}},
+				 	"./db":{				
+								select:function(col_str, id_str, ret_handler){
+									
+									if( col_str == "users"){
+										
+										test.equal(col_str,"users");
+										ret_handler(null,dbusers[id_str]);
+									}else if(col_str == "dummy"){
+										
+										test.equal(col_str,"dummy");
+										ret_handler(null,dbdocs[id_str]);
+									}
+								},
+								save:function(col_str, doc, ret_handler){
+									
+									if(col_str == "dummy")
+										
+										test.equal(col_str,"dummy");
+									else if (col_str == "users"){
+										
+										test.equal(col_str,"users");
+										test.equal(doc.karma,10);
+									}	
+																		
+									ret_handler(null);
+								}
+							}
+				 }
+	});	
+	sb.init();
+	
+	var server = sandbox.require("../lib/server",{
+		requires:{"./sandbox":sb,"./api":api}
+	});	
+	
+	
+	server.api.config.newop("reply", function(ctx, ret_handler){
+						
+		test.deepEqual(ctx.params, myparams);
+		test.deepEqual(ctx.doc, dbdocs["50187f71556efcbb25000001"]);															
+		ctx.config.emit = CONST.DISABLE(); 					
+		//ctx.child = {parent:ctx, params:{wid:ctx.params.wid, fname:"replies", value:ctx.params.txt}, config:ctx.config};			
+		async.parallel([
+			function(next){//push reply
+					
+				ctx.params.fname = "replies";
+				ctx.params.value = {txt:ctx.params.txt, uid:ctx.params.uid,t:time.now()};		
+				ctx.user = null;		
+				server.api.push( ctx, function(err,ctx){
+																																																					
+					next(err);				
+				})	
+			},
+			function(next){//get and set karma
+				
+				var params = {wid:ctx.doc.uid, catalog:"users", fname:"karma"};				
+				server.api.get(params,function(err,ctx){
+					
+					ctx.params.value = ctx.retval + 5;
+					ctx.config.save = CONST.ENABLE();
+					server.api.set(ctx,function(err,ctx){
+						
+						next(err,1);
+					});															
+				});				
+			}
+		],function(err,retval){
+			
+			ctx.config.save = CONST.DISABLE();
+			server.api.events.emit("ev_api_reply",ctx);
+			ret_handler(err,retval[1]);
+		});
+						
+	});	
+	test.notEqual(api.remote.reply, undefined);
+	test.notEqual( server.api.reply, undefined );
+	
+	var not_push_event_flag = 1;
+	server.api.events.push.on(function(msg){
+		
+		not_push_event_flag = 0;
+	});
+	server.api.events.reply.on(function(msg){
+		
+		test.equal(msg.ev_type,"ev_api_reply");		
+			
+	});		
+	
+	
+	server.api.reply(myparams, function(err,ctx){
+					
+		test.ok(not_push_event_flag);
+		test.equal(err,undefined);
+		test.deepEqual(ctx.retval, 1);
+		test.expect(14);
 		test.done();	
 	});
 					
