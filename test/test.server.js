@@ -2002,6 +2002,35 @@ exports["server.api.config.newop: reply"] = function(test){
 					
 }
 
+/*
+ 
+server.api.config.newop("incr", function(ctx, ret_handler){
+	
+	server.api.get(ctx,function(err,ctx){
+					
+		ctx.params.value = ctx.retval + ctx.params.value;
+		ctx.config.save = CONST.ENABLE();
+		server.api.set(ctx,function(err,ctx){
+			
+			ret_handler(err,1);
+		});															
+	});	
+}	 
+ 
+server.api.config.newop("decr", function(ctx, ret_handler){
+	
+	server.api.get(ctx,function(err,ctx){
+					
+		ctx.params.value = ctx.retval - ctx.params.value;
+		ctx.config.save = CONST.ENABLE();
+		server.api.set(ctx,function(err,ctx){
+			
+			ret_handler(err,1);
+		});															
+	});	
+} 
+ */
+
 
 /*
 exports["server.api.config.newop: db raw access based op"] = function(test){
