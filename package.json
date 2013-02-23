@@ -23,7 +23,8 @@
 	"underscore":"1.4.x"
   },
   "devDependencies":{
- 	"nodeunit":"0.7.x"	
+ 	"nodeunit":"0.7.x",	
+	"sandboxed-module":"0.1.x"
   },  
   "main": "lib/server.js"
 }
