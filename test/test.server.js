@@ -1537,6 +1537,75 @@ exports["server.api.search: internal events, explicit catalog"] = function(test)
 						
 }
 
+exports["server.api.list: internal events, explicit catalog"] = function(test){
+	
+	var params = {criteria:{name:"foo"}, catalog:"dummy"};			
+	
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", name:"foo", catalog:"dummy"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555", name:"bar", catalog:"dummy"}
+	
+	var db =  {					
+				
+				criteria:function(col_str, criteria, order, ret_handler){
+					
+					if( col_str == "dummy"){
+						
+						test.equal(col_str, "dummy");
+						test.deepEqual(criteria,{ "$and": [{name:"foo"}] });						
+						
+						setTimeout(function(){//50ms delay retrieving document
+							
+							ret_handler(null,[dbdocs["50187f71556efcbb25000001"]]);
+						},50);	
+					}
+				}
+	};
+	   
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":db}
+	});
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		
+		requires:{"./api":api, "./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{list:1}}}}}		
+	});
+	sb.init();
+					
+	var server = sandbox.require("../lib/server",{
+		
+		requires:{"./api":api,"./sandbox":sb}		
+	});
+	server.config.app = {status:1};
+							
+	server.api.events.on("ev_api_list", function(msg){
+				
+		test.equal(msg.ev_type,"ev_api_list");
+		test.notEqual(msg.ev_tstamp, undefined);		
+		test.deepEqual(msg.ev_ctx.params, {criteria:{name:"foo"}, catalog:"dummy"});							
+															
+	});
+	
+	server.api.events.list.on(function(msg){
+		
+		test.equal(msg.ev_type,"ev_api_list");
+		test.notEqual(msg.ev_tstamp, undefined);		
+		test.deepEqual(msg.ev_ctx.params, {criteria:{name:"foo"}, catalog:"dummy"});
+					
+	});
+				
+	
+	server.api.list(params, function(err,ctx){
+				
+		test.equal(err,null);
+		test.deepEqual(ctx.retval,[{wid:"50187f71556efcbb25000001", name:"foo", catalog:"dummy"}]);
+						
+		test.expect(10);
+		test.done();												
+	});
+						
+}
+
 
 exports["server.api.events.emit"] = function(test){
 	
