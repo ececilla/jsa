@@ -30,8 +30,10 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 									test.equal(col_str,"events");
 									test.equal(msg.ev_type,"ev_dummy");
 									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
-									
-									ret_handler();
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
 																										
 								}	
 					}
@@ -52,16 +54,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 						
 		}
 	});
-	em.add_push_provider("gcm",{
-		
-		push:function(push_id,push_msg){
-			
-			test.equal(push_id,620793115);
-			test.equal(push_msg.ev_type,"ev_dummy");
-			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
-						
-		}
-	});
+	
 	var flag = 1;
 	em.add_push_provider("batch",{
 		
@@ -69,18 +62,28 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 			
 			flag = 0;
 		}
-	},true)
-				
+	},true);
 	
-	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	em.add_push_provider("gcm",{
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,620793115);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+			test.ok(flag);		
+			test.expect(10);
+			test.done();			
+		}
+	});
+						
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"					
 	
 	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
-		
-	test.ok(flag);	
-	test.expect(10);
-	test.done();
+	
+	
 	
 }
 
@@ -102,7 +105,10 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 									test.equal(msg.ev_type,"ev_dummy");
 									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
 									
-									ret_handler();
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
 																										
 								}	
 					}
@@ -133,15 +139,6 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 						
 		}
 	});
-	em.add_push_provider("custom",{
-		
-		push:function(push_id,push_msg){
-			
-			test.equal(push_id,620793112);
-			test.equal(push_msg.ev_type,"ev_dummy");
-			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});	
-		}
-	});
 	var flag = 1;
 	em.add_push_provider("batch",{
 		
@@ -149,19 +146,28 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 			
 			flag = 0;
 		}
-	},true)
-				
+	},true);
 	
-	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	em.add_push_provider("custom",{
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,620793112);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+			test.ok(flag);	
+			test.expect(13);
+			test.done();	
+		}
+	});
+	
+					
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"				
 	
 	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
-		
-	test.ok(flag);	
-	test.expect(13);
-	test.done();
-	
+				
 }
 
 
@@ -185,7 +191,10 @@ exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch pu
 									test.equal(msg.ev_type,"ev_dummy");
 									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
 									
-									ret_handler();
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
 																										
 								}	
 					}
@@ -233,7 +242,9 @@ exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch pu
 			
 			test.deepEqual(push_ids,[620793118]);
 			test.equal(push_msg.ev_type,"ev_dummy");
-			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});			
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+			test.expect(15);
+			test.done();			
 		}
 	},true);
 				
@@ -243,9 +254,6 @@ exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch pu
 	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
-				
-	test.expect(15);
-	test.done();
 	
 }
 
@@ -268,7 +276,10 @@ exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = functi
 									test.equal(msg.ev_type,"ev_dummy");
 									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
 									
-									ret_handler();
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
 																										
 								}	
 					}
@@ -286,7 +297,8 @@ exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = functi
 			test.equal(push_id,620793119);
 			test.equal(push_msg.ev_type,"ev_dummy");
 			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
-						
+			test.expect(6);
+			test.done();			
 		}
 	});
 				
@@ -296,10 +308,6 @@ exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = functi
 	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
-		
-		
-	test.expect(6);
-	test.done();
 	
 }
 
@@ -321,7 +329,10 @@ exports["evmngr.api.listen: custom event, ctx.config.rcpts, removed uid"] = func
 									test.equal(msg.ev_type,"ev_dummy");
 									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
 									
-									ret_handler();
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
 																										
 								}	
 					}
@@ -339,20 +350,17 @@ exports["evmngr.api.listen: custom event, ctx.config.rcpts, removed uid"] = func
 			test.equal(push_id,620793119);
 			test.equal(push_msg.ev_type,"ev_dummy");
 			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
-						
+			test.expect(6);
+			test.done();			
 		}
 	});
 				
 	
-	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"		
 	
 	var ctx = {doc:undefined, params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{rcpts:rcpts}};//payload a emitir
 	ctx.payload = ctx.params;
-	api.emit("ev_dummy", ctx); //rcpts encoded into ctx.config 
-		
-		
-	test.expect(6);
-	test.done();
+	api.emit("ev_dummy", ctx); //rcpts encoded into ctx.config 					
 	
 }
 
@@ -374,7 +382,10 @@ exports["evmngr.api.listen: custom event, ctx.doc.rcpts, removed uid"] = functio
 									test.equal(msg.ev_type,"ev_dummy");
 									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
 									
-									ret_handler();
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
 																										
 								}	
 					}
@@ -392,7 +403,8 @@ exports["evmngr.api.listen: custom event, ctx.doc.rcpts, removed uid"] = functio
 			test.equal(push_id,620793119);
 			test.equal(push_msg.ev_type,"ev_dummy");
 			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
-						
+			test.expect(6);
+			test.done();			
 		}
 	});
 				
@@ -402,10 +414,6 @@ exports["evmngr.api.listen: custom event, ctx.doc.rcpts, removed uid"] = functio
 	var ctx = {doc:{rcpts:rcpts}, params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx); //rcpts encoded into ctx.config 
-		
-		
-	test.expect(6);
-	test.done();
 	
 }
 
@@ -431,7 +439,10 @@ exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = funct
 									test.equal(msg.ev_type,"ev_dummy");
 									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
 									
-									ret_handler();
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
 																										
 								}	
 					}
@@ -460,7 +471,8 @@ exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = funct
 								test.notEqual(json_obj.ev_tstamp, undefined);
 								test.equal(typeof json_obj.ev_tstamp, "number");
 								test.deepEqual(json_obj.ev_data, rpc_params);
-																												
+								test.expect(9);
+								test.done();																				
 						}
 						
 				    }; 
@@ -469,16 +481,12 @@ exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = funct
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	
-	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"		
 	
 	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
-		
-		
-	test.expect(9);
-	test.done();
-	
+						
 }
 
 
@@ -504,11 +512,13 @@ exports["evmngr.on: listening custom event, wrong event emitted"] = function(tes
 		}
 	});
 				
-	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"			
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"
+	api.on("ev_foo",function(){
+		
+		test.ok(flag);
+		test.done();	
+	});			
 	api.emit("ev_foo", rpc_params, rcpts);						
-	
-	test.ok(flag);
-	test.done();
 	
 }
 
