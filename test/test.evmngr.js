@@ -1919,5 +1919,38 @@ exports["evmngr.on: ev_api_search, subscribed in rcpts"] = function(test){
 		
 }
 
+exports["evmngr.on: ev_api_search autolistening, explicit rcpts"] = function(test){
+
+	var rpc_params = {uid:620793114, keyword:"foo", catalog:"docs"};
+	var doc = {_id:"50187f71556efcbb25000001",keywords:["foo","test"], uid:620793115};
+	var rcpts = [{push_id:620793119, push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+	
+	
+	var em = sandbox.require("../lib/evmngr",{
+		requires:{	"./api":api,
+					"./evqueue":{	
+								save: function(msg, ret_handler){
+																		
+									test.equal(msg.ev_type,"ev_api_search");
+									test.deepEqual(msg.ev_data,{uid:620793114,keyword:"foo",catalog:"docs"});
+									ret_handler();									
+																									
+								}	
+					}
+		}
+	});
+				
+	var ctx = {params:rpc_params, doc:{}, config:{}, user:{push_id:620793115,push_type:"web"}};	
+	ctx.payload = ctx.params;	
+	api.emit("ev_api_search", ctx, rcpts);				
+	
+	test.expect(2);
+	test.done();
+	
+}
+
 
 
