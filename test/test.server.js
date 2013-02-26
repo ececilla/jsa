@@ -264,7 +264,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 									test.equal(col_str,"docs");								
 									test.equal( doc.test, "test" );
 									test.equal( doc.uid,  620793114);
-									test.deepEqual( doc.rcpts, [620793114]);
+									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);
 									test.equal(typeof doc.ctime, "number");								
 									
 									//save doc to db...returns with _id:12345
@@ -272,7 +272,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}	
 							}
@@ -288,7 +288,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 																														
 								if(col_str == "users"){
 																																	
-									ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+									ret_handler(null,{_id:id_str,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});	
 								}							
 							}
 					},
@@ -297,7 +297,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 	});
 	
 	sb.init();
-	sb.add_plugin_in("create",sb.plugins.notifying_catalog("docs"));
+	sb.add_plugin_mid("create",sb.plugins.notifying_catalog("docs"));
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./sandbox":sb,"./api":api}
@@ -345,7 +345,7 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 									test.equal(col_str,"docs");								
 									test.equal( doc.test, "test" );
 									test.equal( doc.uid,  620793114);
-									test.deepEqual( doc.rcpts, [620793114]);									
+									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);									
 									test.equal(typeof doc.ctime, "number");								
 									
 									//save doc to db...returns with _id:12345
@@ -353,7 +353,7 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}	
 							}
@@ -369,7 +369,7 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 																														
 								if(col_str == "users"){
 																																	
-									ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});	
 								}							
 							}
 					},
@@ -377,10 +377,10 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 		
 	});
 	sb.init();
-	sb.add_plugin_in("create",sb.plugins.notifying_doc);
-	sb.add_plugin_in("create",function(ctx,next){
+	sb.add_plugin_mid("create",sb.plugins.notifying_doc);
+	sb.add_plugin_mid("create",function(ctx,next){
 		
-		ctx.config.rcpts = [999999];
+		ctx.config.rcpts = [{push_id:"gcm-999", push_type:"gcm"}];
 		next();
 	});
 				
@@ -398,7 +398,7 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 					test.equal(msg.ev_type,"ev_api_create");
 					test.equal(msg.ev_ctx.params.uid, 620793114);
 					test.equal(msg.ev_ctx.params.catalog, "docs");
-					test.deepEqual( msg.ev_ctx.config.rcpts,[999999]);
+					test.deepEqual( msg.ev_ctx.config.rcpts,[{push_id:"gcm-999",push_type:"gcm"}]);
 					//console.log(msg.ev_ctx.doc);				
 				})				
 				.on("ev_api_create",function(msg){
@@ -430,7 +430,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 								test.equal(col_str,"docs");								
 								test.equal( doc.test, "test" );
 								test.equal( doc.uid, 620793114 );
-								test.deepEqual( doc.rcpts, [620793114]);
+								test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);
 								
 								//save doc to db...returns with _id:12345
 								ret_handler({message:"some db error"},null);	
@@ -446,7 +446,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 																														
 									if(col_str == "users"){
 																																		
-										ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+										ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});	
 									}							
 							}
 							},
@@ -456,7 +456,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 		
 	});
 	sb.init();
-	sb.add_plugin_in("create",sb.plugins.notifying_catalog("docs"));
+	sb.add_plugin_mid("create",sb.plugins.notifying_catalog("docs"));
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
@@ -564,7 +564,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 									test.equal(col_str,"dummy");								
 									test.equal( doc.test, "test" );
 									test.equal( doc.uid,  620793114);
-									test.deepEqual( doc.rcpts, [620793114, 620793115]);
+									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}, {push_id:"gcm-115", push_type:"gcm"}]);
 									test.equal(typeof doc.ctime, "number");								
 									
 									//save doc to db...returns with _id:12345
@@ -572,7 +572,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}	
 							}
@@ -587,7 +587,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 																														
 									if(col_str == "users"){
 																																		
-										ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+										ret_handler(null,{_id:id_str,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});	
 									}							
 								}
 							},
@@ -597,10 +597,10 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 	});
 	
 	sb.init();
-	sb.add_plugin_in("create","notif_catalog",sb.plugins.notifying_catalog("dummy"),"dummy")
-	  .add_plugin_in("create","custom_plugin", function(ctx,end_handler){
+	sb.add_plugin_mid("create","notif_catalog",sb.plugins.notifying_catalog("dummy"),"dummy")
+	  .add_plugin_mid("create","custom_plugin", function(ctx,end_handler){
 	  		
-	  		ctx.params.rcpts.push(620793115);
+	  		ctx.params.rcpts.push({push_id:"gcm-115", push_type:"gcm"});
 	  		end_handler();
 	  },"dummy");
 				
@@ -651,7 +651,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 									test.equal(col_str,"dummy");								
 									test.equal( doc.test, "test" );
 									test.equal( doc.uid, 620793114 );
-									test.deepEqual( doc.rcpts, [620793114,620793115]);
+									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"},{push_id:620793115, push_type:"foo"}]);
 									
 									
 									//save doc to db...
@@ -660,7 +660,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 									ret_handler(null,doc);	
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000666"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000666"]});
 									ret_handler(null);
 								}
 							},
@@ -687,7 +687,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 																														
 									if(col_str == "users"){
 																																		
-										ret_handler(null,{_id:id_str, name:"enric",wids:[]});	
+										ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});	
 									}							
 								}
 							},
@@ -696,13 +696,13 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 	});	
 	
 	sb.init();
-	sb.add_plugin_in("create","notif_plugin",sb.plugins.notifying_catalog("dummy"),"dummy")
-	  .add_plugin_in("create","custom_plugin", function(ctx,end_handler){
+	sb.add_plugin_mid("create","notif_plugin",sb.plugins.notifying_catalog("dummy"),"dummy")
+	  .add_plugin_mid("create","custom_plugin", function(ctx,end_handler){
 	  			  		
 	  		server.db.select("dummy","50187f71556efcbb25000002",function(err,val){
 			
 				test.equal(val.a,2);			
-				ctx.params.rcpts.push(val.uid);				
+				ctx.params.rcpts.push({push_id:val.uid, push_type:"foo"});				
 				end_handler();
 			});	  		
 	  },"dummy");		
@@ -1789,13 +1789,13 @@ exports["server.api.config.newop: create based op"] = function(test){
 									test.equal( doc.test, myparams.doc.test );
 									test.equal( doc.uid, myparams.uid );
 									//beacause init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [myparams.uid]);
+									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);
 									
 									doc._id="50187f71556efcbb25000001"
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["66667f71556efcbb25000008","50187f71556efcbb25000001"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["66667f71556efcbb25000008","50187f71556efcbb25000001"]});
 									ret_handler(null);
 								}	
 							}
@@ -1810,14 +1810,14 @@ exports["server.api.config.newop: create based op"] = function(test){
 					
 									if( col_str == "users"){
 										
-										ret_handler(null,{_id:id_str, name:"enric",wids:["66667f71556efcbb25000008"]});
+										ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["66667f71556efcbb25000008"]});
 									}
 								}
 							}
 				 }
 	});
 	sb.init();
-	sb.add_plugin_in("create",sb.plugins.notifying_catalog("docs"));
+	sb.add_plugin_mid("create",sb.plugins.notifying_catalog("docs"));
 	
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
@@ -1850,7 +1850,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	server.api.events.on("ev_api_newop1", function(msg, rcpts){
 					
 		
-		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[620793114]} );		
+		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[{push_id:"gcm-114", push_type:"gcm"}]} );		
 						
 	}).on("ev_api_create", function(params, rcpts){
 				
@@ -1859,7 +1859,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	
 	server.api.events.newop1.on(function(msg){
 		
-		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[620793114]} );
+		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[{push_id:"gcm-114", push_type:"gcm"}]} );
 	});
 	
 	

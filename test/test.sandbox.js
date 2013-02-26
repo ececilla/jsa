@@ -1688,15 +1688,15 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 								if(col_str == "docs"){
 									ret_handler(null,dbdocs[id_str]);
 								}else if( col_str == "users")
-									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});		
+									ret_handler(null,{_id:id_str, push_id:"gcm-115", push_type:"gcm", name:"enric",wids:["5074b135d03a0ac443000001"]});		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 							
 							 flag = 1;
-							 test.deepEqual(ctx.user,{_id:620793115, name:"enric",wids:["5074b135d03a0ac443000001"]});
+							 test.deepEqual(ctx.user,{_id:620793115, push_id:"gcm-115", push_type:"gcm", name:"enric",wids:["5074b135d03a0ac443000001"]});
 							 ctx.config.save = 0;
-							 test.deepEqual(ctx.params.rcpts,[620793115]);							 
+							 test.deepEqual(ctx.params.rcpts,[{push_id:"gcm-115", push_type:"gcm"}]);							 
 							 ret_handler( null, 1 );
 						  }
 				}
@@ -1710,7 +1710,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 	sb.init();
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_plugin_in("test",sb.plugins.notifying_doc);
+	  .add_plugin_mid("test",sb.plugins.notifying_doc);
 	
 	sb.execute("test", params, function(err,ctx){
 		

@@ -206,8 +206,6 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 }
 
 
-
-
 exports["api.remote.create: valid params, non init rcpts, default catalog"] = function(test){
 		
 	var params = {uid:620793114, doc:{test:"test"}};
@@ -222,7 +220,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 									test.equal( doc.uid, params.uid );
 									
 									//because init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [params.uid]);
+									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	
@@ -235,7 +233,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 								}else if(col_str == "users"){
 									
 									test.equal(col_str, "users");
-									test.deepEqual(doc,{_id:73472834, name:"enric",wids:["50187f71556efcbb25000002"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 									ret_handler(null);
 								}
 																								
@@ -252,7 +250,8 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 								//only called for users								
 								if(col_str == "users"){
 									test.equal(col_str, "users");
-									ret_handler(null,{_id:73472834, name:"enric",wids:[]});
+									test.equal(id_str,620793114);
+									ret_handler(null,{_id:620793114,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});
 								}								
 							},
 							save:function(col_str,doc,ret_handler){
@@ -272,7 +271,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"))
-	  .add_plugin_in("create",sb.plugins.notifying_doc);
+	  .add_plugin_mid("create",sb.plugins.notifying_doc);
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -280,7 +279,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(13);
+		test.expect(14);
 		test.done();			
 	});
 		
@@ -530,7 +529,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 exports["api.remote.create: valid params, non init rcpts, added catalog"] = function(test){
 		
 	
-	var params = {uid:620793114, doc:{test:"test"}, catalog:"dummy"};	
+	var params = {uid:73472834, doc:{test:"test"}, catalog:"dummy"};	
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{							
@@ -542,7 +541,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 									test.equal( doc.uid, params.uid );
 									
 									//because init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [620793114]);
+									test.deepEqual( doc.rcpts, [{push_id:"gcm-834", push_type:"gcm"}]);
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	
@@ -555,7 +554,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:73472834, name:"enric",wids:["50187f71556efcbb25000002"]});
+									test.deepEqual(doc,{_id:73472834, push_id:"gcm-834", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 									ret_handler(null);
 								}
 																								
@@ -572,7 +571,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 														
 								if(col_str == "users"){
 									test.equal(col_str, "users");
-									ret_handler(null,{_id:73472834, name:"enric",wids:[]});
+									ret_handler(null,{_id:73472834, push_id:"gcm-834", push_type:"gcm", name:"enric",wids:[]});
 								}							
 							},
 							save:function(col_str,doc,ret_handler){
@@ -592,7 +591,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy")
-	  .add_plugin_in("create","notif_catalog_dummy", sb.plugins.notifying_catalog("dummy"),"dummy");
+	  .add_plugin_mid("create","notif_catalog_dummy", sb.plugins.notifying_catalog("dummy"),"dummy");
 	  	  		   
 				
 	sb.execute("create",params, function(err,val){
@@ -623,7 +622,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 									test.equal( doc.uid, params.uid );
 									
 									//because init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [620793114,620793115]);
+									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"},{push_id:"gcm-115", push_type:"gcm"}]);
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	
@@ -636,7 +635,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 									ret_handler(null,doc);
 								}else if(col_str == "users"){
 									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:73472834, name:"enric",wids:["50187f71556efcbb25000002"]});
+									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 									ret_handler(null);
 								}
 																								
@@ -660,7 +659,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 														
 								if(col_str == "users"){
 									test.equal(col_str, "users");
-									ret_handler(null,{_id:73472834, name:"enric",wids:[]});
+									ret_handler(null,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});
 								}						
 							},
 							save:function(col_str,doc,ret_handler){
@@ -680,10 +679,10 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("create","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("create","param_type",sb.constraints.param_type("doc","object"),"dummy")
-	  .add_plugin_in("create","notif_catalog_dummy",sb.plugins.notifying_catalog("dummy"),"dummy")
-	  .add_plugin_in("create","custom_plugin",function(ctx,end_handler){
+	  .add_plugin_mid("create","notif_catalog_dummy",sb.plugins.notifying_catalog("dummy"),"dummy")
+	  .add_plugin_mid("create","custom_plugin",function(ctx,end_handler){
 	  		
-	  		ctx.params.rcpts.push(620793115);
+	  		ctx.params.rcpts.push({push_id:"gcm-115", push_type:"gcm"});
 	  		setTimeout(end_handler,500);
 	  },"dummy");
 	  	  		   
