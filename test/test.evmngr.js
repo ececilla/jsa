@@ -175,7 +175,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch pu
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:"gcm-115",push_type:"gcm"},
-				 {push_id:620793116,push_type:"batch1"},{push_id:620793117,push_type:"batch1"},{push_id:620793119, push_type:"batch1",ev_types:["ev_foo"]},
+				 {push_id:620793116,push_type:"batch1",ev_types:undefined},{push_id:620793117,push_type:"batch1", ev_types:undefined},{push_id:620793119, push_type:"batch1",ev_types:["ev_foo"]},
 				 {push_id:620793118,push_type:"batch2",ev_types:["ev_dummy"]},{push_id:620793120,push_type:"batch2",ev_types:[]}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
