@@ -2028,7 +2028,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_keywords"] = function(te
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 														 
 							 ctx.config.save = 0;
-							 test.deepEqual(ctx.params.doc.keywords,["this","is","a","test","aswell"]);							 							 							 							 				 							
+							 test.deepEqual(ctx.params.doc.keywords,["this","is","test","aswell"]);							 							 							 							 				 							
 							 ret_handler( null, 1 );
 						  }
 				}
@@ -2037,7 +2037,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_keywords"] = function(te
 	}
 	});
 	
-	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", doc:{body:"this is a test",subject:"this is a #subject test aswell #hashtagtest",num:1} };
+	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", doc:{body:"this is a test entre",subject:"this is a #subject test aswell #hashtagtest",num:1} };
 	
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
