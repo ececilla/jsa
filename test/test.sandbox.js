@@ -25,6 +25,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.constraints.is_protected,undefined);
 	test.notEqual(sb.plugins.url_transform, undefined);
 	test.notEqual(sb.plugins.extract_hashtags, undefined);
+	test.notEqual(sb.plugins.extract_keywords, undefined);
 	test.notEqual(sb.plugins.notifying_doc, undefined);
 	test.notEqual(sb.plugins.notifying_catalog, undefined);
 	test.notEqual(sb.plugins.rewrite_id, undefined);
@@ -1963,6 +1964,55 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 	});		
 		
 }
+
+exports["sandbox.add_plugin_in: sandbox.plugins.extract_keywords"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", catalog:"dummy", uid:620793115, rcpts:[620793115] };
+		 dbdocs["5074b135d03a0ac443000002"] = {_id:"5074b135d03a0ac443000002", test:"test2", catalog:"dummy", uid:620793117, rcpts:[620793117] };
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								if( col_str == "dummy")
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users")
+									ret_handler(null,[{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]}]);			
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 														 
+							 ctx.config.save = 0;
+							 test.deepEqual(ctx.params.doc.keywords,["this","is","a","test","aswell"]);							 							 							 							 				 							
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers", "events"]}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", doc:{body:"this is a test",subject:"this is a #subject test aswell #hashtagtest",num:1} };
+	
+	sb.init();
+	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
+	  .add_plugin_in("test","extract_keywords_body",sb.plugins.extract_keywords("body"),"dummy")
+	  .add_plugin_in("test","extract_keywords_subject",sb.plugins.extract_keywords("subject"),"dummy")
+	  .add_plugin_in("test","extract_keywords_baaaaaaar",sb.plugins.extract_keywords("baaaaaaaaar"),"dummy")
+	  .add_plugin_in("test","extract_keywords_num",sb.plugins.extract_keywords("num"),"dummy");
+	  
+	
+	sb.execute("test", params, function(err,ctx){
+				
+		test.equal(err,null);
+		test.deepEqual(ctx.retval,1);										
+		test.expect(3);
+		test.done();
+	});		
+		
+}
+
 
 exports["sandbox.add_plugin_in: sandbox.plugins.extract_hashtags"] = function(test){
 	
