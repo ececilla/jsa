@@ -1696,7 +1696,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 							 flag = 1;
 							 test.deepEqual(ctx.user,{_id:620793115, push_id:"gcm-115", push_type:"gcm", name:"enric",wids:["5074b135d03a0ac443000001"]});
 							 ctx.config.save = 0;
-							 test.deepEqual(ctx.params.rcpts,[{push_id:"gcm-115", push_type:"gcm"}]);							 
+							 test.deepEqual(ctx.params.rcpts,[{uid:"620793115", push_id:"gcm-115", push_type:"gcm"}]);							 
 							 ret_handler( null, 1 );
 						  }
 				}

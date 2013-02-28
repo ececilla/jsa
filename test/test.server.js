@@ -264,7 +264,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 									test.equal(col_str,"docs");								
 									test.equal( doc.test, "test" );
 									test.equal( doc.uid,  620793114);
-									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);
+									test.deepEqual( doc.rcpts, [{uid:"620793114", push_id:"gcm-114", push_type:"gcm"}]);
 									test.equal(typeof doc.ctime, "number");								
 									
 									//save doc to db...returns with _id:12345
@@ -345,7 +345,7 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 									test.equal(col_str,"docs");								
 									test.equal( doc.test, "test" );
 									test.equal( doc.uid,  620793114);
-									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);									
+									test.deepEqual( doc.rcpts, [{uid:"620793114", push_id:"gcm-114", push_type:"gcm"}]);									
 									test.equal(typeof doc.ctime, "number");								
 									
 									//save doc to db...returns with _id:12345
@@ -430,7 +430,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 								test.equal(col_str,"docs");								
 								test.equal( doc.test, "test" );
 								test.equal( doc.uid, 620793114 );
-								test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);
+								test.deepEqual( doc.rcpts, [{uid:"620793114", push_id:"gcm-114", push_type:"gcm"}]);
 								
 								//save doc to db...returns with _id:12345
 								ret_handler({message:"some db error"},null);	
@@ -564,7 +564,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 									test.equal(col_str,"dummy");								
 									test.equal( doc.test, "test" );
 									test.equal( doc.uid,  620793114);
-									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}, {push_id:"gcm-115", push_type:"gcm"}]);
+									test.deepEqual( doc.rcpts, [{uid:"620793114", push_id:"gcm-114", push_type:"gcm"}, {uid:"620793115", push_id:"gcm-115", push_type:"gcm"}]);
 									test.equal(typeof doc.ctime, "number");								
 									
 									//save doc to db...returns with _id:12345
@@ -600,7 +600,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 	sb.add_plugin_mid("create","notif_catalog",sb.plugins.notifying_catalog("dummy"),"dummy")
 	  .add_plugin_mid("create","custom_plugin", function(ctx,end_handler){
 	  		
-	  		ctx.params.rcpts.push({push_id:"gcm-115", push_type:"gcm"});
+	  		ctx.params.rcpts.push({uid:"620793115", push_id:"gcm-115", push_type:"gcm"});
 	  		end_handler();
 	  },"dummy");
 				
@@ -651,7 +651,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 									test.equal(col_str,"dummy");								
 									test.equal( doc.test, "test" );
 									test.equal( doc.uid, 620793114 );
-									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"},{push_id:620793115, push_type:"foo"}]);
+									test.deepEqual( doc.rcpts, [{uid:"620793114", push_id:"gcm-114", push_type:"gcm"},{uid:111, push_id:620793115, push_type:"foo"}]);
 									
 									
 									//save doc to db...
@@ -702,7 +702,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 	  		server.db.select("dummy","50187f71556efcbb25000002",function(err,val){
 			
 				test.equal(val.a,2);			
-				ctx.params.rcpts.push({push_id:val.uid, push_type:"foo"});				
+				ctx.params.rcpts.push({uid:111,push_id:val.uid, push_type:"foo"});				
 				end_handler();
 			});	  		
 	  },"dummy");		
@@ -818,15 +818,15 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 	var params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	
 	var dbdocs = {};//documents at db	
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[{push_id:"gcm-115",push_type:"gcm"}], uid:620793115, catalog:"docs"},
-		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[{push_id:"gcm-115",push_type:"gcm"}], uid:620793115, catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[{uid:"620793115", push_id:"gcm-115",push_type:"gcm"}], uid:620793115, catalog:"docs"},
+		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[{uid:"620793115", push_id:"gcm-115",push_type:"gcm"}], uid:620793115, catalog:"docs"};
 	
 	var db =  {	
 				save:function(col_str, doc, ret_handler){
 													
 					if(col_str == "docs"){
 						test.equal(col_str,"docs");																								
-						test.deepEqual( doc.rcpts, [{push_id:"gcm-115",push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm"}]);
+						test.deepEqual( doc.rcpts, [{uid:"620793115",push_id:"gcm-115",push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm"}]);
 											
 						setTimeout(function(){
 							
@@ -879,7 +879,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 		test.equal(msg.ev_ctx.params.uid, params.uid);
 		test.equal(msg.ev_ctx.params.wid, "50187f71556efcbb25000001");					
 		test.equal(msg.ev_ctx.params.catalog, "docs");					
-		test.deepEqual(msg.ev_ctx.doc.rcpts, [{push_id:"gcm-115",push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm"}]);							
+		test.deepEqual(msg.ev_ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115",push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm"}]);							
 	});
 				
 	
@@ -1789,7 +1789,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 									test.equal( doc.test, myparams.doc.test );
 									test.equal( doc.uid, myparams.uid );
 									//beacause init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);
+									test.deepEqual( doc.rcpts, [{uid:"620793114", push_id:"gcm-114", push_type:"gcm"}]);
 									
 									doc._id="50187f71556efcbb25000001"
 									ret_handler(null,doc);
@@ -1850,7 +1850,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	server.api.events.on("ev_api_newop1", function(msg, rcpts){
 					
 		
-		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[{push_id:"gcm-114", push_type:"gcm"}]} );		
+		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[{uid:"620793114", push_id:"gcm-114", push_type:"gcm"}]} );		
 						
 	}).on("ev_api_create", function(params, rcpts){
 				
@@ -1859,7 +1859,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 	
 	server.api.events.newop1.on(function(msg){
 		
-		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[{push_id:"gcm-114", push_type:"gcm"}]} );
+		test.deepEqual( msg.ev_ctx.params, {uid:620793114, doc:{test:"test"},catalog:"docs", another:5, rcpts:[{uid:"620793114", push_id:"gcm-114", push_type:"gcm"}]} );
 	});
 	
 	

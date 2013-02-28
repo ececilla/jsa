@@ -220,7 +220,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 									test.equal( doc.uid, params.uid );
 									
 									//because init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"}]);
+									test.deepEqual( doc.rcpts, [{uid:"620793114", push_id:"gcm-114", push_type:"gcm"}]);
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	
@@ -541,7 +541,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 									test.equal( doc.uid, params.uid );
 									
 									//because init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [{push_id:"gcm-834", push_type:"gcm"}]);
+									test.deepEqual( doc.rcpts, [{uid:"73472834",push_id:"gcm-834", push_type:"gcm"}]);
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	
@@ -622,7 +622,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 									test.equal( doc.uid, params.uid );
 									
 									//because init.rcpts is null the initial rcpts list is [uid]
-									test.deepEqual( doc.rcpts, [{push_id:"gcm-114", push_type:"gcm"},{push_id:"gcm-115", push_type:"gcm"}]);
+									test.deepEqual( doc.rcpts, [{uid:"620793114",push_id:"gcm-114", push_type:"gcm"},{push_id:"gcm-115", push_type:"gcm"}]);
 									
 									test.notEqual(doc.ctime, undefined);
 									test.equal(typeof doc.ctime, "number");	

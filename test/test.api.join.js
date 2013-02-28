@@ -67,7 +67,7 @@ exports["api.remote.join: valid params, default catalog, no ev_types"] = functio
 	
 		
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
 		
 	
 	var api = sandbox.require("../lib/api",{
@@ -75,7 +75,7 @@ exports["api.remote.join: valid params, default catalog, no ev_types"] = functio
 							
 		}}
 	});
-	var dbusers = {620793114:{name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -96,7 +96,7 @@ exports["api.remote.join: valid params, default catalog, no ev_types"] = functio
 															
 								if(col_str == "docs"){								
 									test.equal(col_str,"docs");
-									test.deepEqual(doc.rcpts, [{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm"}]);
+									test.deepEqual(doc.rcpts, [{uid:"620793115",push_id:"gcm-115", push_type:"gcm"},{uid:"620793117",push_id:"gcm-117", push_type:"gcm"},{uid:"620793114",push_id:"gcm-114",push_type:"gcm"}]);
 																	
 									//save doc to db...returns with _id:12345
 									setTimeout(function(){//100ms delay saving document
@@ -106,7 +106,7 @@ exports["api.remote.join: valid params, default catalog, no ev_types"] = functio
 								}else if(col_str == "users"){
 									
 									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
 									ret_handler(null);
 								}
 							}
@@ -131,7 +131,7 @@ exports["api.remote.join: valid params, default catalog, no ev_types"] = functio
 								
 				test.ok(flag);				
 				test.equal(err,null);		
-				test.deepEqual(ctx.retval.rcpts, [{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm"}]);
+				test.deepEqual(ctx.retval.rcpts, [{uid:"620793115",push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm"}]);
 				test.equal(ctx.retval._id, undefined);		
 				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
 				test.equal(ctx.retval.catalog, "docs");		
@@ -164,7 +164,7 @@ exports["api.remote.join: valid params, default catalog, ev_types"] = function(t
 	
 		
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
 		
 	
 	var api = sandbox.require("../lib/api",{
@@ -172,7 +172,7 @@ exports["api.remote.join: valid params, default catalog, ev_types"] = function(t
 							
 		}}
 	});
-	var dbusers = {620793114:{name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -193,7 +193,7 @@ exports["api.remote.join: valid params, default catalog, ev_types"] = function(t
 															
 								if(col_str == "docs"){								
 									test.equal(col_str,"docs");
-									test.deepEqual(doc.rcpts, [{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+									test.deepEqual(doc.rcpts, [{uid:"620793115",push_id:"gcm-115", push_type:"gcm"},{uid:"620793117",push_id:"gcm-117", push_type:"gcm"},{uid:"620793114",push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
 																	
 									//save doc to db...returns with _id:12345
 									setTimeout(function(){//100ms delay saving document
@@ -228,7 +228,7 @@ exports["api.remote.join: valid params, default catalog, ev_types"] = function(t
 								
 				test.ok(flag);				
 				test.equal(err,null);		
-				test.deepEqual(ctx.retval.rcpts, [{push_id:"gcm-115", push_type:"gcm"},{push_id:"gcm-117", push_type:"gcm"},{push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+				test.deepEqual(ctx.retval.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
 				test.equal(ctx.retval._id, undefined);		
 				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
 				test.equal(ctx.retval.catalog, "docs");		
