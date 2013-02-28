@@ -22,6 +22,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.constraints.field_type,undefined);
 	test.notEqual(sb.constraints.param_type,undefined);
 	test.notEqual(sb.constraints.is_required,undefined);
+	test.notEqual(sb.constraints.some_required,undefined);
 	test.notEqual(sb.constraints.is_protected,undefined);
 	test.notEqual(sb.plugins.url_transform, undefined);
 	test.notEqual(sb.plugins.extract_hashtags, undefined);
@@ -30,7 +31,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.plugins.notifying_catalog, undefined);
 	test.notEqual(sb.plugins.rewrite_id, undefined);
 	test.notEqual(sb.plugins.external_config, undefined);
-	test.expect(24);
+	test.expect(26);
 	test.done();
 	
 }
@@ -1159,6 +1160,50 @@ exports["sandbox.add_constraint_pre: constraints.is_required"] = function(test){
 	sb.execute("set", params, function(err,result){
 										
 		test.deepEqual(err,{code:-12, message:"wid parameter required"});										
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint_pre: constraints.some_required"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", notest:"test", uid:620793114, rcpts:[620793114] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){																																		
+								
+								if(col_str == "docs"){
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
+							}
+		},
+		"./api":{remote:{ set:function( ctx, ret_handler){
+							 														 							
+							 ctx.doc[ctx.params.fname] = ctx.params.value;							 							 
+							 ret_handler( null, ctx.doc );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1}}}}
+	}
+	});
+	
+	var params = {foo:620793116, bar:"test", dummy:4};
+	
+	sb.init();	
+	sb.add_constraint_pre("set","some_required_uid",sb.constraints.some_required(["uid","wid"]))	  
+	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("set","not_catalog",sb.constraints.not_catalog,"events");
+	
+	sb.execute("set", params, function(err,result){
+										
+		test.deepEqual(err,{code:-15, message:"uid,wid one parameter required"});										
 		test.done();
 	});
 		
