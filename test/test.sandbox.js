@@ -24,11 +24,12 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.constraints.is_required,undefined);
 	test.notEqual(sb.constraints.is_protected,undefined);
 	test.notEqual(sb.plugins.url_transform, undefined);
+	test.notEqual(sb.plugins.extract_hashtags, undefined);
 	test.notEqual(sb.plugins.notifying_doc, undefined);
 	test.notEqual(sb.plugins.notifying_catalog, undefined);
 	test.notEqual(sb.plugins.rewrite_id, undefined);
 	test.notEqual(sb.plugins.external_config, undefined);
-	test.expect(23);
+	test.expect(24);
 	test.done();
 	
 }
