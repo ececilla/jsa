@@ -2033,7 +2033,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_keywords"] = function(te
 						  }
 				}
 		},
-		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers", "events"]}},api:{config:{procedures:{test:1}}}}
+		"./server":{config:{app:{status:1, stopwords_file:"res/stopwords_es.txt"},db:{default_catalog:"docs", system_catalogs:["timers", "events"]}},api:{config:{procedures:{test:1}}}}
 	}
 	});
 	
