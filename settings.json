@@ -8,5 +8,6 @@
  "redishost":"127.0.0.1",
  "redisport":15000,
  "debug":1,
- "repl_socket":"/tmp/repl-socket"
+ "repl_socket":"/tmp/repl-socket",
+ "stopwords_file":"res/stopwords_es.txt"	
 }
