@@ -206,14 +206,15 @@ exports["endpoint.rpc: method not found"] = function(test){
 
 exports["endpoint.rpc + add_plugin:custom plugin"] = function(test){
 	
-	var api = {	remote:{
+	var api = sandbox.require("../lib/api");
+	api.remote = {
 						test: function(ctx, ret_handler){
 							
 							ctx.config.save = 0;								
 							ret_handler(null,{test:1});
 							
-						}}
-			 };
+						}
+				 };	
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
@@ -315,14 +316,16 @@ exports["endpoint.rpc + add_plugin:custom plugin, error"] = function(test){
 
 exports["endpoint.rpc: method invocation: with result, no params"] = function(test){
 	
-	var api = {	remote:{
+	var api = sandbox.require("../lib/api");
+	api.remote = {
 						test: function(ctx, ret_handler){
 							
 							ctx.config.save = 0;								
 							ret_handler(null,{test:1});
 							
-						}}
-			 };
+						}
+				};
+	
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
@@ -332,6 +335,7 @@ exports["endpoint.rpc: method invocation: with result, no params"] = function(te
 			}
 	});		
 	sb.init();
+	
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{	
 					"./sandbox":sb,"./server":{config:{app:{version:"0.0.14"}}}											 
@@ -364,16 +368,17 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 				"method":"test",
 				"params":{x:1,y:2},
 				"id":"123"};
-				
-	var api = {	remote:{
+	var api = sandbox.require("../lib/api");			
+	api.remote = {
 						test: function(ctx, ret_handler){
 							
 							ctx.config.save = 0;
 							test.deepEqual(ctx.params, {x:1, y:2, catalog:"docs"});								
 							ret_handler(null,ctx.params.x + ctx.params.y);
 							
-						}}
-			 };
+						}
+			};
+			 
 			 
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
@@ -407,14 +412,16 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 
 
 exports["endpoint.rpc: method invocation: with error"] = function(test){
-		
-	var api = {	remote:{
+	
+	var api = sandbox.require("../lib/api");	
+	api.remote = {
 						test: function(ctx, ret_handler){
 																				
 							ret_handler({code:-1,message:"test error"},null);
 							
-						}}
-	};
+						}
+				};
+	
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{
@@ -450,16 +457,16 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 exports["endpoint.rpc: method invocation without id"] = function(test){
 	
 	var flags = [0, 1, 1, 1];	
-	
-	var api = {	remote:{
+	var api = sandbox.require("../lib/api");
+	api.remote = {
 						test: function(ctx, ret_handler){
 																				
 							flags[0] = 1;	//remote procedure gets executed.
 							ctx.config.save = 0;						
 							ret_handler(null,{});
 							
-						}}
-			 };
+						}
+				};			 
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{

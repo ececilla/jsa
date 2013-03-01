@@ -296,6 +296,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 							 							 
 							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 ret_handler( null, 1 );
 						  }
 				}
@@ -471,6 +472,7 @@ exports["sandbox.add_constraint_post: no wid, uid"] = function(test){
 							 test.deepEqual(ctx.user,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
 							 test.deepEqual(ctx.params, {uid:620793116,doc:{test:1},catalog:"docs"});
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 ret_handler(null, {wid:"5074b135d03a0ac443000001"} );
 						  }
 				}
@@ -523,7 +525,7 @@ exports["sandbox.add_constraint_post: wid, no uid"] = function(test){
 							test.deepEqual(ctx.doc, {_id:12345, test:"test", uid:620793114, rcpts:[620793114] });
 							test.deepEqual(ctx.params, {wid:"5074b135d03a0ac443000001",doc:{test:1},catalog:"docs"});
 							ctx.config.save = 0;
-							
+							ctx.config.emit = 0;
 							//change doc object
 							ctx.doc.test = "test changed";
 							 
@@ -1434,6 +1436,7 @@ exports["sandbox.add_plugin_in: custom plugin"] = function(test){
 							 														 							
 							 flag = 1;
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 test.deepEqual(ctx.params.rcpts,[620793114,620793119]);							 
 							 ret_handler( null, 1 );
 						  }
@@ -1539,7 +1542,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.retval interception"] = fun
 							 														 							
 							 flag = 1;
 							 ctx.config.save = 0;							 
-							 							 
+							 ctx.config.emit = 0;							 
 							 ret_handler( null, 1 );
 						  }
 				}
@@ -1743,6 +1746,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 							 flag = 1;
 							 test.deepEqual(ctx.user,{_id:620793115, push_id:"gcm-115", push_type:"gcm", name:"enric",wids:["5074b135d03a0ac443000001"]});
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 test.deepEqual(ctx.params.rcpts,[{uid:"620793115", push_id:"gcm-115", push_type:"gcm"}]);							 
 							 ret_handler( null, 1 );
 						  }
@@ -1791,6 +1795,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform1"] = function(test
 							 														 							
 							 flag = 1;
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 test.equal(ctx.params.catalog, "docs");
 							 test.equal(ctx.params.wid,"5074b135d03a0ac443000001");
 							 test.equal(ctx.params.fname,"a.b.3.c");							 
@@ -1841,6 +1846,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform2"] = function(test
 							 														 							
 							 flag = 1;
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 test.equal(ctx.params.catalog, "docs");
 							 test.equal(ctx.params.wid,"5074b135d03a0ac443000001");	
 							 test.equal(ctx.params.fname, undefined);						 							 
@@ -1889,6 +1895,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform3"] = function(test
 							 														 							
 							 flag = 1;
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 test.equal(ctx.params.catalog, "docs");
 							 test.equal(ctx.params.wid,undefined);	
 							 test.equal(ctx.params.fname, undefined);						 							 
@@ -1936,6 +1943,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform overwrite"] = func
 							 														 							
 							 flag = 1;
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 test.equal(ctx.params.catalog, "docs");
 							 test.equal(ctx.params.wid,"5074b135d03a0ac443000001");	
 							 test.equal(ctx.params.fname, "test.5");						 							 
@@ -1982,8 +1990,9 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 							
 							 
-							 ctx.config.save = 0;							 
-							 test.deepEqual(ctx.config,{save:0, emit:1, test:1});							 
+							 ctx.config.save = 0;	
+							 ctx.config.emit = 0;						 
+							 test.deepEqual(ctx.config,{save:0, emit:0, test:1});							 
 							 test.equal(ctx.params.config, undefined);					 							 
 							 ret_handler( null, 1 );
 						  }
@@ -2028,6 +2037,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_keywords"] = function(te
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 														 
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 test.deepEqual(ctx.params.doc.keywords,["this","is","test","aswell"]);							 							 							 							 				 							
 							 ret_handler( null, 1 );
 						  }
@@ -2077,6 +2087,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_hashtags"] = function(te
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 														 
 							 ctx.config.save = 0;
+							 ctx.config.emit = 0;
 							 test.deepEqual(ctx.params.doc.hashtags,["#test","#foo","#subject","#hashtagtest"]);							 							 							 							 				 							
 							 ret_handler( null, 1 );
 						  }
@@ -2127,7 +2138,8 @@ exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id"] = function(test){
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 							
 							 
-							 ctx.config.save = 0;							 							 							 							 				 							
+							 ctx.config.save = 0;
+							 ctx.config.emit = 0;							 							 							 							 				 							
 							 ret_handler( null, dbdocs["5074b135d03a0ac443000001"] );
 						  }
 				}
@@ -2171,7 +2183,8 @@ exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id over array"] = funct
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 							
 							 
-							 ctx.config.save = 0;							 							 							 							 				 							
+							 ctx.config.save = 0;	
+							 ctx.config.emit = 0;						 							 							 							 				 							
 							 ret_handler( null, [dbdocs["5074b135d03a0ac443000001"],dbdocs["5074b135d03a0ac443000002"]] );
 						  }
 				}

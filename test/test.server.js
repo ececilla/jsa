@@ -1455,15 +1455,16 @@ exports["server.api.get: internal events, explicit catalog"] = function(test){
 		test.notEqual(msg.ev_tstamp, undefined);		
 		test.deepEqual(msg.ev_ctx.params, {wid:"50187f71556efcbb25000001", fname:"a", catalog:"dummy"});
 		
-		test.expect(10);
-		test.done();	
+			
 	});
 				
 	
 	server.api.get(params, function(err,ctx){
 				
 		test.equal(err,null);
-		test.deepEqual(ctx.retval,[-4,"foo",6]);												
+		test.deepEqual(ctx.retval,[-4,"foo",6]);
+		test.expect(10);
+		test.done();												
 	});
 						
 }
@@ -1654,6 +1655,7 @@ exports["server.api.config.newop: invocation"] = function(test){
 		
 			
 		ctx.config.save = 0;
+		ctx.config.emit = 0;
 		//As sandbox does not save it's not necessary to assign ctx.config.emit.		
 		test.deepEqual(ctx.params, myparams);
 		test.deepEqual(ctx.doc,{});		
@@ -1737,7 +1739,8 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	
 	server.api.config.newop("dummy", function(ctx, ret_handler){
 		
-		ctx.config.save = 0;		
+		ctx.config.save = 0;
+		ctx.config.emit = 0;		
 		test.deepEqual(ctx.params, {foo:1, bar:"test", catalog:"docs"});
 		ctx.payload = ctx.params;		
 		server.api.events.emit("ev_api_dummy",ctx, rcpts);
