@@ -61,9 +61,342 @@ exports["api.remote.join: missing params"] = function(test){
 	
 }
 
+exports["api.remote.join: valid params, default catalog, no rcpts"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							
+		}}
+	});
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+								if( col_str == "docs"){																						
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"50187f71556efcbb25000001");
+									ret_handler(null,dbdocs[id_str]);//return doc
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");									
+									ret_handler(null,dbusers["" + id_str]);
+								}																						
+																																							
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								if(col_str == "docs"){	
+																
+									test.equal(col_str,"docs");
+									test.deepEqual(doc.rcpts, [{uid:"620793114",push_id:"gcm-114",push_type:"gcm"}]);
+																	
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
+									ret_handler(null);
+								}
+							}
+						 },
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+		}
+	});
+	sb.init();
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
+		
+	
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001"};//uid not in rcpts
+	async.series(
+		[function(next){
+						
+			sb.execute("join", params, function(err,ctx){
+								
+				test.ok(flag);				
+				test.equal(err,null);		
+				test.deepEqual(ctx.retval.rcpts, [{uid:"620793114", push_id:"gcm-114",push_type:"gcm"}]);
+				test.equal(ctx.retval._id, undefined);		
+				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+				test.equal(ctx.retval.catalog, "docs");		
+				test.equal(ctx.retval.a,1);
+				test.equal(ctx.retval.b,"test1234");		
+				next();		
+				
+			});
+			
+		},function(next){			
+			
+			//execute again: uid in rcpts			
+			sb.execute("join", params, function(err,ctx){
+								
+				test.ok(flag);	
+				test.equal(err,null);		
+				test.equal(ctx.retval,1);
+				
+				test.expect(21);
+				test.done();
+				next();
+				
+			});
+			
+		}]);				
+		
+}
+
+exports["api.remote.join: valid params, default catalog, no rcpts, ev_types:[]"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							
+		}}
+	});
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+								if( col_str == "docs"){																						
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"50187f71556efcbb25000001");
+									ret_handler(null,dbdocs[id_str]);//return doc
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");									
+									ret_handler(null,dbusers["" + id_str]);
+								}																						
+																																							
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");
+									test.deepEqual(doc.rcpts, [{uid:"620793114",push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);									
+																										
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
+									ret_handler(null);
+								}
+							}
+						 },
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+		}
+	});
+	sb.init();
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
+			
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:["ev_api_set","ev_api_create"]};//uid not in rcpts
+						
+	sb.execute("join", params, function(err,ctx){
+						
+		test.ok(flag);				
+		test.equal(err,null);		
+		test.deepEqual(ctx.retval.rcpts, [{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+		test.equal(ctx.retval._id, undefined);		
+		test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+		test.equal(ctx.retval.catalog, "docs");		
+		test.equal(ctx.retval.a,1);
+		test.equal(ctx.retval.b,"test1234");
+		test.expect(15);
+		test.done();					
+		
+	});
+			
+				
+		
+}
+
+exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$push:[]"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							
+		}}
+	});
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+								if( col_str == "docs"){																						
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"50187f71556efcbb25000001");
+									ret_handler(null,dbdocs[id_str]);//return doc
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");									
+									ret_handler(null,dbusers["" + id_str]);
+								}																						
+																																							
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");
+									test.deepEqual(doc.rcpts, [{uid:"620793114",push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);									
+																										
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
+									ret_handler(null);
+								}
+							}
+						 },
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+		}
+	});
+	sb.init();
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
+			
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:{$push:["ev_api_set","ev_api_create"]}};//uid not in rcpts
+						
+	sb.execute("join", params, function(err,ctx){
+						
+		test.ok(flag);				
+		test.equal(err,null);		
+		test.deepEqual(ctx.retval.rcpts, [{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+		test.equal(ctx.retval._id, undefined);		
+		test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+		test.equal(ctx.retval.catalog, "docs");		
+		test.equal(ctx.retval.a,1);
+		test.equal(ctx.retval.b,"test1234");
+		test.expect(15);
+		test.done();					
+		
+	});
+		
+}
 
 
-exports["api.remote.join: valid params, default catalog, no ev_types"] = function(test){
+exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$set:[]"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							
+		}}
+	});
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+								if( col_str == "docs"){																						
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"50187f71556efcbb25000001");
+									ret_handler(null,dbdocs[id_str]);//return doc
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");									
+									ret_handler(null,dbusers["" + id_str]);
+								}																						
+																																							
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");
+									test.deepEqual(doc.rcpts, [{uid:"620793114",push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);									
+																										
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
+									ret_handler(null);
+								}
+							}
+						 },
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+		}
+	});
+	sb.init();
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
+			
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:{$set:["ev_api_set","ev_api_create"]}};//uid not in rcpts
+						
+	sb.execute("join", params, function(err,ctx){
+						
+		test.ok(flag);				
+		test.equal(err,null);		
+		test.deepEqual(ctx.retval.rcpts, [{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+		test.equal(ctx.retval._id, undefined);		
+		test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+		test.equal(ctx.retval.catalog, "docs");		
+		test.equal(ctx.retval.a,1);
+		test.equal(ctx.retval.b,"test1234");
+		test.expect(15);
+		test.done();					
+		
+	});
+		
+}
+
+exports["api.remote.join: valid params, default catalog, rcpts, no ev_types"] = function(test){
 	
 		
 	var dbdocs = {};//documents at db
@@ -160,7 +493,7 @@ exports["api.remote.join: valid params, default catalog, no ev_types"] = functio
 		
 }
 
-exports["api.remote.join: valid params, default catalog, ev_types"] = function(test){
+exports["api.remote.join: valid params, default catalog, rcpts, ev_types:[]"] = function(test){
 	
 		
 	var dbdocs = {};//documents at db
@@ -256,6 +589,426 @@ exports["api.remote.join: valid params, default catalog, ev_types"] = function(t
 		}]);				
 		
 }
+
+exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$push:[]"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							
+		}}
+	});
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+								if( col_str == "docs"){																						
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"50187f71556efcbb25000001");
+									ret_handler(null,dbdocs[id_str]);//return doc
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");									
+									ret_handler(null,dbusers["" + id_str]);
+								}																						
+																																							
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");									
+																	
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
+									ret_handler(null);
+								}
+							}
+						 },
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+		}
+	});
+	sb.init();
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
+		
+	
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:["ev_api_set","ev_api_create"]};//uid not in rcpts
+	async.series(
+		[function(next){
+						
+			sb.execute("join", params, function(err,ctx){
+								
+				test.ok(flag);				
+				test.equal(err,null);		
+				test.deepEqual(ctx.retval.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+				test.equal(ctx.retval._id, undefined);		
+				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+				test.equal(ctx.retval.catalog, "docs");		
+				test.equal(ctx.retval.a,1);
+				test.equal(ctx.retval.b,"test1234");		
+				next();		
+				
+			});
+			
+		},function(next){
+			params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:{$push:["ev_api_dispose"]}};//uid not in rcpts
+						
+			sb.execute("join", params, function(err,ctx){
+												
+				test.ok(flag);	
+				test.equal(err,null);	
+				test.equal(ctx.retval,1);	
+				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create","ev_api_dispose"]}]);
+				
+				test.expect(24);
+				test.done();
+				next();
+				
+			});
+			
+		}]);				
+		
+}
+
+exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$pop:i"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							
+		}}
+	});
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+								if( col_str == "docs"){																						
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"50187f71556efcbb25000001");
+									ret_handler(null,dbdocs[id_str]);//return doc
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");									
+									ret_handler(null,dbusers["" + id_str]);
+								}																						
+																																							
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");									
+																	
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
+									ret_handler(null);
+								}
+							}
+						 },
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+		}
+	});
+	sb.init();
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
+		
+	
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:["ev_api_set","ev_api_create"]};//uid not in rcpts
+	async.series(
+		[function(next){
+						
+			sb.execute("join", params, function(err,ctx){
+								
+				test.ok(flag);				
+				test.equal(err,null);		
+				test.deepEqual(ctx.retval.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+				test.equal(ctx.retval._id, undefined);		
+				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+				test.equal(ctx.retval.catalog, "docs");		
+				test.equal(ctx.retval.a,1);
+				test.equal(ctx.retval.b,"test1234");		
+				next();		
+				
+			});
+			
+		},function(next){
+			params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:{$push:["ev_api_dispose"]}};//uid not in rcpts
+						
+			sb.execute("join", params, function(err,ctx){
+												
+				test.ok(flag);	
+				test.equal(err,null);	
+				test.equal(ctx.retval,1);	
+				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create","ev_api_dispose"]}]);
+								
+				next();
+				
+			});
+			
+		},
+		function(next){
+			params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:{$pop:1}};//uid not in rcpts
+						
+			sb.execute("join", params, function(err,ctx){
+																	
+				test.equal(err,null);	
+				test.equal(ctx.retval,1);	
+				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+								
+				next();
+				
+			});
+			
+		},
+		function(next){
+			params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:{$pop:2}};//uid not in rcpts
+						
+			sb.execute("join", params, function(err,ctx){
+																	
+				test.equal(err,null);	
+				test.equal(ctx.retval,1);	
+				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:[]}]);
+				
+				test.expect(42);
+				test.done();
+				next();
+				
+			});
+			
+		},
+		]);				
+		
+}
+
+exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$set:[]"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							
+		}}
+	});
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+								if( col_str == "docs"){																						
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"50187f71556efcbb25000001");
+									ret_handler(null,dbdocs[id_str]);//return doc
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");									
+									ret_handler(null,dbusers["" + id_str]);
+								}																						
+																																							
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");									
+																	
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
+									ret_handler(null);
+								}
+							}
+						 },
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+		}
+	});
+	sb.init();
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
+		
+	
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:["ev_api_set","ev_api_create"]};//uid not in rcpts
+	async.series(
+		[function(next){
+						
+			sb.execute("join", params, function(err,ctx){
+								
+				test.ok(flag);				
+				test.equal(err,null);		
+				test.deepEqual(ctx.retval.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+				test.equal(ctx.retval._id, undefined);		
+				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+				test.equal(ctx.retval.catalog, "docs");		
+				test.equal(ctx.retval.a,1);
+				test.equal(ctx.retval.b,"test1234");		
+				next();		
+				
+			});
+			
+		},function(next){
+			params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:{$set:["ev_api_dispose"]}};//uid not in rcpts
+						
+			sb.execute("join", params, function(err,ctx){
+												
+				test.ok(flag);	
+				test.equal(err,null);	
+				test.equal(ctx.retval,1);	
+				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_dispose"]}]);
+				
+				test.expect(24);
+				test.done();
+				next();
+				
+			});
+			
+		}]);				
+		
+}
+
+
+exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$remove:[]"] = function(test){
+	
+		
+	var dbdocs = {};//documents at db
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"}], catalog:"docs"};
+		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{	//db mock module for join procedure							
+							
+		}}
+	});
+	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
+	var flag = 1;
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{"./db":{
+							select: function(col_str, id_str, ret_handler){
+								if( col_str == "docs"){																						
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"50187f71556efcbb25000001");
+									ret_handler(null,dbdocs[id_str]);//return doc
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");									
+									ret_handler(null,dbusers["" + id_str]);
+								}																						
+																																							
+							},
+							save:function(col_str,doc,ret_handler){
+															
+								if(col_str == "docs"){								
+									test.equal(col_str,"docs");									
+																	
+									//save doc to db...returns with _id:12345
+									setTimeout(function(){//100ms delay saving document
+										
+										ret_handler(null,doc);
+									},100);	
+								}else if(col_str == "users"){
+									
+									test.equal(col_str,"users");
+									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
+									ret_handler(null);
+								}
+							}
+						 },
+				 "./api" : api,
+				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+		}
+	});
+	sb.init();
+	sb.add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"events")
+	  .add_constraint_post("join","not_catalog",sb.constraints.not_catalog,"timers")	
+	  .add_constraint_post("join","is_joinable",sb.constraints.is_joinable)	
+	  .add_constraint_post("join","param_wid",sb.constraints.is_required("wid"))
+	  .add_constraint_post("join","param_uid",sb.constraints.is_required("uid"));
+		
+	
+	var params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:["ev_api_set","ev_api_create"]};//uid not in rcpts
+	async.series(
+		[function(next){
+						
+			sb.execute("join", params, function(err,ctx){
+								
+				test.ok(flag);				
+				test.equal(err,null);		
+				test.deepEqual(ctx.retval.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create"]}]);
+				test.equal(ctx.retval._id, undefined);		
+				test.equal(ctx.retval.wid, "50187f71556efcbb25000001");
+				test.equal(ctx.retval.catalog, "docs");		
+				test.equal(ctx.retval.a,1);
+				test.equal(ctx.retval.b,"test1234");		
+				next();		
+				
+			});
+			
+		},function(next){
+			params = {uid:620793114, wid:"50187f71556efcbb25000001", ev_types:{$remove:["ev_api_set"]}};//uid not in rcpts
+						
+			sb.execute("join", params, function(err,ctx){
+												
+				test.ok(flag);	
+				test.equal(err,null);	
+				test.equal(ctx.retval,1);	
+				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_create"]}]);
+				
+				test.expect(24);
+				test.done();
+				next();
+				
+			});
+			
+		}]);				
+		
+}
+
+
 
 exports["api.remote.join: valid params, default catalog, already joined, ev_types"] = function(test){
 	
