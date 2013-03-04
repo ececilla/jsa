@@ -67,7 +67,7 @@ exports["api.remote.list: valid params with results"] = function(test){
 							criteria: function(col_str, criteria, order, ret_handler){
 																																						
 								test.equal(col_str,"docs");
-								test.deepEqual(criteria,{ "$and": [ { name: "enric" } ] });
+								test.deepEqual(criteria,{ name: "enric" });
 								
 								ret_handler(null,[dbdocs["50187f71556efcbb25000003"],dbdocs["50187f71556efcbb25000002"]]);//return both documents									
 							}
@@ -131,7 +131,7 @@ exports["api.remote.list: valid params with no results"] = function(test){
 							criteria: function(col_str, criteria, order, ret_handler){
 																																						
 								test.equal(col_str,"docs");
-								test.deepEqual(criteria,{ "$and": [ { name: "baaar" } ] });
+								test.deepEqual(criteria,{ name: "baaar" });
 								
 								ret_handler(null,[]);//return both documents									
 							}
