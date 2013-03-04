@@ -95,11 +95,11 @@ exports["api.remote.search: valid params with results: single keyword"] = functi
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_pre("search","param_keyword",sb.constraints.is_required("keyword"));	  	  	  	    	  
+	  .add_constraint_pre("search","param_keywords",sb.constraints.is_required("keywords"));	  	  	  	    	  
 	  
 	  	  							
 	//user catalog
-	var params = {uid:"50187f71556efcbb25aaaa", keyword:"test5"};
+	var params = {uid:"50187f71556efcbb25aaaa", keywords:"test5"};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
@@ -159,11 +159,11 @@ exports["api.remote.search: valid params with results: keywords"] = function(tes
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_pre("search","param_keyword",sb.constraints.is_required("keyword"));	  	  	  	    	  
+	  .add_constraint_pre("search","param_keywords",sb.constraints.is_required("keywords"));	  	  	  	    	  
 	  
 	  	  							
 	//user catalog
-	var params = {uid:"50187f71556efcbb25aaaa", keyword:["test1","test2"]};
+	var params = {uid:"50187f71556efcbb25aaaa", keywords:["test1","test2"]};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
@@ -223,11 +223,11 @@ exports["api.remote.search: valid params with results: single hashtag"] = functi
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_pre("search","param_hashtag",sb.constraints.is_required("hashtag"));	  	  	  	    	  
+	  .add_constraint_pre("search","param_hashtags",sb.constraints.is_required("hashtags"));	  	  	  	    	  
 	  
 	  	  							
 	//user catalog
-	var params = {uid:"50187f71556efcbb25aaaa", hashtag:"#test6"};
+	var params = {uid:"50187f71556efcbb25aaaa", hashtags:"#test6"};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
@@ -287,11 +287,11 @@ exports["api.remote.search: valid params with results: hashtags"] = function(tes
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_pre("search","param_hashtag",sb.constraints.is_required("hashtag"));	  	  	  	    	  
+	  .add_constraint_pre("search","param_hashtags",sb.constraints.is_required("hashtags"));	  	  	  	    	  
 	  
 	  	  							
 	//user catalog
-	var params = {uid:"50187f71556efcbb25aaaa", hashtag:["#test1","#test2"]};
+	var params = {uid:"50187f71556efcbb25aaaa", hashtags:["#test1","#test2"]};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
@@ -350,12 +350,12 @@ exports["api.remote.search: valid params with results: keywords and hashtags"] =
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_pre("search","param_keyword",sb.constraints.is_required("keyword"))
-	  .add_constraint_pre("search","param_hashtag",sb.constraints.is_required("hashtag"));	  	  	  	    	  
+	  .add_constraint_pre("search","param_keywords",sb.constraints.is_required("keywords"))
+	  .add_constraint_pre("search","param_hashtags",sb.constraints.is_required("hashtags"));	  	  	  	    	  
 	  
 	  	  							
 	//user catalog
-	var params = {uid:"50187f71556efcbb25aaaa", hashtag:["#test1","#test2"], keyword:["test3","test4"]};
+	var params = {uid:"50187f71556efcbb25aaaa", hashtags:["#test1","#test2"], keywords:["test3","test4"]};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
@@ -414,12 +414,12 @@ exports["api.remote.search: valid params with results: keyword and hashtags"] = 
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_pre("search","param_keyword",sb.constraints.is_required("keyword"))
-	  .add_constraint_pre("search","param_hashtag",sb.constraints.is_required("hashtag"));	  	  	  	    	  
+	  .add_constraint_pre("search","param_keywords",sb.constraints.is_required("keywords"))
+	  .add_constraint_pre("search","param_hashtags",sb.constraints.is_required("hashtags"));	  	  	  	    	  
 	  
 	  	  							
 	//user catalog
-	var params = {uid:"50187f71556efcbb25aaaa", hashtag:["#test1","#test2"], keyword:"test3"};
+	var params = {uid:"50187f71556efcbb25aaaa", hashtags:["#test1","#test2"], keywords:"test3"};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
@@ -478,12 +478,12 @@ exports["api.remote.search: valid params with results: keywords and hashtag"] = 
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_pre("search","param_keyword",sb.constraints.is_required("keyword"))
-	  .add_constraint_pre("search","param_hashtag",sb.constraints.is_required("hashtag"));	  	  	  	    	  
+	  .add_constraint_pre("search","param_keywords",sb.constraints.is_required("keywords"))
+	  .add_constraint_pre("search","param_hashtags",sb.constraints.is_required("hashtags"));	  	  	  	    	  
 	  
 	  	  							
 	//user catalog
-	var params = {uid:"50187f71556efcbb25aaaa", hashtag:"#test1", keyword:["test3","test4"]};
+	var params = {uid:"50187f71556efcbb25aaaa", hashtags:"#test1", keywords:["test3","test4"]};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
@@ -542,11 +542,11 @@ exports["api.remote.search: valid params with no results"] = function(test){
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
 	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
-	  .add_constraint_pre("search","param_keyword",sb.constraints.is_required("keyword"));	  	  	  	    	  
+	  .add_constraint_pre("search","param_keywords",sb.constraints.is_required("keywords"));	  	  	  	    	  
 	  
 	  	  							
 	//user catalog
-	var params = {uid:"50187f71556efcbb25aaaa", keyword:["test1","test2"]};
+	var params = {uid:"50187f71556efcbb25aaaa", keywords:["test1","test2"]};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);

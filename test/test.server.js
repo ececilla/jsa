@@ -1471,7 +1471,7 @@ exports["server.api.get: internal events, explicit catalog"] = function(test){
 
 exports["server.api.search: internal events, explicit catalog"] = function(test){
 	
-	var params = {keyword:["a","b"], catalog:"users"};			
+	var params = {keywords:["a","b"], catalog:"users"};			
 	
 	var dbdocs = {};//documents at db	
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",keywords:["a","b","d"], catalog:"users"},
@@ -1514,7 +1514,7 @@ exports["server.api.search: internal events, explicit catalog"] = function(test)
 				
 		test.equal(msg.ev_type,"ev_api_search");
 		test.notEqual(msg.ev_tstamp, undefined);		
-		test.deepEqual(msg.ev_ctx.params, {keyword:["a","b"], catalog:"users"});							
+		test.deepEqual(msg.ev_ctx.params, {keywords:["a","b"], catalog:"users"});							
 															
 	});
 	
@@ -1522,7 +1522,7 @@ exports["server.api.search: internal events, explicit catalog"] = function(test)
 		
 		test.equal(msg.ev_type,"ev_api_search");
 		test.notEqual(msg.ev_tstamp, undefined);		
-		test.deepEqual(msg.ev_ctx.params, {keyword:["a","b"], catalog:"users"});
+		test.deepEqual(msg.ev_ctx.params, {keywords:["a","b"], catalog:"users"});
 					
 	});
 				
