@@ -1,3 +1,4 @@
+a
 de
 un
 una
@@ -7,9 +8,11 @@ uno
 sobre
 todo
 también
+tambien
 tras
 otro
 algún
+algun
 alguno
 alguna
 algunos
