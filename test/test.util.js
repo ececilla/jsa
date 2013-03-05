@@ -1,6 +1,17 @@
 
 var sandbox = require("sandboxed-module");
 
+exports["util.tokenize"] = function(test){
+	
+	var util = require("../lib/util");
+	var str = ["this is a test1,test2;test3,test4 test5"];
+	var tokens = util.tokenize(str);
+	test.deepEqual(tokens,["this","is","a","test1","test2","test3","test4","test5"]);
+	test.deepEqual(util.tokenize("foo;bar dummy"),["foo","bar","dummy"]);
+	test.done();
+	
+}
+
 exports["util.has_joined: true"] = function(test){
 	
 	var util = require("../lib/util");
