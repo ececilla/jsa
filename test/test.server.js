@@ -1481,7 +1481,7 @@ exports["server.api.search: internal events, explicit catalog"] = function(test)
 	
 	var db =  {					
 				
-				criteria:function(col_str, criteria, order, ret_handler){
+				criteria:function(col_str, criteria, order, projection, ret_handler){
 					
 					if( col_str == "dummy"){
 						
@@ -1516,7 +1516,7 @@ exports["server.api.search: internal events, explicit catalog"] = function(test)
 				
 		test.equal(msg.ev_type,"ev_api_search");
 		test.notEqual(msg.ev_tstamp, undefined);		
-		test.deepEqual(msg.ev_ctx.params, {criteria:{name:"foo"}, catalog:"dummy"});							
+		test.deepEqual(msg.ev_ctx.params, {criteria:{name:"foo"}, projection:{}, catalog:"dummy"});							
 															
 	});
 	
@@ -1524,7 +1524,7 @@ exports["server.api.search: internal events, explicit catalog"] = function(test)
 		
 		test.equal(msg.ev_type,"ev_api_search");
 		test.notEqual(msg.ev_tstamp, undefined);		
-		test.deepEqual(msg.ev_ctx.params, {criteria:{name:"foo"}, catalog:"dummy"});
+		test.deepEqual(msg.ev_ctx.params, {criteria:{name:"foo"}, projection:{}, catalog:"dummy"});
 					
 	});
 				
