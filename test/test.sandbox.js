@@ -340,6 +340,164 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 		
 }
 
+exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save user not executed"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
+
+	var flag = 1;	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){
+										
+								if(col_str == "docs"){
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443000001");
+									test.notEqual(dbdocs[id_str], undefined);
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
+							},
+							save: function(col_str, doc,ret_handler){
+								
+								test.equal(col_str,"docs");
+								test.deepEqual(doc,{_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114, 620793116] });								
+								ret_handler(null,doc);
+							}
+		},
+		"./api":{remote:{ dummy:function( ctx, ret_handler){
+							 
+							 test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
+							 test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001", catalog:"docs"});
+							 							 
+							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.
+							 ctx.config.save = {user:0,doc:1};
+							 ctx.config.emit = 0;
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dummy:1}}}}
+	
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
+	sb.init();
+	sb.add_constraint_post("dummy","wid.length",function(ctx){
+		
+		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
+		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
+		
+		if( ctx.params.wid.length != 24 ){
+		
+			return {code:-2, message:"Identifier wid has wrong type"};
+			
+		}
+	}).add_constraint_post("dummy","params",function( ctx ){
+		
+		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
+		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
+		
+		if( !(ctx.params.wid && ctx.params.uid) ){
+				
+			return {code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"};
+			
+		}
+	});
+	
+	sb.execute("dummy", params, function(err,ctx){
+				
+		test.equal(ctx.retval,1);
+		test.expect(12);
+		test.done();
+	});
+		
+}
+
+exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save doc not executed"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114] };
+
+	var flag = 1;	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, ret_handler){
+										
+								if(col_str == "docs"){
+									
+									test.equal(col_str,"docs");
+									test.equal(id_str,"5074b135d03a0ac443000001");
+									test.notEqual(dbdocs[id_str], undefined);
+									
+									ret_handler(null,dbdocs[id_str]);
+								}else if( col_str == "users"){
+																											
+									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
+								}		
+							},
+							save: function(col_str, doc,ret_handler){
+								
+								test.equal(col_str,"users");								
+								test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]})							
+								ret_handler(null,doc);
+							}
+		},
+		"./api":{remote:{ dummy:function( ctx, ret_handler){
+							 
+							 test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
+							 test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001", catalog:"docs"});
+							 							 
+							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.
+							 ctx.config.save = {user:1,doc:0};
+							 ctx.config.emit = 0;
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{dummy:1}}}}
+	
+	}
+	});
+	
+	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
+	sb.init();
+	sb.add_constraint_post("dummy","wid.length",function(ctx){
+		
+		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
+		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
+		
+		if( ctx.params.wid.length != 24 ){
+		
+			return {code:-2, message:"Identifier wid has wrong type"};
+			
+		}
+	}).add_constraint_post("dummy","params",function( ctx ){
+		
+		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
+		test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
+		
+		if( !(ctx.params.wid && ctx.params.uid) ){
+				
+			return {code:-2, message:"Missing parameters:{wid:,uid:,(optional)catalog:}"};
+			
+		}
+	});
+	
+	sb.execute("dummy", params, function(err,ctx){
+				
+		test.equal(ctx.retval,1);
+		test.expect(12);
+		test.done();
+	});
+		
+}
+
 
 exports["sandbox.add_constraint_post: wid not found"] = function(test){
 	
