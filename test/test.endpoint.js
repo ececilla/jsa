@@ -411,7 +411,7 @@ exports["endpoint.rpc: method invocation: with result, params"] = function(test)
 }
 
 
-exports["endpoint.rpc: method invocation: with error"] = function(test){
+exports["endpoint.rpc: method invocation: with object error"] = function(test){
 	
 	var api = sandbox.require("../lib/api");	
 	api.remote = {
@@ -453,6 +453,50 @@ exports["endpoint.rpc: method invocation: with error"] = function(test){
 	test.done();	
 	
 }
+
+exports["endpoint.rpc: method invocation: with string error"] = function(test){
+	
+	var api = sandbox.require("../lib/api");	
+	api.remote = {
+						test: function(ctx, ret_handler){
+																				
+							ret_handler("test error",null);
+							
+						}
+				};
+	
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		}
+	});			 				
+	sb.init();
+	var endpoint = sandbox.require("../lib/endpoint",{
+		requires:{"./sandbox":sb, "./server":{config:{app:{version:"0.0.14"}}}}
+	});
+		
+	
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str, version:"0.0.14"});
+	
+	endpoint.rpc( {writeHead: function(status, header_data){
+							
+							test.equal(status, 200);
+							test.deepEqual(header_data,{"Content-Type":"application/json"});
+			 		},
+			 		end: function( out_str ){
+			 	
+					 		var out_obj = JSON.parse(out_str);
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-1, message:"test error"}, id:"123"},out_obj);					 	
+					}		
+			} , req_str );
+			
+	test.done();	
+	
+}
+
 
 exports["endpoint.rpc: method invocation without id"] = function(test){
 	
