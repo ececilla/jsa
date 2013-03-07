@@ -252,6 +252,35 @@ exports["util.del_field:non existing field-path"] = function(test){
 	test.done();
 }
 
+exports["util.find_field:existing field"] = function(test){
+		
+	var util = require("../lib/util");
+	var doc = {x:{y:{z:1}},z:4};	
+	
+	util.find_field(doc,"z",function(obj,fname){
+		
+		obj[fname] = {dummy:obj[fname]};
+	});
+	
+	test.deepEqual( doc, {x:{y:{z:{dummy:1}}},z:{dummy:4}} );			
+	test.done();
+}
+
+exports["util.find_field:non existing field"] = function(test){
+		
+	var util = require("../lib/util");
+	var doc = {x:{y:{z:1}},z:4};	
+	
+	util.find_field(doc,"s",function(obj,fname){
+		
+		obj[fname] = {dummy:obj[fname]};
+	});
+	
+	test.deepEqual( doc, {x:{y:{z:1}},z:4} );			
+	test.done();
+}
+
+
 
 
 
