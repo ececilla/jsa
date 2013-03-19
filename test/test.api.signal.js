@@ -53,10 +53,15 @@ exports["api.remote.signal: valid params, 1 rcpt"] = function(test){
 	dbusers["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",ctime:1350094951088, push_id:"gcm-456", push_type:"gcm"};	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-																																						
-								test.equal(col_str,"users");								
-								ret_handler(null,dbusers[id_str]);															
+							
+							criteria: function(col_str, criteria, order, projection, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$or:[{_id:"50187f71556efcbb25000002"}]});
+								test.deepEqual(order,{});
+								test.deepEqual(projection,{push_id:1, push_type:1,_id:0});
+								
+								ret_handler(null,[{push_id:"gcm-456", push_type:"gcm"}]);
 							}
 						 }					 
 		}
@@ -86,7 +91,7 @@ exports["api.remote.signal: valid params, 1 rcpt"] = function(test){
 						
 		test.equal(err,null);		
 		test.deepEqual(ctx.retval,1);	
-		test.expect(6);	
+		test.expect(9);	
 		test.done();		
 		
 	});
@@ -101,10 +106,15 @@ exports["api.remote.signal: valid params, +1 rcpt"] = function(test){
 	dbusers["50187f71556efcbb25000002"] = {_id:"50187f71556efcbb25000002",ctime:1350094951088, push_id:"gcm-456", push_type:"gcm"};	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-																																						
-								test.equal(col_str,"users");								
-								ret_handler(null,dbusers[id_str]);															
+							
+							criteria:function(col_str, criteria, order, projection, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$or:[{_id:"50187f71556efcbb25000001"},{_id:"50187f71556efcbb25000002"}]});
+								test.deepEqual(order,{});
+								test.deepEqual(projection,{push_id:1, push_type:1, _id:0});
+								ret_handler(null,[{push_id:"gcm-111", push_type:"gcm"},{push_id:"gcm-456", push_type:"gcm"}]);
+								
 							}
 						 }					 
 		}
@@ -134,7 +144,7 @@ exports["api.remote.signal: valid params, +1 rcpt"] = function(test){
 						
 		test.equal(err,null);		
 		test.deepEqual(ctx.retval,1);	
-		test.expect(7);	
+		test.expect(9);	
 		test.done();		
 		
 	});
