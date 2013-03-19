@@ -144,6 +144,21 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							update:function(col_str, id_str, criteria, ret_handler){
+																
+								
+								test.equal( col_str, "dummy" );																
+								test.equal( id_str, "50187f71556efcbb25000001");
+								test.deepEqual(criteria,{$pop:{b:1}});																													
+																								
+								ret_handler(null,1);
+																								
+							}
+						 }					 
+		}
+	});
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -163,26 +178,9 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}
 																
-							},
-							save:function(col_str,doc,ret_handler){
-															
-								if(col_str == "dummy"){
-									test.equal(col_str,"dummy");
-									test.deepEqual(dbdocs["50187f71556efcbb25000001"].b, [4,5]);								
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,doc);
-									},50);
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
-									ret_handler(null);
-								}
-								
 							}
 						 },
+					"./api":api,	 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{pop:1}}}}	  
 		}
 	});
@@ -204,83 +202,10 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 												
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(9);	
+		test.expect(8);	
 		test.done();		
 		
 	});
 		
 }
 
-exports["api.remote.pop: valid params, existing inner field as array, explicit catalog, db async"] = function(test){
-	
-
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{b:[4,5,6],c:1}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
-		
-				
-	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-																														
-								if(col_str == "dummy"){
-									test.equal(col_str,"dummy");
-									test.equal(id_str,"50187f71556efcbb25000001");
-									test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [4,5,6]);
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
-									},50);
-								}else if( col_str == "users"){
-																											
-									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
-								}
-																
-							},
-							save:function(col_str,doc,ret_handler){
-															
-								if(col_str == "dummy"){
-									test.equal(col_str,"dummy");
-									test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b, [4,5]);								
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,doc);
-									},50);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
-									ret_handler(null);
-								}
-								
-							}
-						 },
-					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{pop:1}}}}	  
-		}
-	});
-	sb.init();
-	sb.add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"timers")
-	  .add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"events") 
-	  .add_constraint_post("pop","param_wid",sb.constraints.is_required("wid"),"dummy")
-	  .add_constraint_post("pop","param_uid",sb.constraints.is_required("uid"),"dummy")
-	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"),"dummy")	  	  
-	  .add_constraint_post("pop","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("pop","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined,"dummy")
-	  .add_constraint_post("pop","field_type",sb.constraints.field_type("array"),"dummy");
-		
-	
-	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};
-
-						
-	sb.execute("pop", params, function(err,ctx){
-						
-						
-		test.equal(err,null);		
-		test.equal(ctx.retval,1);	
-		test.expect(9);	
-		test.done();		
-		
-	});	
-	
-}
