@@ -1156,24 +1156,7 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[4,6], b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
 		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
 	
-	var db =  {	
-				save:function(col_str, doc, ret_handler){
-													
-					if(col_str == "dummy"){
-						test.equal(col_str,"dummy");																								
-						test.deepEqual( doc.rcpts, [620793115, 620793116]);
-						test.deepEqual(doc.a,[4,6,9]);
-											
-						setTimeout(function(){
-							
-							ret_handler(null,doc);
-						},50);	
-					}else if(col_str == "users"){
-						test.equal(col_str,"users");
-						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
-						ret_handler(null);
-					}
-				},
+	var db =  {					
 				
 				select:function(col_str, id_str, ret_handler){
 					
@@ -1190,6 +1173,14 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 						
 						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 					}
+				},
+				
+				update: function(col_str,id_str,criteria,ret_handler){
+					
+					test.equal(col_str,"dummy");
+					test.equal(id_str,"50187f71556efcbb25000001");
+					test.deepEqual(criteria,{$push:{a:9}});
+					ret_handler(null,1);
 				}
 	};
 	   
@@ -1229,7 +1220,7 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 		test.equal(err,undefined);
 		test.equal(ctx.retval,1);						
 				
-		test.expect(16);		
+		test.expect(14);		
 		test.done();
 	});	
 						
@@ -1903,7 +1894,19 @@ exports["server.api.config.newop: reply"] = function(test){
 	var dbusers = {};
 		dbusers["50187f71556efcbb25005555"] = {_id:new ObjectID("50187f71556efcbb25005555"), name:"enric", karma:5, wids:["50187f71556efcbb25000001"]};	
 		dbusers["50187f71556efcbb25004444"] = {_id:new ObjectID("50187f71556efcbb25004444"), name:"peter", karma:60, wids:[]};
-	var api = sandbox.require("../lib/api");	    		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{
+			
+			update: function(col_str,id_str,criteria,ret_handler){
+				
+				test.equal(col_str,"dummy");
+				test.equal(id_str,"50187f71556efcbb25000001");
+				test.equal(criteria.$push.replies.txt,"This is a reply");
+				test.equal(criteria.$push.replies.uid,"50187f71556efcbb25004444");
+				ret_handler(null,1);
+			}
+		}}
+	});	    		
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{	"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1,get:1, push:1, reply:1}}}},
@@ -2001,7 +2004,7 @@ exports["server.api.config.newop: reply"] = function(test){
 		test.ok(not_push_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, 1);
-		test.expect(14);
+		test.expect(17);
 		test.done();	
 	});
 					
