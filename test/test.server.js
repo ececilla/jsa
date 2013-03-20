@@ -1072,25 +1072,7 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
 		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
 	
-	var db =  {	
-				save:function(col_str, doc, ret_handler){
-													
-					if(col_str == "dummy"){
-						test.equal(col_str,"dummy");																								
-						test.deepEqual( doc.rcpts, [620793115, 620793116]);
-						test.equal(doc.a,5);
-											
-						setTimeout(function(){
-							
-							ret_handler(null,doc);
-						},50);	
-					}else if(col_str == "users"){
-						
-						test.equal(col_str,"users");
-						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
-						ret_handler(null);
-					}
-				},
+	var db =  {					
 				
 				select:function(col_str, id_str, ret_handler){
 					
@@ -1107,6 +1089,14 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 						
 						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 					}
+				},
+				
+				update: function(col_str, id_str, criteria, ret_handler){
+					
+					test.equal(col_str,"dummy");
+					test.equal(id_str,"50187f71556efcbb25000001");
+					test.deepEqual(criteria,{$set:{a:5}});
+					ret_handler(null);
 				}
 	};
 	   
@@ -1141,7 +1131,7 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 		test.equal(err,undefined);
 		test.equal(ctx.retval,1);						
 				
-		test.expect(15);		
+		test.expect(13);		
 		test.done();
 	});						
 }
@@ -1880,10 +1870,18 @@ exports["server.api.config.newop: reply"] = function(test){
 			
 			update: function(col_str,id_str,criteria,ret_handler){
 				
-				test.equal(col_str,"dummy");
-				test.equal(id_str,"50187f71556efcbb25000001");
-				test.equal(criteria.$push.replies.txt,"This is a reply");
-				test.equal(criteria.$push.replies.uid,"50187f71556efcbb25004444");
+				if(col_str == "dummy"){
+					test.equal(col_str,"dummy");
+					test.equal(id_str,"50187f71556efcbb25000001");
+					test.equal(criteria.$push.replies.txt,"This is a reply");
+					test.equal(criteria.$push.replies.uid,"50187f71556efcbb25004444");
+				}else if(col_str == "users"){
+					
+					test.equal(col_str,"users");
+					test.equal(id_str,"50187f71556efcbb25005555");
+					test.deepEqual(criteria,{$set:{karma:10}});
+					
+				}
 				ret_handler(null,1);
 			}
 		}}
@@ -1985,7 +1983,7 @@ exports["server.api.config.newop: reply"] = function(test){
 		test.ok(not_push_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, 1);
-		test.expect(17);
+		test.expect(18);
 		test.done();	
 	});
 					
@@ -2019,180 +2017,6 @@ server.api.config.newop("decr", function(ctx, ret_handler){
 	});	
 } 
  */
-
-
-/*
-exports["server.api.config.newop: db raw access based op"] = function(test){
-	
-	var myparams = {uid:620793114, catalog:"users"};	
-	var dbusers = {};
-		
-		//document WITH b field.
-		dbusers["620793114"] = {uid:"620793114",name:"Enric", surname:"Cecilla"};    
-	
-	var db = {
-		
-		select: function(col_str, id_str, ret_handler){
-								
-			test.equal(col_str, "users");
-			test.equal(id_str, myparams.uid);
-			test.notEqual(dbusers[id_str], undefined);								
-																			
-			setTimeout(function(){//db 50ms delay retrieving document
-				
-				ret_handler(null,dbusers[id_str]);
-			},50);
-			
-		},
-		save: function(col_str, doc, ret_handler){
-			
-			test.equal(col_str,"users");											
-			test.equal( doc.name, "Enric" );
-			test.equal( doc.newfield, 999);					
-			
-			//save doc to db...returns with _id:12345			
-			ret_handler(null,doc);	
-		}	
-		
-	},
-	
-	api = sandbox.require("../lib/api",{
-		requires:{ "./db":db }
-	}),
-	
-	server = sandbox.require("../lib/server",{
-		requires:{
-					"./api":api,
-					"./db":db
-				}		
-	});
-				
-	
-	server.api.config.newop("newop3", function(params, ret_handler){
-				
-		test.deepEqual(params, myparams); 		
-		
-		//recuperamos un usuario
-		server.db.select(params.catalog, ""+params.uid, function(err,user){
-			
-			user.newfield = 999;
-			
-			server.db.save(params.catalog, user, function(err,val){
-				
-				server.api.events.ev_api_newop3.params = {dummy:1};						
-				ret_handler(err,val);
-			});
-			
-		});	
-																	
-	});	
-	
-	//ev_newop3 will be emitted by default.
-	server.api.events.on("ev_api_newop3", function(params, rcpts){
-					
-		test.deepEqual( params.ev_data, {dummy:1} );			
-		test.done();	
-			
-	});
-				
-	
-	api.remote["newop3"](myparams, function(err,val){
-				
-		test.equal(err,null);	
-				
-	});
-		
-}
-
-
-
-exports["server.api.config.newop: wid based op"] = function(test){
-	
-		
-	var myparams = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:3, catalog:"dummy"};	
-	var dbdocs = {};
-		
-		//document WITH b field.
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, b:2, rcpts:[ 620793114, 620793115 ], uid:620793114};    
-	
-	var db = {
-		select: function(col_str, id_str, ret_handler){
-								
-			test.equal(col_str, "dummy");
-			test.equal(id_str, myparams.wid);
-			test.notEqual(dbdocs[id_str], undefined);								
-																										
-			ret_handler(null,dbdocs[id_str]);
-						
-		},		
-		save:function(col_str, doc, ret_handler){
-												
-			//save doc to db...returns with _id:12345			
-			ret_handler(null,doc);	
-		}	
-		
-	};
-			
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":db}
-	});
-	
-	var eq = sandbox.require("../lib/evqueue",{
-		requires:{"./api":api,
-				  "./db":{
-				  		
-				  		save:function(col_str, doc, ret_handler){
-				  			
-				  			test.equal(col_str, "events");
-				  			test.equal(doc.ev_rcpt, 620793115);
-				  			test.equal(doc.ev_msg.ev_type,"ev_api_foo1");
-				  			test.equal(doc.ev_msg.ev_data.doc, undefined);
-				  			test.deepEqual(doc.ev_msg.ev_data,myparams);
-				  			ret_handler();
-				  		}
-				  	}	
-				  }
-	});
-		
-	var server = sandbox.require("../lib/server",{
-		requires:{ "./db":db, "./api":api, "./evqueue":eq }
-	});
-						
-	
-	server.api.config.newop("foo1", function(params, ret_handler){
-						
-		test.notEqual(params.doc, undefined);	
-		test.deepEqual(params.doc, dbdocs["50187f71556efcbb25000001"] );	
-		test.deepEqual(params, myparams);
-		
-		//operacion set hecha desde newop
-		params.doc[params.fname] = params.value;	
-		ret_handler(null,1);
-		
-	});
-		
-	server.api.events.on("ev_api_foo1", function(params, rcpts){
-		
-		test.equal(rcpts,undefined);
-		test.equal(params.ev_type, "ev_api_foo1");
-		test.deepEqual(params.ev_data.doc,dbdocs["50187f71556efcbb25000001"]);		
-						
-		test.done();			
-	});
-		
-	
-	test.notEqual( api.remote["foo1"], undefined );
-	test.notEqual( server.api["foo1"], undefined );
-	api.remote["foo1"](myparams, function(err,val){
-		
-		test.equal(err,null);
-		test.ok(val);		
-	});
-	
-		
-}
-
-*/
 
 
 
