@@ -14,19 +14,83 @@ exports["module exported functions"] = function(test){
 	
 }
 
+exports["timers.start_timer: error parameters"] = function(test){
+		
+	var flags = [1,1];
+	var timers = sandbox.require("../lib/timers",{
+		requires:{"./db":{
+							removeById:function( col_str, id_str, ret_handler ){
+								
+								flags[0] = 0;																						
+								ret_handler(null);
+							},
+							save:function(col_name, obj, ret_handler){
+								flags[1] = 0;																
+								ret_handler(null);								
+							}
+		}}
+	});
+	
+	
+	timers.add_timer_type("foo",function( data ){
+						
+	});
+	
+	
+	timers.start_timer("fooooo",function(err){
+		
+		test.notEqual(err, undefined);		
+		test.done();
+	});			
+	
+}
 
-exports["timers.start_timer"] = function(test){
+exports["timers.start_timer: unregistered"] = function(test){
 	
 	//This document expires in 1 sec.
-	var etime = new Date().getTime() + 500;
+	var etime = time.now() + 500;
+	var flags = [1,1];
+	var timers = sandbox.require("../lib/timers",{
+		requires:{"./db":{
+							removeById:function( col_str, id_str, ret_handler ){
+								
+								flags[0] = 0;																						
+								ret_handler(null);
+							},
+							save:function(col_name, obj, ret_handler){
+								flags[1] = 0;																
+								ret_handler(null);								
+							}
+		}}
+	});
 	
+	
+	timers.add_timer_type("foo",function( data ){
+						
+	});
+	
+
+	timers.start_timer( {etime:etime,type_name:"dummy",data:{test:1}},function(err){
+		
+		test.notEqual(err,undefined);
+		test.ok(flags[0]);
+		test.ok(flags[1]);
+		test.expect(3);	
+		test.done();
+	});
+				
+	
+}
+
+exports["timers.start_timer"] = function(test){
+	var etime = time.now() + 500;		
 	var timers = sandbox.require("../lib/timers",{
 		requires:{"./db":{
 							removeById:function( col_str, id_str, ret_handler ){
 																
 								test.equal(col_str,"timers");
 								test.equal(id_str,"505c3cc67c0877830b000034");
-								test.expect(6);
+								test.expect(7);
 								test.done();
 								ret_handler();
 							},
@@ -47,7 +111,9 @@ exports["timers.start_timer"] = function(test){
 	});
 	
 	
-	timers.start_timer( {etime:etime,type_name:"dummy",data:{test:1}} );
+	timers.start_timer( {etime:etime,type_name:"dummy",data:{test:1}},function(err){
+		test.ok(1)
+	});
 	
 }
 
@@ -68,9 +134,12 @@ exports["timers.load:empty"] = function(test){
 	});
 		
 	
-	timers.load();
-	test.expect(2);
-	test.done();
+	timers.load(function(err){
+		
+		test.equal(err,undefined);
+		test.expect(3);
+		test.done();
+	});	
 }
 
 exports["timers.load:1 future timer"] = function(test){
@@ -92,7 +161,7 @@ exports["timers.load:1 future timer"] = function(test){
 								
 								test.equal(col_str,"timers");
 								test.equal(id_str,"hh879384");
-								test.expect(5);
+								test.expect(6);
 								test.done();	
 								ret_handler(null);
 							}
@@ -105,7 +174,10 @@ exports["timers.load:1 future timer"] = function(test){
 		test.deepEqual(timer,{foo:"bar"});
 		
 	});
-	timers.load();
+	timers.load(function(err){
+		
+		test.equal(err,undefined);
+	});
 	
 }
 
