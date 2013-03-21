@@ -134,7 +134,21 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 	
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:"test1234", rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
-		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							update:function(col_str, id_str, criteria, ret_handler){
+																
+								
+								test.equal( col_str, "dummy" );																
+								test.equal( id_str, "50187f71556efcbb25000001");
+								test.deepEqual(criteria,{$unset:{b:1}});																						
+																								
+								ret_handler(null);
+																								
+							}
+						 }					 
+		}
+	});	
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -156,27 +170,9 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 									ret_handler(null,{_id:id_str, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 								}																																																						
 																
-							},
-							save:function(col_str, doc,ret_handler){
-															
-								if(col_str == "dummy"){
-								
-									test.equal(col_str,"dummy");
-									test.equal(doc.b,undefined);								
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,doc);
-									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
-								}
-								
 							}
 						 },
+					"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
@@ -199,7 +195,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(10);	
+		test.expect(9);	
 		test.done();		
 		
 	});
@@ -212,6 +208,21 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,b:2}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							update:function(col_str, id_str, criteria, ret_handler){
+																
+								
+								test.equal( col_str, "dummy" );																
+								test.equal( id_str, "50187f71556efcbb25000001");
+								test.deepEqual(criteria,{$unset:{"a.b":1}});																						
+																								
+								ret_handler(null);
+																								
+							}
+						 }					 
+		}
+	});	
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -232,26 +243,9 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 									ret_handler(null,{_id:id_str,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 								}
 																
-							},
-							save:function(col_str,doc,ret_handler){
-															
-								if(col_str == "dummy"){
-									test.equal(col_str,"dummy");
-									test.equal(doc.a.b,undefined);								
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,doc);
-									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
-								}
-								
 							}
 						 },
+					"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
@@ -274,7 +268,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(10);	
+		test.expect(9);	
 		test.done();		
 		
 	});	
@@ -287,7 +281,28 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 	
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,b:[4,5,6]}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
-		
+	var count = 0;
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							update:function(col_str, id_str, criteria, ret_handler){
+																
+								if(count == 0){			
+									test.equal( col_str, "dummy" );																
+									test.equal( id_str, "50187f71556efcbb25000001");
+									test.deepEqual(criteria,{$unset:{"a.b.1":1}});
+									count++;
+								}else if(count == 1){
+									test.equal( col_str, "dummy" );																
+									test.equal( id_str, "50187f71556efcbb25000001");
+									test.deepEqual(criteria,{$pull:{"a.b":null}});
+								}																						
+																								
+								ret_handler(null);
+																								
+							}
+						 }					 
+		}
+	});		
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -308,26 +323,9 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 								}
 																
-							},
-							save:function(col_str,doc,ret_handler){
-															
-								if(col_str == "dummy"){
-									test.equal(col_str,"dummy");
-									test.deepEqual(doc.a.b,[4,6]);								
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,doc);
-									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
-								}
-								
 							}
 						 },
+					"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
 		}
 	});
@@ -350,7 +348,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(10);	
+		test.expect(12);	
 		test.done();		
 		
 	});	
@@ -358,222 +356,3 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 		
 }
 
-exports["api.remote.remove: valid params, existing inner array field, remove by value"] = function(test){
-		
-	
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,z:{b:[4,5,6]}}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
-		
-				
-	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-								
-								if(col_str == "dummy"){																						
-									test.equal(col_str,"dummy");
-									test.equal(id_str,"50187f71556efcbb25000001");
-									test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.z.b, [4,5,6]);
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
-									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-								}
-																
-							},
-							save:function(col_str,doc,ret_handler){
-															
-								if(col_str == "dummy"){
-									test.equal(col_str,"dummy");
-									test.deepEqual(doc.a.z.b,[4,5]);								
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,doc);
-									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
-								}
-								
-							}
-						 },
-					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
-		}
-	});
-	sb.init();
-	sb.add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"timers")
-	  .add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"events") 
-	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
-	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
-	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
-	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("remove","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined,"dummy");
-		
-	
-	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.z.b", value:6, catalog:"dummy"};
-
-						
-	sb.execute("remove", params, function(err,ctx){
-						
-						
-		test.equal(err,null);		
-		test.equal(ctx.retval,1);	
-		test.expect(10);	
-		test.done();		
-		
-	});	
-		
-		
-}
-
-exports["api.remote.remove: valid params, existing array field"] = function(test){
-		
-	
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,z:{b:[4,5,6]}}, rcpts:[{push_id:"gcm-114",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
-		
-				
-	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-								
-								if(col_str == "dummy"){																						
-									test.equal(col_str,"dummy");
-									test.equal(id_str,"50187f71556efcbb25000001");
-									test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.z.b, [4,5,6]);
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
-									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-								}
-																
-							},
-							save:function(col_str,doc,ret_handler){
-															
-								if(col_str == "dummy"){
-									test.equal(col_str,"dummy");
-									test.deepEqual(doc.a.z.b,undefined);								
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,doc);
-									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
-								}
-								
-							}
-						 },
-					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
-		}
-	});
-	sb.init();
-	sb.add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"timers")
-	  .add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"events") 
-	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
-	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
-	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
-	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("remove","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined,"dummy");
-		
-	
-	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.z.b", catalog:"dummy"};
-
-						
-	sb.execute("remove", params, function(err,ctx){
-						
-						
-		test.equal(err,null);		
-		test.equal(ctx.retval,1);	
-		test.expect(10);	
-		test.done();		
-		
-	});	
-		
-		
-}
-
-
-exports["api.remote.remove: valid params, non existing array index, explicit catalog, db async"] = function(test){
-	
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, a:{c:1,b:3}, rcpts:[620793114,620793117], catalog:"docs"};
-		
-				
-	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-																														
-								if(col_str == "dummy"){
-									test.equal(col_str,"dummy");
-									test.equal(id_str,"50187f71556efcbb25000001");
-									test.deepEqual(dbdocs["50187f71556efcbb25000001"].a.b,3);
-									
-									setTimeout(function(){ //db 50ms delay retrieving document
-										
-										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
-									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
-								}
-																
-							},
-							save:function(col_str,doc,ret_handler){
-															
-								
-								//will not execute								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
-									
-									ret_handler(null,doc);
-								},50);
-								
-							}
-						 },
-					"./server":{config:{app:{status:1},db:{default_catalog:"docs",system_catalogs:["timers","events"]}},api:{config:{procedures:{remove:1}}}}	  
-		}
-	});
-	sb.init();
-	sb.add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"timers")
-	  .add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
-	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
-	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
-	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("remove","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined,"dummy");
-		
-	
-	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b.1", catalog:"dummy"};
-
-						
-	sb.execute("remove", params, function(err,result){
-						
-						
-		test.deepEqual(err,{code:-9, message: "Not exists: #dummy/50187f71556efcbb25000001:a.b.1"});		
-		test.equal(result,null);	
-		test.expect(6);	
-		test.done();		
-		
-	});		
-		
-}
