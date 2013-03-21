@@ -15,7 +15,7 @@ exports["module exported functions"] = function(test){
 }
 
 
-exports["module init:db.connect before any operation"] = function(test){
+exports["module init:db.connect before any other operation"] = function(test){
 	
 	
 	test.throws(
