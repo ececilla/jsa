@@ -988,24 +988,6 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
 	
 	var db =  {	
-				save:function(col_str, doc, ret_handler){
-													
-					if(col_str == "dummy"){
-						test.equal(col_str,"dummy");																								
-						test.deepEqual( doc.rcpts, [620793115, 620793116]);
-						test.equal(doc.b,undefined);
-											
-						setTimeout(function(){
-							
-							ret_handler(null,doc);
-						},50);	
-					}else if(col_str == "users"){
-						
-						test.equal(col_str,"users");
-						test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
-						ret_handler(null);
-					}
-				},
 				
 				select:function(col_str, id_str, ret_handler){
 					
@@ -1021,6 +1003,13 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 						
 						ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 					}
+				},
+				update: function(col_str, id_str, criteria, ret_handler){
+					
+					test.equal(col_str,"dummy");
+					test.equal(id_str,"50187f71556efcbb25000001");
+					test.deepEqual(criteria,{$unset:{b:1}});
+					ret_handler(null);
 				}
 	};
 	   
@@ -1055,7 +1044,7 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 		test.equal(err,undefined);
 		test.equal(ctx.retval,1);						
 				
-		test.expect(14);		
+		test.expect(12);		
 		test.done();
 	});	
 						
