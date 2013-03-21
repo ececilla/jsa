@@ -680,18 +680,7 @@ exports["evmngr.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{push_id:620793115, push_type:"web"}], uid:620793115, catalog:"docs"},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[{push_id:620793115, push_type:"web"}], uid:620793115};
 	
-	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{
-							removeById: function(col_str, id_str, ret_handler){
-																							
-								test.equal(col_str, "docs");
-								test.equal(id_str, "50187f71556efcbb25000001");
-								delete 	dbdocs["50187f71556efcbb25000001"];//delete document							
-								ret_handler(null,1);																	
-							}	
-					}
-		}
-	});
+	var api = sandbox.require("../lib/api");
 	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
@@ -744,13 +733,11 @@ exports["evmngr.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 		
 		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}, user:{push_id:620793114, push_type:"web"}};
 		
-		api.remote.dispose(ctx, function(err,val){
-			
-			test.equal(err,null);			
-			test.notEqual(val,undefined);			
-			test.expect(12);
-			test.done();
-		});
+		ctx.payload = ctx.params;
+		api.emit("ev_api_dispose",ctx);
+		test.expect(8);
+		test.done();
+		
 	},500);
 		
 }
