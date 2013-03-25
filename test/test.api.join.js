@@ -11,7 +11,10 @@ exports["api.remote.join: missing params"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 								
 								if( col_str == "docs"){																						
 									
@@ -77,7 +80,11 @@ exports["api.remote.join: valid params, default catalog, no rcpts"] = function(t
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -175,7 +182,11 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types:[]"]
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -255,7 +266,11 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$pus
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -334,7 +349,11 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$set
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -412,7 +431,12 @@ exports["api.remote.join: valid params, default catalog, rcpts, no ev_types"] = 
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -509,7 +533,11 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types:[]"] = 
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -606,7 +634,11 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$push:[
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -703,7 +735,11 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$pop:i"
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -829,7 +865,12 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$set:[]
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -927,7 +968,12 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$remove
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -1026,7 +1072,11 @@ exports["api.remote.join: valid params, default catalog, already joined, ev_type
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
@@ -1114,7 +1164,11 @@ exports["api.remote.join: valid params, no rcpts, explicit catalog"] = function(
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								
 								if( col_str == "docs"){																						
 									

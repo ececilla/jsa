@@ -756,7 +756,10 @@ exports["server.api.dispose: internal events, default catalog"] = function(test)
 					},100);	
 				},
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if( col_str == "docs"){
 						test.equal(col_str, "docs");
@@ -839,7 +842,10 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 					}
 				},
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if( col_str == "docs"){
 						test.equal(col_str, "docs");
@@ -922,7 +928,10 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 					}
 				},
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if( col_str == "docs"){
 						
@@ -989,7 +998,10 @@ exports["server.api.remove: internal events, explicit catalog"] = function(test)
 	
 	var db =  {	
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str,projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if( col_str == "dummy"){
 						test.equal(col_str, "dummy");
@@ -1063,7 +1075,10 @@ exports["server.api.set: internal events, explicit catalog"] = function(test){
 	
 	var db =  {					
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if( col_str == "dummy"){
 						test.equal(col_str, "dummy");
@@ -1137,7 +1152,10 @@ exports["server.api.push: internal events, explicit catalog"] = function(test){
 	
 	var db =  {					
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if( col_str == "dummy"){
 						test.equal(col_str, "dummy");
@@ -1215,7 +1233,10 @@ exports["server.api.pop: internal events, explicit catalog"] = function(test){
 	
 	var db =  {					
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if(col_str == "dummy"){
 						test.equal(col_str, "dummy");
@@ -1288,7 +1309,10 @@ exports["server.api.shift: internal events, explicit catalog"] = function(test){
 	
 	var db =  {					
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if( col_str == "dummy"){
 						test.equal(col_str, "dummy");
@@ -1361,7 +1385,10 @@ exports["server.api.get: internal events, explicit catalog"] = function(test){
 	
 	var db =  {					
 				
-				select:function(col_str, id_str, ret_handler){
+				select:function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 					
 					if( col_str == "dummy"){
 						
@@ -1775,7 +1802,10 @@ exports["server.api.config.newop: get based op"] = function(test){
 		requires:{	"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{get:1, newop1:1}}}},
 				 	"./db":{				
-								select:function(col_str, id_str, ret_handler){
+								select:function(col_str, id_str, projection, ret_handler){
+									
+									if( typeof projection == "function")
+										ret_handler = projection;
 									
 									if( col_str == "users"){
 										
@@ -1879,7 +1909,10 @@ exports["server.api.config.newop: reply"] = function(test){
 		requires:{	"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1,get:1, push:1, reply:1}}}},
 				 	"./db":{				
-								select:function(col_str, id_str, ret_handler){
+								select:function(col_str, id_str, projection, ret_handler){
+									
+									if( typeof projection == "function")
+										ret_handler = projection;
 									
 									if( col_str == "users"){
 										

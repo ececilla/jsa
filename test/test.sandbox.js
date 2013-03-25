@@ -44,7 +44,10 @@ exports["sandbox.add_constraint_post: non satisfied constraints"] = function(tes
 	var flags = [1,1];
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 										
 								if(col_str == "docs"){
 									test.equal(col_str,"docs");
@@ -120,7 +123,10 @@ exports["sandbox.add_constraint_pre: non satisfied anonymous constraints"] = fun
 	var flags = [1,1,1,1];
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 										
 								flags[0] = 0;
 								ret_handler(null,dbdocs[id_str]);		
@@ -181,7 +187,10 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 										
 								if(col_str == "docs"){
 									test.equal(col_str,"docs");
@@ -269,7 +278,10 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 										
 								if(col_str == "docs"){
 									
@@ -348,7 +360,10 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save user not e
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 										
 								if(col_str == "docs"){
 									
@@ -427,7 +442,10 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save doc not ex
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 										
 								if(col_str == "docs"){
 									
@@ -507,7 +525,10 @@ exports["sandbox.add_constraint_post: wid not found"] = function(test){
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 										
 								if(col_str == "docs"){
 									test.equal(col_str,"docs");
@@ -572,7 +593,10 @@ exports["sandbox.add_constraint_post: uid not found"] = function(test){
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 										
 								if(col_str == "docs"){
 									test.equal(col_str,"docs");
@@ -615,7 +639,10 @@ exports["sandbox.add_constraint_post: no wid, uid"] = function(test){
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 								
 								if( col_str == "users"){
 																											
@@ -668,7 +695,10 @@ exports["sandbox.add_constraint_post: wid, no uid"] = function(test){
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-				select: function(col_str, id_str, ret_handler){
+				select: function(col_str, id_str, projection, ret_handler){
+					
+					if( typeof projection == "function")
+						ret_handler = projection;
 							
 					if( col_str == "docs"){
 						test.equal(col_str,"docs");
@@ -741,7 +771,10 @@ exports["sandbox.add_constraint_post: 1/2 satisfied constraints, no wid "] = fun
 	var flags = [1,1];	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 								
 								if( col_str == "users"){
 																											
@@ -800,7 +833,10 @@ exports["sandbox.copy_constraints: constraints.is_owner"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "dummy"){	
 									ret_handler(null,dbdocs[id_str]);
@@ -846,7 +882,10 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "docs"){
 									
@@ -892,7 +931,10 @@ exports["sandbox.add_constraint_post: constraints.is_owner"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){	
 									ret_handler(null,dbdocs[id_str]);
@@ -935,7 +977,10 @@ exports["sandbox.add_constraint_post: constraints.has_joined"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){
 									
@@ -977,7 +1022,10 @@ exports["sandbox.add_constraint_post: constraints.not_catalog"] = function(test)
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "timers"){
 									
@@ -1019,7 +1067,10 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "dummy"){	
 									ret_handler(null,dbdocs[id_str]);
@@ -1066,7 +1117,10 @@ exports["sandbox.add_constraint_post: constraints.is_joinable"] = function(test)
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){
 									
@@ -1109,7 +1163,10 @@ exports["sandbox.add_constraint_post: constraints.is_reserved"] = function(test)
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){	
 									
@@ -1152,7 +1209,10 @@ exports["sandbox.add_constraint_post: constraints.field_exists"] = function(test
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "docs"){
 									
@@ -1196,7 +1256,10 @@ exports["sandbox.add_constraint_post: constraints.field_type object"] = function
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){
 									
@@ -1240,7 +1303,10 @@ exports["sandbox.add_constraint_post: constraints.field_type array"] = function(
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "docs"){
 									
@@ -1285,7 +1351,10 @@ exports["sandbox.add_constraint_pre: constraints.is_required"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){
 									
@@ -1332,7 +1401,10 @@ exports["sandbox.add_constraint_pre: constraints.some_required"] = function(test
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){
 									
@@ -1376,7 +1448,10 @@ exports["sandbox.add_constraint_pre: constraints.is_protected"] = function(test)
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){
 									
@@ -1420,7 +1495,10 @@ exports["sandbox.add_constraint_pre: constraints.is_protected array"] = function
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection,  ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){
 									
@@ -1503,7 +1581,10 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "docs"){
 									test.equal(col_str,"docs");
@@ -1582,7 +1663,10 @@ exports["sandbox.add_plugin_in: custom plugin"] = function(test){
 	var flag = 0;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs")
 									ret_handler(null,dbdocs[id_str]);
@@ -1637,7 +1721,10 @@ exports["sandbox.add_plugin_in: custom plugin, ctx.err returned"] = function(tes
 	var flags = [1,1,1];
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								flags[0] = 0;	//No loadobject is called because plugin returns error.							
 								ret_handler(null,null);	
@@ -1688,7 +1775,10 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.retval interception"] = fun
 	var flag = 0;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs")
 									ret_handler(null,dbdocs[id_str]);
@@ -1743,7 +1833,10 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.doc interception"] = functi
 	var flag = 0;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								//load document
 								if(col_str == "docs"){
@@ -1827,7 +1920,10 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.payload interception"] = fu
 	})
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								
 								//load document
@@ -1891,7 +1987,10 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 	var flag = 0;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if(col_str == "docs"){
 									ret_handler(null,dbdocs[id_str]);
@@ -1941,7 +2040,10 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform1"] = function(test
 	var flag = 0;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "docs")
 									ret_handler(null,dbdocs[id_str]);
@@ -1992,7 +2094,10 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform2"] = function(test
 	var flag = 0;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "docs" )
 									ret_handler(null,dbdocs[id_str]);
@@ -2041,7 +2146,10 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform3"] = function(test
 	var flag = 0;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "docs" )
 									ret_handler(null,dbdocs[id_str]);
@@ -2089,7 +2197,10 @@ exports["sandbox.add_plugin_in: sandbox.plugins.url_transform overwrite"] = func
 	var flag = 0;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "docs")
 									ret_handler(null,dbdocs[id_str]);
@@ -2137,7 +2248,10 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "dummy")
 									ret_handler(null,dbdocs[id_str]);
@@ -2184,7 +2298,10 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_keywords"] = function(te
 		 dbdocs["5074b135d03a0ac443000002"] = {_id:"5074b135d03a0ac443000002", test:"test2", catalog:"dummy", uid:620793117, rcpts:[620793117] };
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "dummy")
 									ret_handler(null,dbdocs[id_str]);
@@ -2234,7 +2351,10 @@ exports["sandbox.add_plugin_in: sandbox.plugins.extract_hashtags"] = function(te
 		 dbdocs["5074b135d03a0ac443000002"] = {_id:"5074b135d03a0ac443000002", test:"test2", catalog:"dummy", uid:620793117, rcpts:[620793117] };
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "dummy")
 									ret_handler(null,dbdocs[id_str]);
@@ -2285,7 +2405,10 @@ exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "dummy")
 									ret_handler(null,dbdocs[id_str]);
@@ -2330,7 +2453,10 @@ exports["sandbox.add_plugin_out: sandbox.plugins.rewrite_id over array"] = funct
 		 dbdocs["5074b135d03a0ac443000002"] = {_id:"5074b135d03a0ac443000002", test:"test2", catalog:"dummy", uid:620793117, rcpts:[620793117] };
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
-							select: function(col_str, id_str, ret_handler){																																		
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
 								
 								if( col_str == "dummy")
 									ret_handler(null,dbdocs[id_str]);

@@ -7,7 +7,10 @@ exports["api.remote.get: missing & wrong params"] = function(test){
 		
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 																																						
 								if(col_str == "docs")								
 									ret_handler(null,dbdocs[id_str]);
@@ -89,7 +92,10 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 																														
 								test.equal(col_str,"dummy");
 								test.equal(id_str,"50187f71556efcbb25000001");								
@@ -142,7 +148,10 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 																														
 								test.equal(col_str,"users");
 								test.equal(id_str,"50187f71556efcbb25000001");								
@@ -190,7 +199,10 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 																														
 								test.equal(col_str,"dummy");
 								test.equal(id_str,"50187f71556efcbb25000001");								
@@ -237,7 +249,10 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 																														
 								test.equal(col_str,"dummy");
 								test.equal(id_str,"50187f71556efcbb25000001");								
@@ -283,7 +298,10 @@ exports["api.remote.get: valid params, existing inner index, explicit catalog, d
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+																		
+								if( typeof projection == "function")
+									ret_handler = projection;																		
 																														
 								test.equal(col_str,"dummy");
 								test.equal(id_str,"50187f71556efcbb25000001");								
@@ -331,8 +349,11 @@ exports["api.remote.get: valid params, existing inner index range, explicit cata
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-																														
+							select: function(col_str, id_str,projection,  ret_handler){
+																		
+								if( typeof projection == "function")
+									ret_handler = projection;
+																															
 								test.equal(col_str,"dummy");
 								test.equal(id_str,"50187f71556efcbb25000001");								
 								

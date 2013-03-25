@@ -8,7 +8,10 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 		
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 								
 								if( col_str == "docs"){																						
 									
@@ -152,7 +155,10 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 								
 								if( col_str == "dummy"){																						
 									
@@ -226,7 +232,10 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 								
 								if(col_str=="dummy"){																						
 									test.equal(col_str,"dummy");
@@ -306,7 +315,10 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 								
 								if(col_str == "dummy"){																						
 									test.equal(col_str,"dummy");

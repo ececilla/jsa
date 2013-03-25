@@ -7,7 +7,11 @@ exports["api.remote.dispose: missing params"] = function(test){
 	var doc = {_id:"50187f71556efcbb25000002",uid:620793114,ctime:1350094951092,catalog:"dummy",test:"test"};
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+																														
 																														
 								ret_handler(null,doc);								
 							},
@@ -64,7 +68,10 @@ exports["api.remote.dispose: valid params, wid not found, not owner"] = function
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
 								
 								if( col_str == "docs"){																						
 									
@@ -152,7 +159,11 @@ exports["api.remote.dispose: valid params, default catalog"] = function(test){
 	var flag = 1;				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;
+									
 								if( col_str == "docs"){																						
 									
 									test.equal(col_str,"docs");
