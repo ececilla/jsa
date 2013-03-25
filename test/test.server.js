@@ -227,8 +227,7 @@ exports["server.api.register: internal api events"] = function(test){
 	server.api.events
 				.on("ev_api_register", function(msg){
 							
-					test.equal(msg.ev_type,"ev_api_register");					
-					test.equal(msg.ev_ctx.params.catalog, "users");
+					test.equal(msg.ev_type,"ev_api_register");										
 					test.equal(msg.ev_ctx.doc.uid, "50187f71556efcbb25000001");									
 					
 				})				
@@ -244,7 +243,7 @@ exports["server.api.register: internal api events"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(12);		
+		test.expect(11);		
 		test.done();
 	});
 					
