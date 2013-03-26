@@ -1392,7 +1392,7 @@ exports["server.api.get: internal events, explicit catalog"] = function(test){
 					if( col_str == "dummy"){
 						
 						test.equal(col_str, "dummy");
-						test.equal(id_str, "50187f71556efcbb25000001");						
+						test.equal(id_str, "50187f71556efcbb25000001");											
 						
 						setTimeout(function(){//50ms delay retrieving document
 							
@@ -1403,7 +1403,16 @@ exports["server.api.get: internal events, explicit catalog"] = function(test){
 	};
 	   
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":db}
+		requires:{"./db":{
+			
+			select: function(col_str, id_str, projection, ret_handler){
+				
+				test.equal(col_str,"dummy");
+				test.equal(id_str,"50187f71556efcbb25000001");
+				test.deepEqual(projection,{a:1});
+				ret_handler(null,dbdocs[id_str].a);
+			}
+		}}
 	});
 	
 	var sb = sandbox.require("../lib/sandbox",{
@@ -1440,7 +1449,7 @@ exports["server.api.get: internal events, explicit catalog"] = function(test){
 				
 		test.equal(err,null);
 		test.deepEqual(ctx.retval,[-4,"foo",6]);
-		test.expect(10);
+		test.expect(13);
 		test.done();												
 	});
 						
@@ -1796,7 +1805,19 @@ exports["server.api.config.newop: get based op"] = function(test){
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[{c:1},{c:1},{c:2},{c:1},{c:3}], b:"test1234", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"},
 		dbdocs["50187f71556efcbb25000555"] = {_id:"50187f71556efcbb25000555",a:2, b:"test5678", rcpts:[620793115, 620793116], uid:620793115, catalog:"dummy"};
 	
-	var api = sandbox.require("../lib/api");	    		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{
+						select: function(col_str, id_str, projection, ret_handler){
+			
+							test.equal(col_str,"dummy");
+							test.equal(id_str,"50187f71556efcbb25000001");
+							test.deepEqual(projection,{a:1});
+							ret_handler(null,dbdocs["50187f71556efcbb25000001"].a);
+						}
+				}
+		}
+	});
+		    		
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{	"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{get:1, newop1:1}}}},
@@ -1867,7 +1888,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 		test.ok(not_get_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, [{c:1},{c:1},{c:1},{c:3}]);
-		test.expect(10);
+		test.expect(13);
 		test.done();	
 	});
 					
@@ -1885,6 +1906,14 @@ exports["server.api.config.newop: reply"] = function(test){
 		dbusers["50187f71556efcbb25004444"] = {_id:new ObjectID("50187f71556efcbb25004444"), name:"peter", karma:60, wids:[]};
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{
+			
+			select: function(col_str, id_str, projection, ret_handler){
+			
+							test.equal(col_str,"users");
+							test.equal(id_str,"50187f71556efcbb25005555");
+							test.deepEqual(projection,{karma:1});
+							ret_handler(null,dbusers["50187f71556efcbb25005555"].karma);
+			},
 			
 			update: function(col_str,id_str,criteria,ret_handler){
 				
@@ -2004,7 +2033,7 @@ exports["server.api.config.newop: reply"] = function(test){
 		test.ok(not_push_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, 1);
-		test.expect(18);
+		test.expect(21);
 		test.done();	
 	});
 					

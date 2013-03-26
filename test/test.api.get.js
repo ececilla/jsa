@@ -88,7 +88,22 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 	
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"};
-		
+	
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							select: function(col_str, id_str, projection, ret_handler){
+																
+								
+								test.equal( col_str, "dummy" );																
+								test.equal( id_str, "50187f71556efcbb25000001");
+								test.deepEqual(projection,{});																					
+																								
+								ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
+																								
+							}
+						 }					 
+		}
+	});	
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -111,6 +126,7 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 								ret_handler(null,[{wids:[]}]);
 							}
 						 },
+					"./api":api,	 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
@@ -130,7 +146,7 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 						
 		test.equal(err,null);		
 		test.deepEqual(ctx.retval,{wid:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"});	
-		test.expect(4);	
+		test.expect(7);	
 		test.done();		
 		
 	});
@@ -145,6 +161,21 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 	var dbdocs = {users:{}};//users at db
 		dbdocs["users"]["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", name:"enric", b:[4,5,6]};
 		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							select: function(col_str, id_str, projection, ret_handler){
+																
+								
+								test.equal( col_str, "users" );																
+								test.equal( id_str, "50187f71556efcbb25000001");
+								test.deepEqual(projection,{});																											
+																								
+								ret_handler(null,dbdocs["users"][id_str]);
+																								
+							}
+						 }					 
+		}
+	});	
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -163,6 +194,7 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 																
 							}
 						 },
+					"./api":api,	 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
@@ -182,7 +214,7 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 						
 		test.equal(err,null);		
 		test.deepEqual(ctx.retval,{uid:"50187f71556efcbb25000001", name:"enric", b:[4,5,6]});	
-		test.expect(4);	
+		test.expect(7);	
 		test.done();		
 		
 	});
@@ -196,6 +228,22 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"dummy"};
 		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							select: function(col_str, id_str, projection, ret_handler){
+																
+								
+								test.equal( col_str, "dummy" );																
+								test.equal( id_str, "50187f71556efcbb25000001");
+								test.deepEqual(projection,{b:1});
+																											
+																								
+								ret_handler(null,dbdocs["50187f71556efcbb25000001"].b);
+																								
+							}
+						 }					 
+		}
+	});	
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -214,6 +262,7 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 																
 							}
 						 },
+					"./api":api,	 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
@@ -232,7 +281,7 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 						
 		test.equal(err,null);		
 		test.deepEqual(ctx.retval,[4,5,6]);	
-		test.expect(4);	
+		test.expect(7);	
 		test.done();		
 		
 	});
@@ -246,6 +295,22 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6],a:"test",c:{d:1}, rcpts:[620793114,620793117], catalog:"dummy"};
 		
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{							
+							select: function(col_str, id_str, projection, ret_handler){
+																
+								
+								test.equal( col_str, "dummy" );																
+								test.equal( id_str, "50187f71556efcbb25000001");
+								test.deepEqual(projection,{a:1,"c.d":1,nonexisting_field:1});
+																											
+																								
+								ret_handler(null,{a:"test",c:{d:1}});
+																								
+							}
+						 }					 
+		}
+	});	
 				
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -264,6 +329,7 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 																
 							}
 						 },
+					"./api":api,	 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
 		}
 	});
@@ -273,15 +339,15 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
 		
 	
-	var params = {catalog:"dummy",wid:"50187f71556efcbb25000001",fname:["b.0","a","c.d","nonexisting_field"]};
+	var params = {catalog:"dummy",wid:"50187f71556efcbb25000001",fname:["a","c.d","nonexisting_field"]};
 
 						
 	sb.execute("get", params, function(err,ctx){
 						
 						
 		test.equal(err,null);		
-		test.deepEqual(ctx.retval,{ b:{"0":4}, a:"test", c:{d:1} });					
-		test.expect(4);	
+		test.deepEqual(ctx.retval,{a:"test", c:{d:1} });					
+		test.expect(7);	
 		test.done();		
 		
 	});
@@ -289,102 +355,3 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 	
 }
 
-exports["api.remote.get: valid params, existing inner index, explicit catalog, db async"] = function(test){
-	
-	
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"docs"};
-		
-				
-	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str,projection, ret_handler){
-																		
-								if( typeof projection == "function")
-									ret_handler = projection;																		
-																														
-								test.equal(col_str,"dummy");
-								test.equal(id_str,"50187f71556efcbb25000001");								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
-									
-									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
-								},50);
-																
-							}
-						 },
-					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
-		}
-	});
-	sb.init();
-	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
-	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
-	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
-	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
-		
-	
-	var params = {url:"#dummy/50187f71556efcbb25000001:b.2"};
-
-						
-	sb.execute("get", params, function(err,ctx){
-												
-		test.equal(err,null);		
-		test.equal(ctx.retval,6);	
-		test.expect(4);	
-		test.done();		
-		
-	});
-		
-	
-}
-
-
-
-exports["api.remote.get: valid params, existing inner index range, explicit catalog, db async"] = function(test){
-	
-	
-	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793114, b:[4,5,6], rcpts:[620793114,620793117], catalog:"docs"};
-		
-				
-	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str,projection,  ret_handler){
-																		
-								if( typeof projection == "function")
-									ret_handler = projection;
-																															
-								test.equal(col_str,"dummy");
-								test.equal(id_str,"50187f71556efcbb25000001");								
-								
-								setTimeout(function(){ //db 50ms delay retrieving document
-									
-									ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
-								},50);
-																
-							}
-						 },
-					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{get:1}}}}	  
-		}
-	});
-	sb.init();
-	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
-	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
-	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
-	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
-		
-	
-	var params = {url:"#dummy/50187f71556efcbb25000001:b.0-1"};
-
-						
-	sb.execute("get", params, function(err,ctx){
-												
-		test.equal(err,null);		
-		test.deepEqual(ctx.retval,[4,5]);	
-		test.expect(4);	
-		test.done();		
-		
-	});
-		
-	
-}
