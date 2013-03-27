@@ -2264,7 +2264,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 							 
 							 ctx.config.save = 0;	
 							 ctx.config.emit = 0;						 
-							 test.deepEqual(ctx.config,{save:0, emit:0, test:1});							 
+							 test.deepEqual(ctx.config,{save:0, emit:0, test:1, tag:"tag1"});							 
 							 test.equal(ctx.params.config, undefined);					 							 
 							 ret_handler( null, 1 );
 						  }
@@ -2274,7 +2274,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 	}
 	});
 	
-	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", config:{test:1} };
+	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", config:{test:1,tag:"tag1"} };
 	
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
