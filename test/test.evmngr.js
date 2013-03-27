@@ -562,7 +562,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = funct
 	
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"		
 	
-	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}};//payload a emitir
+	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"},config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 						
@@ -572,7 +572,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = funct
 
 exports["evmngr.on: listening custom event, wrong event emitted"] = function(test){
 
-	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var ctx = {params:{foo:"50187f71556efcbb25000001", bar:620793114},config:{}};
 	var rcpts = [{push_id:620793119, push_type:"web"}, {push_id:620793115, push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
@@ -597,7 +597,7 @@ exports["evmngr.on: listening custom event, wrong event emitted"] = function(tes
 		test.ok(flag);
 		test.done();	
 	});			
-	api.emit("ev_foo", rpc_params, rcpts);						
+	api.emit("ev_foo", ctx, rcpts);						
 	
 }
 
