@@ -29,7 +29,7 @@ exports["module exported functions"] = function(test){
 exports["api.emit:params, no explicit rcpts"] = function(test){
 	
 	var api = require("../lib/api");				
-	var ctx = {params:{foo:1, bar:5}, doc:undefined};
+	var ctx = {params:{foo:1, bar:5}, doc:undefined, config:{}};
 	
 	api.on("ev_dummy", function(msg, rcpts){
 		
@@ -49,7 +49,7 @@ exports["api.emit:params, no explicit rcpts"] = function(test){
 exports["api.emit:params, explicit rcpts"] = function(test){
 	
 	var api = require("../lib/api");			
-	var ctx = {params:{foo:1, bar:5}, doc:undefined};
+	var ctx = {params:{foo:1, bar:5}, doc:undefined, config:{}};
 	var emit_rcpts = [1,2,3];
 	
 	api.on("ev_foo", function(msg, rcpts){
