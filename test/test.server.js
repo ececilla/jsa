@@ -1536,7 +1536,8 @@ exports["server.api.events.emit"] = function(test){
 	server.api.events.on("ev_bar", function(msg, rcpts){
 		
 		test.deepEqual( msg.ev_ctx.params, ctx.params );
-		test.equal( rcpts, myrcpts );		
+		test.equal( rcpts, myrcpts );	
+		test.expect(2);	
 		test.done();	
 	});
 	
@@ -1544,6 +1545,24 @@ exports["server.api.events.emit"] = function(test){
 	
 }
 
+exports["server.api.events.emit, explicit tag"] = function(test){
+	
+	var server = require("../lib/server");
+	var ctx = {params:{foo:1,bar:"bar"}};	
+	var	myrcpts = [1,2,3];
+	
+	server.api.events.on("ev_foo5", function(msg, rcpts){
+		
+		test.deepEqual( msg.ev_ctx.params, ctx.params );
+		test.equal( rcpts, myrcpts );		
+		test.equal( msg.ev_tag,"mytag");
+		test.expect(3);
+		test.done();	
+	});
+	
+	server.api.events.emit("ev_foo5", ctx, myrcpts,"mytag");	
+	
+}
 
 
 exports["server.api.config.newop: invocation"] = function(test){
@@ -1574,11 +1593,12 @@ exports["server.api.config.newop: invocation"] = function(test){
 		
 			
 		ctx.config.save = 0;
-		ctx.config.emit = 0;
+		ctx.config.emit = 1;
+		ctx.config.tag = "salary_ok";
 		//As sandbox does not save it's not necessary to assign ctx.config.emit.		
 		test.deepEqual(ctx.params, myparams);
 		test.deepEqual(ctx.doc,{});		
-		server.api.events.emit("ev_api_newop", ctx);		
+		//server.api.events.emit("ev_api_newop", ctx);		
 		ret_handler(null,1);
 	});
 	server.api.config.newop("echo_x",function(ctx, ret_handler){
@@ -1600,10 +1620,11 @@ exports["server.api.config.newop: invocation"] = function(test){
 	test.notEqual(server.api.echo_x, undefined);
 	test.notEqual( api.remote["echo_x"], undefined );
 	
-	server.api.events.on("ev_api_newop", function(msg, rcpts){
+	server.api.events.newop.on(function(msg, rcpts){
 		
 		
 		test.deepEqual(msg.ev_ctx.params, myparams);
+		test.equal(msg.ev_ctx.config.tag,"salary_ok");
 		test.equal( rcpts, undefined );
 					
 	});
@@ -1621,7 +1642,7 @@ exports["server.api.config.newop: invocation"] = function(test){
 		test.ok(flag);
 		test.equal(err,null);
 		test.equal(ctx.retval,5);
-		test.expect(13);
+		test.expect(14);
 		test.done();
 	})
 		
