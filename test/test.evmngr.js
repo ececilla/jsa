@@ -13,6 +13,7 @@ exports["module exported functions"] = function(test){
 	test.done();
 }
 
+
 exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch push_providers"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
@@ -86,6 +87,84 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 	
 	
 }
+
+exports["evmngr.api.listen: custom event, explicit rcpts, tag, different non-batch push_providers"] = function(test){
+
+	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"gcm"},{push_id:620793117,push_type:"gcm",ev_types:["ev_foo"]}];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+		
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	
+					"./db":{	
+								save: function(col_str, msg, ret_handler){
+																																																			
+									test.equal(col_str,"events");
+									test.equal(msg.ev_type,"ev_dummy");
+									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
+																										
+								}	
+					}
+		}
+	});
+		
+	var em = sandbox.require("../lib/evmngr",{
+		requires:{	"./api":api,"./evqueue":eq }
+	});
+	
+	em.add_push_provider("web",{ 
+		
+		push:function(push_id,push_msg){
+						
+			test.equal(push_id,620793119);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.equal(push_msg.ev_tag,"mytag");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+						
+		}
+	});
+	
+	var flag = 1;
+	em.add_push_provider("batch",{
+		
+		push:function(ids, push_msg){
+			
+			flag = 0;
+		}
+	},true);
+	
+	em.add_push_provider("gcm",{
+		
+		push:function(push_id,push_msg){
+			
+			test.equal(push_id,620793115);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.equal(push_msg.ev_tag,"mytag");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+			test.ok(flag);		
+			test.expect(12);
+			test.done();			
+		}
+	});
+						
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"					
+	
+	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
+	ctx.payload = ctx.params;
+	api.emit("ev_dummy", ctx, rcpts,"mytag");
+	
+	
+	
+}
+
+
 
 exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch push_providers, event_types"] = function(test){
 
