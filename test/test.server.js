@@ -1409,7 +1409,7 @@ exports["server.api.get: internal events, explicit catalog"] = function(test){
 				
 				test.equal(col_str,"dummy");
 				test.equal(id_str,"50187f71556efcbb25000001");
-				test.deepEqual(projection,{a:1});
+				test.deepEqual(projection,{_id:0, a:1});
 				ret_handler(null,dbdocs[id_str].a);
 			}
 		}}
@@ -1832,7 +1832,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 			
 							test.equal(col_str,"dummy");
 							test.equal(id_str,"50187f71556efcbb25000001");
-							test.deepEqual(projection,{a:1});
+							test.deepEqual(projection,{_id:0, a:1});
 							ret_handler(null,dbdocs["50187f71556efcbb25000001"].a);
 						}
 				}
@@ -1932,7 +1932,7 @@ exports["server.api.config.newop: reply"] = function(test){
 			
 							test.equal(col_str,"users");
 							test.equal(id_str,"50187f71556efcbb25005555");
-							test.deepEqual(projection,{karma:1});
+							test.deepEqual(projection,{_id:0, karma:1});
 							ret_handler(null,dbusers["50187f71556efcbb25005555"].karma);
 			},
 			
