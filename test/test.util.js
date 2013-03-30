@@ -1,6 +1,75 @@
 
 var sandbox = require("sandboxed-module");
 
+exports["util.http_post"] = function(test){
+	
+	var callbacks = {};
+	var util = sandbox.require("../lib/util",{
+		requires:{"http":{
+							request:function( post_options,  ret_handler ){
+								
+								test.deepEqual(post_options,{
+				
+									host:"android.googleapis.com",
+									port:"80",
+									path:"/gcm/send",
+									method:"POST"				
+								});								
+								ret_handler({//http_res
+									
+									setEncoding: function( encoding ){
+										
+										test.equal(encoding,"utf8");
+									},
+									on:function(ev_type, fn){
+										
+										callbacks[ev_type] = fn;						
+									}
+									
+								});
+								
+								return  { //http_req
+									write:function(post_body){
+										
+										test.equal(post_body,"a=1");
+										setTimeout(function(){
+											
+											callbacks["data"]("this is a message");
+										},100);
+										setTimeout(function(){
+											
+											callbacks["end"]();
+										},500);
+									},
+									end: function(){
+										
+										test.ok(true);
+									}
+								};
+								
+								
+								
+							}
+		}}
+	});
+	
+	var post_options = {
+				
+		host:"android.googleapis.com",
+		port:"80",
+		path:"/gcm/send",
+		method:"POST"				
+	};	
+	
+	util.http_post(post_options,"a=1",function(data){
+		
+		test.equal(data,"this is a message");
+		test.expect(5);										
+		test.done();
+	});
+	
+}
+
 exports["util.tokenize"] = function(test){
 	
 	var util = require("../lib/util");
