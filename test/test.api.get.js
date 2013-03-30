@@ -96,7 +96,7 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 								
 								test.equal( col_str, "dummy" );																
 								test.equal( id_str, "50187f71556efcbb25000001");
-								test.deepEqual(projection,{});																					
+								test.deepEqual(projection,{_id:0});																					
 																								
 								ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 																								
@@ -168,7 +168,7 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 								
 								test.equal( col_str, "users" );																
 								test.equal( id_str, "50187f71556efcbb25000001");
-								test.deepEqual(projection,{});																											
+								test.deepEqual(projection,{_id:0});																											
 																								
 								ret_handler(null,dbdocs["users"][id_str]);
 																								
@@ -235,7 +235,7 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 								
 								test.equal( col_str, "dummy" );																
 								test.equal( id_str, "50187f71556efcbb25000001");
-								test.deepEqual(projection,{b:1});
+								test.deepEqual(projection,{_id:0,b:1});
 																											
 																								
 								ret_handler(null,dbdocs["50187f71556efcbb25000001"].b);
@@ -302,7 +302,7 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 								
 								test.equal( col_str, "dummy" );																
 								test.equal( id_str, "50187f71556efcbb25000001");
-								test.deepEqual(projection,{a:1,"c.d":1,nonexisting_field:1});
+								test.deepEqual(projection,{_id:0, a:1,"c.d":1,nonexisting_field:1});
 																											
 																								
 								ret_handler(null,{a:"test",c:{d:1}});
