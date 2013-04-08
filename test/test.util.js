@@ -23,6 +23,7 @@ exports["util.http_post"] = function(test){
 									},
 									on:function(ev_type, fn){
 										
+										test.ok( ev_type === "end" || ev_type === "data");										
 										callbacks[ev_type] = fn;						
 									}
 									
@@ -64,7 +65,7 @@ exports["util.http_post"] = function(test){
 	util.http_post(post_options,"a=1",function(data){
 		
 		test.equal(data,"this is a message");
-		test.expect(5);										
+		test.expect(7);										
 		test.done();
 	});
 	
