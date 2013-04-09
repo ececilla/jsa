@@ -20,7 +20,7 @@ exports["api.remote.create: missing params"] = function(test){
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 														
 								//this function is not reached because no wid is provided								
 								if(col_str == "users"){
@@ -86,7 +86,7 @@ exports["api.remote.create: invalid params: catalog=='events'"] = function(test)
 	var flag = 1;	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
 														
 								//this function is not reached because no wid is provided								
 								if(col_str == "users"){
@@ -152,7 +152,7 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 														
 								if(col_str == "users"){
 									ret_handler(null,{_id:73472834, name:"enric",wids:[]});
@@ -245,7 +245,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 														
 								//only called for users								
 								if(col_str == "users"){
@@ -326,7 +326,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 														
 								if(col_str == "users"){
 									test.equal(col_str, "users");
@@ -404,7 +404,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
 														
 								if(col_str == "users"){
 									test.equal(col_str, "users");
@@ -487,7 +487,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 														
 								if(col_str == "users"){
 									test.equal(col_str, "users");
@@ -567,7 +567,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 														
 								if(col_str == "users"){
 									test.equal(col_str, "users");
@@ -655,7 +655,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str,projection, ret_handler){
 														
 								if(col_str == "users"){
 									test.equal(col_str, "users");
