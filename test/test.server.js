@@ -269,11 +269,13 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 									//save doc to db...returns with _id:12345
 									doc._id = "50187f71556efcbb25000001";
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
 								}	
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								ret_handler();
 							}
 							
 		}}
@@ -351,11 +353,13 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 									//save doc to db...returns with _id:12345
 									doc._id = "50187f71556efcbb25000001";
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
 								}	
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								ret_handler();
 							}
 							
 		}}
@@ -491,11 +495,13 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 									//save doc to db...returns with _id:12345
 									doc._id = "50187f71556efcbb25000001";
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
 								}	
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								ret_handler();
 							}
 		}}
 	});	
@@ -570,11 +576,13 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 									//save doc to db...returns with _id:12345
 									doc._id = "50187f71556efcbb25000001";
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
 								}	
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								ret_handler();
 							}
 		}}
 	});	
@@ -658,11 +666,14 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 									doc._id = "50187f71556efcbb25000666";
 									dbdocs["50187f71556efcbb25000666"] = doc;
 									ret_handler(null,doc);	
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000666"]});
-									ret_handler(null);
 								}
+							},
+							
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000666"]}});								
+								ret_handler();
 							},
 							
 							select:function(col_str, id_str, ret_handler){
@@ -1737,11 +1748,13 @@ exports["server.api.config.newop: create based op"] = function(test){
 									
 									doc._id="50187f71556efcbb25000001"
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["66667f71556efcbb25000008","50187f71556efcbb25000001"]});
-									ret_handler(null);
-								}	
+								}
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["66667f71556efcbb25000008","50187f71556efcbb25000001"]}});								
+								ret_handler();
 							}
 		}}
 	});

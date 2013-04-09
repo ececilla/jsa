@@ -620,11 +620,13 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 									//save doc to db...returns doc with _id		
 									doc._id = "50187f71556efcbb25000001";						
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{push_id:620793114, push_type:"web",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
 								}	
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								ret_handler();
 							}
 		}}
 	}),
@@ -705,11 +707,13 @@ exports["evmngr.on: ev_api_create, unreportable document, subscribed"] = functio
 									//save doc to db...returns doc with _id		
 									doc._id = "50187f71556efcbb25000001";						
 									ret_handler(null,doc);	
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{push_id:620793114, push_type:"web",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
 								}
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								ret_handler();
 							}
 		}}
 	}), 

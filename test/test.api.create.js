@@ -137,13 +137,15 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 									test.equal(col_str,"docs");			
 									doc._id = "50187f71556efcbb25000002";
 									//ret_handler(null, doc);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{ _id: 73472834,name: 'enric',wids: [ '50187f71556efcbb25000002' ] });																		
-								}								
+								}							
 										
 								ret_handler(null,doc);	
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								ret_handler();
 							}
 						 }					 
 		}
@@ -230,13 +232,14 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 									//save doc to db...
 									
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									
-									test.equal(col_str, "users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
-									ret_handler(null);
 								}
 																								
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								ret_handler();
 							}
 						 }					 
 		}
@@ -312,12 +315,14 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 								//save doc to db...
 								
 								ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:73472834, name:"enric",wids:["50187f71556efcbb25000002"]});
-									ret_handler(null);
 								}
 																								
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								ret_handler();
 							}
 						 }					 
 		}
@@ -389,12 +394,14 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 									//save doc to db...
 									
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:73472834, name:"enric",wids:["50187f71556efcbb25000002"]});
-									ret_handler(null);
 								}
 																								
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								ret_handler();
 							}
 						 }					 
 		}
@@ -472,12 +479,14 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 									//save doc to db...
 									
 									ret_handler(null,doc);
-								}else if( col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:73472834, name:"enric",wids:["50187f71556efcbb25000002"]});
-									ret_handler(null);
 								}
 																								
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								ret_handler();
 							}
 						 }					 
 		}
@@ -552,12 +561,14 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 									//save doc to db...
 									
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:73472834, push_id:"gcm-834", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
-									ret_handler(null);
 								}
 																								
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								ret_handler();
 							}
 						 }					 
 		}
@@ -633,12 +644,14 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 									//save doc to db...
 									
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
-									ret_handler(null);
 								}
 																								
+							},
+							update: function(col_str, id_str, criteria, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								ret_handler();
 							}
 						 }					 
 		}
