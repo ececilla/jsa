@@ -283,10 +283,11 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		requires:{
 				"./api":api,
 				"./db": {
-							select: function(col_str, id_str, ret_handler){
-																														
+							select: function(col_str, id_str, projection, ret_handler){
+																													
 								if(col_str == "users"){
-																																	
+									
+									test.deepEqual(projection,{_id:1,wids:1,push_id:1,push_type:1});																									
 									ret_handler(null,{_id:id_str,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});	
 								}							
 							}
@@ -325,7 +326,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(13);		
+		test.expect(14);		
 		test.done();
 	});
 						
@@ -364,7 +365,7 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 		requires:{
 				"./api":api,
 				"./db": {
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 																														
 								if(col_str == "users"){
 																																	
@@ -441,7 +442,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 		requires:{
 					"./api":api,
 					"./db":{
-								select: function(col_str, id_str, ret_handler){
+								select: function(col_str, id_str, projection, ret_handler){
 																														
 									if(col_str == "users"){
 																																		
@@ -503,7 +504,7 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 		requires:{
 					"./api":api,
 					"./db":{
-								select: function(col_str, id_str, ret_handler){
+								select: function(col_str, id_str,projection, ret_handler){
 																														
 									if(col_str == "users"){
 																																		
@@ -582,7 +583,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 		requires:{
 					"./api":api,
 					"./db":{
-								select: function(col_str, id_str, ret_handler){
+								select: function(col_str, id_str, projection, ret_handler){
 																														
 									if(col_str == "users"){
 																																		
@@ -682,7 +683,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 		requires:{
 					"./api":api,
 					"./db":{
-								select: function(col_str, id_str, ret_handler){
+								select: function(col_str, id_str,projection, ret_handler){
 																														
 									if(col_str == "users"){
 																																		
@@ -1749,7 +1750,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 		requires:{	"./api":api,
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{create:1, newop1:1}}}},
 				 	"./db":{				
-								select:function(col_str, id_str, ret_handler){
+								select:function(col_str, id_str, projection, ret_handler){
 					
 									if( col_str == "users"){
 										
