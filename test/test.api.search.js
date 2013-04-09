@@ -78,7 +78,7 @@ exports["api.remote.search: valid params with results"] = function(test){
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 																																						
 								if (col_str == "users"){
 									
@@ -141,18 +141,7 @@ exports["api.remote.search: valid params with results, projection"] = function(t
 	});
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-																																						
-								if (col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.equal(id_str,"50187f71556efcbb25aaaa");
-									ret_handler(null,dbusers[id_str]);
-								}
-																	
-							}
-						 },
+		requires:{
 					"./api":api,	 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"], user_catalogs:["docs","dummy"]}},api:{config:{procedures:{search:1}}}} 
 		}
@@ -161,17 +150,16 @@ exports["api.remote.search: valid params with results, projection"] = function(t
 	sb.init();
 	sb.add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
-	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)	  
 	  .add_constraint_pre("search","param_criteria",sb.constraints.is_required("criteria"));	  	  	  	    	  
 	  
 	  	  								
-	var params = {uid:"50187f71556efcbb25aaaa", criteria:{name:"enric"}, projection:{ctime:1,name:1}, catalog:"docs"};
+	var params = {criteria:{name:"enric"}, projection:{ctime:1,name:1}, catalog:"docs"};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
 		test.deepEqual(ctx.retval,[{wid:"50187f71556efcbb25000003", ctime:1350094951092, name:"enric"},{wid:"50187f71556efcbb25000002",ctime:1350094951092, name:"enric"}])		
-		test.expect(6);		
+		test.expect(4);		
 		test.done();
 		
 				
@@ -206,18 +194,7 @@ exports["api.remote.search: valid params with no results"] = function(test){
 	});
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str, ret_handler){
-																																						
-								if (col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.equal(id_str,"50187f71556efcbb25aaaa");
-									ret_handler(null,dbusers[id_str]);
-								}
-																	
-							}
-						 },
+		requires:{
 					"./api":api,	 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"], user_catalogs:["docs","dummy"]}},api:{config:{procedures:{search:1}}}} 
 		}
@@ -226,17 +203,16 @@ exports["api.remote.search: valid params with no results"] = function(test){
 	sb.init();
 	sb.add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("search","not_catalog",sb.constraints.not_catalog,"events")	
-	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)
-	  .add_constraint_pre("search","param_uid",sb.constraints.is_required("uid"))
+	  .add_constraint_pre("search","user_catalog",sb.constraints.user_catalog)	  
 	  .add_constraint_pre("search","param_criteria",sb.constraints.is_required("criteria"));	  	  	  	    	  
 	  
 	  	  								
-	var params = {uid:"50187f71556efcbb25aaaa", criteria:{name:"baaar"}, catalog:"docs"};
+	var params = {criteria:{name:"baaar"}, catalog:"docs"};
 	sb.execute("search", params, function(err,ctx){
 					
 		test.equal(err, undefined);
 		test.deepEqual(ctx.retval,[]);		
-		test.expect(6);		
+		test.expect(4);		
 		test.done();
 		
 				
