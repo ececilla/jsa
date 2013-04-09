@@ -350,6 +350,20 @@ exports["util.find_field:non existing field"] = function(test){
 	test.done();
 }
 
+exports["util.uptime_hm"] = function(test){
+	
+	var util = require("../lib/util");
+		
+	test.equal(util.uptime_hm(120),"0 h, 2 m");
+	test.equal(util.uptime_hm(1500),"0 h, 25 m");
+	test.equal(util.uptime_hm(3600),"1 h, 0 m");
+	test.equal(util.uptime_hm(3601),"1 h, 0 m");
+	test.equal(util.uptime_hm(3660),"1 h, 1 m");
+	
+	test.done();
+	
+}
+
 
 
 
