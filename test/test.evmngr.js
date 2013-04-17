@@ -625,7 +625,7 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
 		}}
@@ -712,7 +712,7 @@ exports["evmngr.on: ev_api_create, unreportable document, subscribed"] = functio
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
 		}}

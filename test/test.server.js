@@ -274,7 +274,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
 							
@@ -358,7 +358,7 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
 							
@@ -500,7 +500,7 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
 		}}
@@ -581,7 +581,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000001"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
 		}}
@@ -672,7 +672,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000666"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000666"}});								
 								ret_handler();
 							},
 							
@@ -1753,7 +1753,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["66667f71556efcbb25000008","50187f71556efcbb25000001"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
 		}}

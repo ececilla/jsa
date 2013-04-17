@@ -144,7 +144,7 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
 						 }					 
@@ -238,7 +238,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
 						 }					 
@@ -321,7 +321,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
 						 }					 
@@ -400,7 +400,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
 						 }					 
@@ -485,7 +485,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
 						 }					 
@@ -567,7 +567,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
 						 }					 
@@ -650,7 +650,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 							update: function(col_str, id_str, criteria, ret_handler){
 								
 								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$set:{wids:["50187f71556efcbb25000002"]}});								
+								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
 						 }					 
