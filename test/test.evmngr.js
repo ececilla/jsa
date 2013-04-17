@@ -17,7 +17,7 @@ exports["module exported functions"] = function(test){
 exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch push_providers"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"gcm"},{push_id:620793117,push_type:"gcm",ev_types:["ev_foo"]}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"gcm"},{uid:620793117, push_id:620793117,push_type:"gcm",ev_types:["ev_foo"]}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -80,7 +80,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 						
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"					
 	
-	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
+	var ctx = {doc:undefined,params:rpc_params, user:{_id:620793114, push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 	
@@ -91,7 +91,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 exports["evmngr.api.listen: custom event, explicit rcpts, tag, different non-batch push_providers"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"gcm"},{push_id:620793117,push_type:"gcm",ev_types:["ev_foo"]}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"gcm"},{uid:620793117, push_id:620793117,push_type:"gcm",ev_types:["ev_foo"]}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -156,7 +156,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, tag, different non-bat
 						
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"					
 	
-	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
+	var ctx = {doc:undefined,params:rpc_params, user:{_id:620793114, push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts,"mytag");
 	
@@ -169,7 +169,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, tag, different non-bat
 exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch push_providers, event_types"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"gcm"},{push_id:620793112, push_type:"custom", ev_types:["ev_dummy","ev_foo"]}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"gcm"},{uid:620793112, push_id:620793112, push_type:"custom", ev_types:["ev_dummy","ev_foo"]}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -243,7 +243,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 					
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"				
 	
-	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
+	var ctx = {doc:undefined,params:rpc_params, user:{_id:620793314, push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 				
@@ -253,9 +253,9 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch push_providers"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:"gcm-115",push_type:"gcm"},
-				 {push_id:620793116,push_type:"batch1",ev_types:undefined},{push_id:620793117,push_type:"batch1", ev_types:undefined},{push_id:620793119, push_type:"batch1",ev_types:["ev_foo"]},
-				 {push_id:620793118,push_type:"batch2",ev_types:["ev_dummy"]},{push_id:620793120,push_type:"batch2",ev_types:[]}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:"gcm-115",push_type:"gcm"},
+				 {uid:620793116, push_id:620793116,push_type:"batch1",ev_types:undefined},{uid:620793117, push_id:620793117,push_type:"batch1", ev_types:undefined},{uid:620793119, push_id:620793119, push_type:"batch1",ev_types:["ev_foo"]},
+				 {uid:620793118, push_id:620793118,push_type:"batch2",ev_types:["ev_dummy"]},{uid:620793120, push_id:620793120,push_type:"batch2",ev_types:[]}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -330,7 +330,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch pu
 	
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
 	
-	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
+	var ctx = {doc:undefined,params:rpc_params, user:{_id:620793114, push_id:620793114, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 	
@@ -340,7 +340,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch pu
 exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -384,7 +384,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = functi
 	
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
 	
-	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{}};//payload a emitir
+	var ctx = {doc:undefined,params:rpc_params, user:{_id:620793115, push_id:620793115, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 	
@@ -393,7 +393,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = functi
 exports["evmngr.api.listen: custom event, ctx.config.rcpts, removed uid"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -437,7 +437,7 @@ exports["evmngr.api.listen: custom event, ctx.config.rcpts, removed uid"] = func
 	
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"		
 	
-	var ctx = {doc:undefined, params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{rcpts:rcpts}};//payload a emitir
+	var ctx = {doc:undefined, params:rpc_params, user:{_id:620793115, push_id:620793115, push_type:"web"}, config:{rcpts:rcpts}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx); //rcpts encoded into ctx.config 					
 	
@@ -446,7 +446,7 @@ exports["evmngr.api.listen: custom event, ctx.config.rcpts, removed uid"] = func
 exports["evmngr.api.listen: custom event, ctx.doc.rcpts, removed uid"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -490,7 +490,7 @@ exports["evmngr.api.listen: custom event, ctx.doc.rcpts, removed uid"] = functio
 	
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"	
 	
-	var ctx = {doc:{rcpts:rcpts}, params:rpc_params, user:{push_id:620793115, push_type:"web"}, config:{}};//payload a emitir
+	var ctx = {doc:{rcpts:rcpts}, params:rpc_params, user:{_id:620793115, push_id:620793115, push_type:"web"}, config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx); //rcpts encoded into ctx.config 
 	
@@ -502,7 +502,7 @@ exports["evmngr.api.listen: custom event, ctx.doc.rcpts, removed uid"] = functio
 exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -562,7 +562,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = funct
 	
 	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"		
 	
-	var ctx = {doc:undefined,params:rpc_params, user:{push_id:620793114, push_type:"web"},config:{}};//payload a emitir
+	var ctx = {doc:undefined,params:rpc_params, user:{_id:620793114, push_id:620793114, push_type:"web"},config:{}};//payload a emitir
 	ctx.payload = ctx.params;
 	api.emit("ev_dummy", ctx, rcpts);
 						
@@ -573,7 +573,7 @@ exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = funct
 exports["evmngr.on: listening custom event, wrong event emitted"] = function(test){
 
 	var ctx = {params:{foo:"50187f71556efcbb25000001", bar:620793114},config:{}};
-	var rcpts = [{push_id:620793119, push_type:"web"}, {push_id:620793115, push_type:"web"}];
+	var rcpts = [{uid:620793119, push_id:620793119, push_type:"web"}, {uid:620793115, push_id:620793115, push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -605,7 +605,7 @@ exports["evmngr.on: listening custom event, wrong event emitted"] = function(tes
 
 exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts"] = function(test){
 		
-	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy", rcpts:[{push_id:620793114,push_type:"web"}, {push_id:620793115,push_type:"web"}, {push_id:620793119,push_type:"web"}]},
+	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy", rcpts:[{uid:620793114, push_id:620793114,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793119, push_id:620793119,push_type:"web"}]},
 	    ircpts = [620793115, 620793119];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	
@@ -615,7 +615,7 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 									test.equal(col_str,"dummy");								
 									test.equal( doc.test, rpc_params.doc.test );
 									test.equal( doc.uid, rpc_params.uid );
-									test.deepEqual( doc.rcpts, [{push_id:620793114,push_type:"web"}, {push_id:620793115,push_type:"web"}, {push_id:620793119,push_type:"web"}]);
+									test.deepEqual( doc.rcpts, [{uid:620793114, push_id:620793114,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793119, push_id:620793119,push_type:"web"}]);
 									
 									//save doc to db...returns doc with _id		
 									doc._id = "50187f71556efcbb25000001";						
@@ -638,7 +638,7 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 									test.equal(msg.ev_data.test,"test");	
 									test.equal(msg.ev_data.uid,620793114);
 									test.equal(msg.ev_data.catalog,"dummy");
-									test.deepEqual(msg.ev_data.rcpts,[{push_id:620793114,push_type:"web"}, {push_id:620793115,push_type:"web"}, {push_id:620793119,push_type:"web"}]);
+									test.deepEqual(msg.ev_data.rcpts,[{uid:620793114, push_id:620793114,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793119, push_id:620793119,push_type:"web"}]);
 									test.equal( msg.ev_data.wid,"50187f71556efcbb25000001");								
 									ret_handler();									
 								}	
@@ -677,7 +677,7 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 		
-	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:1}, user:{push_id:620793114, push_type:"web", wids:[]}};
+	var ctx = {doc:undefined, params:rpc_params, config:{save:1, emit:1}, user:{_id:620793114, push_id:620793114, push_type:"web", wids:[]}};
 	api.remote.create(ctx, function(err,val){
 		
 		test.equal(err,null);
@@ -760,8 +760,8 @@ exports["evmngr.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114,catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{push_id:620793115, push_type:"web"}], uid:620793115, catalog:"docs"},
-		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[{push_id:620793115, push_type:"web"}], uid:620793115};
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{uid:620793115, push_id:620793115, push_type:"web"}], uid:620793115, catalog:"docs"},
+		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[{uid:620793115, push_id:620793115, push_type:"web"}], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
 	
@@ -814,7 +814,7 @@ exports["evmngr.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}, user:{push_id:620793114, push_type:"web"}};
+		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 		
 		ctx.payload = ctx.params;
 		api.emit("ev_api_dispose",ctx);
@@ -832,7 +832,7 @@ exports["evmngr.on: ev_api_join, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{push_id:620793115,push_type:"web"}], uid:620793115, catalog:"docs"},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}], uid:620793115, catalog:"docs"},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -887,7 +887,7 @@ exports["evmngr.on: ev_api_join, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}, user:{push_id:620793114,push_type:"web",wids:[]}};
+		var ctx = {params:rpc_params,doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}, user:{_id:620793114, push_id:620793114,push_type:"web",wids:[]}};
 		ctx.payload = ctx.params;
 		api.emit("ev_api_join", ctx );
 	},500);
@@ -953,8 +953,8 @@ exports["evmngr.on: ev_api_join autolistening, explicit rcpts"] = function(test)
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{push_id:620793115,push_type:"web"}], uid:620793115, catalog:"docs"};
-	var rcpts = [{push_id:620793119, push_type:"web"}, {push_id:620793115,push_type:"web"}];
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}], uid:620793115, catalog:"docs"};
+	var rcpts = [{uid:620793119, push_id:620793119, push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
@@ -986,7 +986,7 @@ exports["evmngr.on: ev_api_join autolistening, explicit rcpts"] = function(test)
 	
 	
 				
-	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}, user:{push_id:620793114, push_type:"web"}};		
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{save:1,emit:1}, user:{_id:620793114, push_id:620793114, push_type:"web"}};		
 	ctx.payload = ctx.params;
 	api.emit("ev_api_join", ctx, rcpts);
 						
@@ -1003,7 +1003,7 @@ exports["evmngr.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"}; 
 	
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{push_id:620793115,push_type:"web"},{push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{uid:620793115, push_id:620793115,push_type:"web"},{uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1054,7 +1054,7 @@ exports["evmngr.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
 	
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{push_id:620793114,push_type:"web"}};
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{_id:620793114, push_id:620793114,push_type:"web"}};
 		ctx.payload = ctx.params;
 		api.emit("ev_api_unjoin", ctx );
 	},500);
@@ -1066,7 +1066,7 @@ exports["evmngr.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{push_id:620793115,push_type:"web"},{push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{uid:620793115,push_id:620793115,push_type:"web"},{uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1106,7 +1106,7 @@ exports["evmngr.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	
-	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"],config:{}, user:{push_id:620793114, push_type:"web"}};
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"],config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 	ctx.payload = ctx.params;
 	api.emit("ev_api_unjoin",ctx);
 	test.expect(4);
@@ -1118,7 +1118,7 @@ exports["evmngr.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 exports["evmngr.on: ev_api_unjoin autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
-	var doc = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{push_id:620793115,push_type:"web"},{push_id:620793114,push_type:"web"}], uid:620793115};
+	var doc = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{uid:620793115, push_id:620793115,push_type:"web"},{uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115};
 	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
@@ -1139,7 +1139,7 @@ exports["evmngr.on: ev_api_unjoin autolistening, explicit rcpts"] = function(tes
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc, user:{push_id:620793114, push_type:"web"}};		
+	var ctx = {params:rpc_params, doc:doc, user:{_id:620793114, push_id:620793114, push_type:"web"}};		
 	ctx.payload = ctx.params;
 	api.emit("ev_api_unjoin", ctx, rcpts);
 						
@@ -1154,7 +1154,7 @@ exports["evmngr.on: ev_api_remove, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1206,7 +1206,7 @@ exports["evmngr.on: ev_api_remove, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"],config:{}, user:{push_id:620793114, push_type:"web"}};
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"],config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 		ctx.payload = ctx.params;
 		api.emit("ev_api_remove",ctx);
 		test.expect(8);
@@ -1221,7 +1221,7 @@ exports["evmngr.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1263,7 +1263,7 @@ exports["evmngr.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	
-	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"],config:{}, user:{push_id:620793114, push_type:"web"}};
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"],config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 	ctx.payload = ctx.params;
 	api.emit("ev_api_remove",ctx);				
 	
@@ -1276,7 +1276,7 @@ exports["evmngr.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
 exports["evmngr.on: ev_api_remove autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
-	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115};
+	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115};
 	var rcpts = [{push_id:620793119, push_type:"web"}, {push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api");
 		
@@ -1294,7 +1294,7 @@ exports["evmngr.on: ev_api_remove autolistening, explicit rcpts"] = function(tes
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc, config:{}, user:{push_id:620793114, push_type:"web"} };	
+	var ctx = {params:rpc_params, doc:doc, config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"} };	
 	ctx.payload = ctx.params;	
 	api.emit("ev_api_remove", ctx, rcpts);
 	test.expect(2);				
@@ -1308,7 +1308,7 @@ exports["evmngr.on: ev_api_set, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1361,7 +1361,7 @@ exports["evmngr.on: ev_api_set, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{push_id:620793114,push_type:"web"}};
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{_id:620793114, push_id:620793114,push_type:"web"}};
 		ctx.payload = ctx.params;
 		api.emit("ev_api_set",ctx);
 		test.expect(8);
@@ -1375,7 +1375,7 @@ exports["evmngr.on: ev_api_set, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", value:5, uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1416,7 +1416,7 @@ exports["evmngr.on: ev_api_set, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	
-	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{push_id:620793114, push_type:"web"}};
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 	ctx.payload = ctx.params;
 	
 	api.emit("ev_api_set",ctx);					
@@ -1430,7 +1430,7 @@ exports["evmngr.on: ev_api_set autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api");
 		
 	var em = sandbox.require("../lib/evmngr",{
@@ -1448,7 +1448,7 @@ exports["evmngr.on: ev_api_set autolistening, explicit rcpts"] = function(test){
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc, config:{},user:{push_id:620793114,push_type:"web"}};	
+	var ctx = {params:rpc_params, doc:doc, config:{},user:{_id:620793114, push_id:620793114,push_type:"web"}};	
 	ctx.payload = ctx.params;	
 	api.emit("ev_api_set", ctx, rcpts);
 						
@@ -1464,7 +1464,7 @@ exports["evmngr.on: ev_api_push, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1517,7 +1517,7 @@ exports["evmngr.on: ev_api_push, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{push_id:620793114, push_type:"web"}};
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 		ctx.payload = ctx.params;
 		api.emit("ev_api_push",ctx);		
 		test.expect(8);
@@ -1532,7 +1532,7 @@ exports["evmngr.on: ev_api_push, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a",value:5, uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1573,7 +1573,7 @@ exports["evmngr.on: ev_api_push, subscribed not in rcpts"] = function(test){
 	em.remote.subscribe(http_resp,subs_params);
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
-	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"],config:{}, user:{push_id:620793114, push_type:"web"}};
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"],config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 	ctx.payload = ctx.params;
 	api.emit("ev_api_push", ctx);
 	
@@ -1587,7 +1587,7 @@ exports["evmngr.on: ev_api_push, subscribed not in rcpts"] = function(test){
 exports["evmngr.on: ev_api_push autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api");
 	var doc = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115, 620793114], uid:620793115};
 	
@@ -1605,7 +1605,7 @@ exports["evmngr.on: ev_api_push autolistening, explicit rcpts"] = function(test)
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc, config:{}, user:{push_id:620793114, push_type:"web"}};	
+	var ctx = {params:rpc_params, doc:doc, config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};	
 	ctx.payload = ctx.params;	
 	api.emit("ev_api_push", ctx, rcpts);
 					
@@ -1620,7 +1620,7 @@ exports["evmngr.on: ev_api_pop, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1672,7 +1672,7 @@ exports["evmngr.on: ev_api_pop, subscribed in rcpts"] = function(test){
 	//because she belongs to the notification list (rcpts).
 	setTimeout(function(){
 		
-		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{push_id:620793114, push_type:"web"}};
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 		ctx.payload = ctx.params;
 		api.emit("ev_api_pop",ctx);
 		test.expect(8);
@@ -1686,7 +1686,7 @@ exports["evmngr.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[{uid:620793115,push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1727,7 +1727,7 @@ exports["evmngr.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	
-	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{push_id:620793114, push_type:"web"}};
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 	ctx.payload = ctx.params;
 	api.emit("ev_api_pop",ctx);
 	test.expect(4);
@@ -1741,7 +1741,7 @@ exports["evmngr.on: ev_api_pop autolistening, explicit rcpts"] = function(test){
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, catalog:"docs"};
 	var doc = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115};
-	var rcpts = [{push_id:620793119,push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api");
 	
 	
@@ -1759,7 +1759,7 @@ exports["evmngr.on: ev_api_pop autolistening, explicit rcpts"] = function(test){
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc, config:{}, user:{push_id:620793114, push_type:"web"}};	
+	var ctx = {params:rpc_params, doc:doc, config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};	
 	ctx.payload = ctx.params;	
 	api.emit("ev_api_pop", ctx, rcpts);
 					
@@ -1773,7 +1773,7 @@ exports["evmngr.on: ev_api_shift, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1825,7 +1825,7 @@ exports["evmngr.on: ev_api_shift, subscribed in rcpts"] = function(test){
 	//0.5s after 620793114 joins the document '50187f71556efcbb25000001' and 620793115 is notified about this event
 	//because it belongs to the notification list (rcpts).
 	setTimeout(function(){
-		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{push_id:620793114, push_type:"web"}};
+		var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 		ctx.payload = ctx.params;
 		api.emit("ev_api_shift",ctx);
 		
@@ -1839,7 +1839,7 @@ exports["evmngr.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 		
 	var rpc_params = {wid:"50187f71556efcbb25000001",fname:"a", uid:620793114, catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1879,7 +1879,7 @@ exports["evmngr.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 	test.ok(subs_flags[0]);
 	test.ok(subs_flags[1]);
 	
-	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{push_id:620793114, push_type:"web"}};
+	var ctx = {params:rpc_params, doc:dbdocs["50187f71556efcbb25000001"], config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};
 	ctx.payload = ctx.params;
 	api.emit("ev_api_shift",ctx);	
 	test.expect(4);
@@ -1893,7 +1893,7 @@ exports["evmngr.on: ev_api_shift autolistening, explicit rcpts"] = function(test
 
 	var rpc_params = {wid:"50187f71556efcbb25000001", uid:620793114};
 	var doc = {_id:"50187f71556efcbb25000001",a:[1,5], rcpts:[620793115, 620793114], uid:620793115};
-	var rcpts = [{push_id:620793119, push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{uid:620793119, push_id:620793119, push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -1913,7 +1913,7 @@ exports["evmngr.on: ev_api_shift autolistening, explicit rcpts"] = function(test
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:doc, config:{}, user:{push_id:620793114, push_type:"web"}};	
+	var ctx = {params:rpc_params, doc:doc, config:{}, user:{_id:620793114, push_id:620793114, push_type:"web"}};	
 	ctx.payload = ctx.params;	
 	api.emit("ev_api_shift", ctx, rcpts);					
 	
@@ -1926,7 +1926,7 @@ exports["evmngr.on: ev_api_search, subscribed in rcpts"] = function(test){
 		
 	var rpc_params = {uid:620793114, keyword:"foo", catalog:"docs"};
 	var dbdocs = {};//documents at db
-		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",keywords:["foo","test"], rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}], uid:620793115},
+		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",keywords:["foo","test"], rcpts:[{uid:620793115,push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
@@ -1979,7 +1979,7 @@ exports["evmngr.on: ev_api_search, subscribed in rcpts"] = function(test){
 	//because it belongs to the notification list (rcpts).
 	//rcpts are pushed via config not document rcpts list.
 	setTimeout(function(){
-		var ctx = {params:rpc_params, config:{rcpts:[{push_id:620793115,push_type:"web"}, {push_id:620793114,push_type:"web"}]}, doc:{}, retval:[dbdocs["50187f71556efcbb25000001"]], user:{push_id:620793114, push_type:"web"}};
+		var ctx = {params:rpc_params, config:{rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}]}, doc:{}, retval:[dbdocs["50187f71556efcbb25000001"]], user:{_id:620793114, push_id:620793114, push_type:"web"}};
 		ctx.payload = ctx.params;
 		api.emit("ev_api_search",ctx);
 		
@@ -1993,7 +1993,7 @@ exports["evmngr.on: ev_api_search autolistening, explicit rcpts"] = function(tes
 
 	var rpc_params = {uid:620793114, keyword:"foo", catalog:"docs"};
 	var doc = {_id:"50187f71556efcbb25000001",keywords:["foo","test"], uid:620793115};
-	var rcpts = [{push_id:620793119, push_type:"web"}, {push_id:620793115,push_type:"web"}];
+	var rcpts = [{uid:620793119, push_id:620793119, push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
@@ -2013,7 +2013,7 @@ exports["evmngr.on: ev_api_search autolistening, explicit rcpts"] = function(tes
 		}
 	});
 				
-	var ctx = {params:rpc_params, doc:{}, config:{}, user:{push_id:620793115,push_type:"web"}};	
+	var ctx = {params:rpc_params, doc:{}, config:{}, user:{_id:620793115, push_id:620793115,push_type:"web"}};	
 	ctx.payload = ctx.params;	
 	api.emit("ev_api_search", ctx, rcpts);				
 	
