@@ -134,11 +134,10 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
-	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
-	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
+	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy");
 		
 	
-	var params = {url:"#dummy/50187f71556efcbb25000001"};
+	var params = {catalog:"dummy", wid:"50187f71556efcbb25000001"};
 
 						
 	sb.execute("get", params, function(err,ctx){
@@ -202,11 +201,10 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"events")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"users")	  	  	    	  
-	  .add_constraint_post("get","exists",sb.constraints.field_exists,"users")
-	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
-		
+	  .add_constraint_post("get","exists",sb.constraints.field_exists,"users");
+	  		
 	
-	var params = {url:"#users/50187f71556efcbb25000001"};
+	var params = {catalog:"users", wid:"50187f71556efcbb25000001"};
 
 						
 	sb.execute("get", params, function(err,ctx){
@@ -269,11 +267,10 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
 	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  
-	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy")
-	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
-		
+	  .add_constraint_post("get","exists",sb.constraints.field_exists,"dummy");
+	  		
 	
-	var params = {url:"#dummy/50187f71556efcbb25000001:b"};
+	var params = {catalog:"dummy",wid:"50187f71556efcbb25000001",fname:"b"};
 
 						
 	sb.execute("get", params, function(err,ctx){
@@ -335,8 +332,7 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 	});
 	sb.init();
 	sb.add_constraint_pre("get","not_catalog",sb.constraints.not_catalog,"timers")	
-	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy")	  	  	    	  	  
-	  .add_plugin_in("get","url_transform", sb.plugins.url_transform);
+	  .add_constraint_pre("get","param_wid",sb.constraints.is_required("wid"),"dummy");	  	  	    	  	  	  
 		
 	
 	var params = {catalog:"dummy",wid:"50187f71556efcbb25000001",fname:["a","c.d","nonexisting_field"]};
