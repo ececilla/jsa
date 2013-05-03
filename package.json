@@ -14,7 +14,7 @@
   },
   "dependencies": {
   	"async":"0.1.x",
-  	"mongodb":"1.x.x",
+  	"mongodb":"1.2.x",
 	"moment":"1.6.x",
 	"redis":"0.8.x",
 	"colors":"0.6.x",
