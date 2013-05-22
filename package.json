@@ -1,6 +1,6 @@
 {
   "name": "jsa",
-  "version": "0.0.20-1",
+  "version": "0.0.21",
   "description": "json synchronization service", 
   "keywords":["synchronization","rpc"],	 
   "author": {
