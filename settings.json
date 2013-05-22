@@ -1,13 +1,14 @@
 {
- "dbhost":"127.0.0.1",
- "dbport":27017,
- "dbname":"jsa",
- "httpaddr":"127.0.0.1",
- "httpif":"wlan0",
- "httpport":8080,
- "redishost":"127.0.0.1",
- "redisport":15000,
- "debug":1,
- "repl_socket":"/tmp/repl-socket",
- "stopwords_file":"res/stopwords_es.txt"	
+	"dbhost":"127.0.0.1",
+	"dbport":27017,
+	"dbname":"jsa",
+	"httpaddr":"127.0.0.1",
+	"httpif":"wlan0",
+	"httpport":8080,
+	"redishost":"127.0.0.1",
+	"redisport":15000,
+	"debug":1,
+	"ev_journal":1,	
+	"repl_socket":"/tmp/repl-socket",
+	"stopwords_file":"res/stopwords_es.txt"	
 }
