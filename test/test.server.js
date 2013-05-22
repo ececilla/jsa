@@ -1669,15 +1669,18 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	var api = require("../lib/api");
 	
 	var evmngr = sandbox.require("../lib/evmngr",{
-		requires:{ "./api":api,"./evqueue":{
-			save:function(ev_msg, ret_handler){
-				
-				
-				test.equal(ev_msg.ev_type,"ev_api_dummy");
-				test.deepEqual(ev_msg.ev_data,{ foo:1, bar:"test", catalog:"docs" });
-				ret_handler();
-			}
-		} }
+		requires:{ "./api":api,
+				   "./evqueue":{
+						save:function(ev_msg, ret_handler){
+							
+							
+							test.equal(ev_msg.ev_type,"ev_api_dummy");
+							test.deepEqual(ev_msg.ev_data,{ foo:1, bar:"test", catalog:"docs" });
+							ret_handler();
+						}
+				  },
+				  "./server":{config:{app:{ev_journal:1}}}
+		}
 	});
 		
 	var sb = sandbox.require("../lib/sandbox",{
@@ -1703,7 +1706,7 @@ exports["server.api.config.newop: event custom params"] = function(test){
 	
 	//eq.on is firstly executed before this event handler.	
 	server.api.events.on("ev_api_dummy", function(msg, rcpts){
-						
+							
 		test.deepEqual(msg.ev_ctx.payload,msg.ev_ctx.params);
 		test.deepEqual(rcpts,[{push_id:5, push_type:"web"},{push_id:6, push_type:"web"},{push_id:7, push_type:"web"},{push_id:8, push_type:"web"}]);				
 					

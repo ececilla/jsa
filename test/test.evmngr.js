@@ -40,9 +40,10 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 					}
 		}
 	});
-		
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 	var em = sandbox.require("../lib/evmngr",{
-		requires:{	"./api":api,"./evqueue":eq }
+		requires:{	"./api":api,"./evqueue":eq,"./server":srv }
 	});
 	
 	em.add_push_provider("web",{ 
@@ -114,9 +115,12 @@ exports["evmngr.api.listen: custom event, explicit rcpts, tag, different non-bat
 					}
 		}
 	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
-		requires:{	"./api":api,"./evqueue":eq }
+		requires:{	"./api":api,"./evqueue":eq,"./server":srv }
 	});
 	
 	em.add_push_provider("web",{ 
@@ -193,9 +197,12 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 					}
 		}
 	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
-		requires:{	"./api":api,"./evqueue":eq }
+		requires:{	"./api":api,"./evqueue":eq,"./server":srv }
 	});
 	
 	em.add_push_provider("web",{ 
@@ -279,9 +286,12 @@ exports["evmngr.api.listen: custom event, explicit rcpts, batch and non-batch pu
 					}
 		}
 	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
-		requires:{	"./api":api,"./evqueue":eq }
+		requires:{	"./api":api,"./evqueue":eq, "./server":srv }
 	});
 	
 	em.add_push_provider("web",{//overwrite existing non-batch web push provider 
@@ -364,9 +374,12 @@ exports["evmngr.api.listen: custom event, explicit rcpts, removed uid"] = functi
 					}
 		}
 	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
-		requires:{	"./api":api,"./evqueue":eq }
+		requires:{	"./api":api,"./evqueue":eq,"./server":srv }
 	});
 	
 	em.add_push_provider("web",{ //overwrite existing web push provider
@@ -417,9 +430,12 @@ exports["evmngr.api.listen: custom event, ctx.config.rcpts, removed uid"] = func
 					}
 		}
 	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
-		requires:{	"./api":api,"./evqueue":eq }
+		requires:{	"./api":api,"./evqueue":eq,"./server":srv }
 	});
 	
 	em.add_push_provider("web",{ //overwrite existing web push provider
@@ -470,9 +486,12 @@ exports["evmngr.api.listen: custom event, ctx.doc.rcpts, removed uid"] = functio
 					}
 		}
 	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
-		requires:{	"./api":api,"./evqueue":eq }
+		requires:{	"./api":api,"./evqueue":eq, "./server":srv }
 	});
 	
 	em.add_push_provider("web",{ //overwrite existing web push provider
@@ -527,9 +546,12 @@ exports["evmngr.api.listen: custom event, explicit rcpts, subscription"] = funct
 					}
 		}
 	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
-		requires:{	"./api":api,"./evqueue":eq }
+		requires:{	"./api":api,"./evqueue":eq,"./server":srv }
 	});
 	
 			
@@ -577,7 +599,9 @@ exports["evmngr.on: listening custom event, wrong event emitted"] = function(tes
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
-		
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};	
 	
 	var flag = 1;	
 	var em = sandbox.require("../lib/evmngr",{
@@ -587,7 +611,8 @@ exports["evmngr.on: listening custom event, wrong event emitted"] = function(tes
 									
 									flag = 0;																																											
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 				
@@ -607,6 +632,10 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 		
 	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy", rcpts:[{uid:620793114, push_id:620793114,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793119, push_id:620793119,push_type:"web"}]},
 	    ircpts = [620793115, 620793119];
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	
 							save:function(col_str,doc,ret_handler){
@@ -642,7 +671,8 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 									test.equal( msg.ev_data.wid,"50187f71556efcbb25000001");								
 									ret_handler();									
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 		
@@ -693,6 +723,9 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 exports["evmngr.on: ev_api_create, unreportable document, subscribed"] = function(test){
 		
 	var rpc_params = {uid:620793114, doc:{test:"ouuug test"}, catalog:"dummy"};
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 	    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	//db mock module
@@ -718,7 +751,7 @@ exports["evmngr.on: ev_api_create, unreportable document, subscribed"] = functio
 		}}
 	}), 
 	em = sandbox.require("../lib/evmngr",{
-		requires:{"./api":api}
+		requires:{"./api":api,"./server":srv}
 	});				
 	
 	
@@ -765,6 +798,9 @@ exports["evmngr.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -775,7 +811,8 @@ exports["evmngr.on: ev_api_dispose, subscribed in rcpts"] = function(test){
 																			
 									ret_handler();																	
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -837,6 +874,9 @@ exports["evmngr.on: ev_api_join, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 				  "./evqueue":{
@@ -847,7 +887,8 @@ exports["evmngr.on: ev_api_join, subscribed in rcpts"] = function(test){
 									
 									ret_handler();																	
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -903,6 +944,9 @@ exports["evmngr.on: ev_api_join, subscribed not in rcpts"] = function(test){
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[620793115], uid:620793115, catalog:"docs"},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var api = sandbox.require("../lib/api"),
 	em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
@@ -913,7 +957,8 @@ exports["evmngr.on: ev_api_join, subscribed not in rcpts"] = function(test){
 									test.deepEqual(msg.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114});
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -960,6 +1005,8 @@ exports["evmngr.on: ev_api_join autolistening, explicit rcpts"] = function(test)
 		requires:{"./db":{}}
 	});
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
@@ -980,7 +1027,8 @@ exports["evmngr.on: ev_api_join autolistening, explicit rcpts"] = function(test)
 									else if(rcpt == 620793115)
 										test.equal(rcpt,620793115);	
 								}
-					}
+					},
+					"./server":srv
 		}
 	});
 	
@@ -1005,6 +1053,8 @@ exports["evmngr.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001",a:1,b:"test1234", rcpts:[{uid:620793115, push_id:620793115,push_type:"web"},{uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115},
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 	
 	var api = sandbox.require("../lib/api");
 	var em = sandbox.require("../lib/evmngr",{
@@ -1016,7 +1066,8 @@ exports["evmngr.on: ev_api_unjoin, subscribed in rcpts"] = function(test){
 									test.deepEqual(msg.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,catalog:"docs"});
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1070,6 +1121,9 @@ exports["evmngr.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1079,7 +1133,8 @@ exports["evmngr.on: ev_api_unjoin, subscribed not in rcpts"] = function(test){
 									test.deepEqual(msg.ev_data,{wid:"50187f71556efcbb25000001",uid:620793114,catalog:"docs"});
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1123,6 +1178,9 @@ exports["evmngr.on: ev_api_unjoin autolistening, explicit rcpts"] = function(tes
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{}}
 	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
@@ -1135,7 +1193,8 @@ exports["evmngr.on: ev_api_unjoin autolistening, explicit rcpts"] = function(tes
 									ret_handler();
 																										
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 				
@@ -1159,6 +1218,9 @@ exports["evmngr.on: ev_api_remove, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1168,7 +1230,8 @@ exports["evmngr.on: ev_api_remove, subscribed in rcpts"] = function(test){
 									test.deepEqual(msg.ev_data,{wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"});
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1226,6 +1289,9 @@ exports["evmngr.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1236,7 +1302,8 @@ exports["evmngr.on: ev_api_remove, subscribed not  in rcpts"] = function(test){
 									
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1279,6 +1346,9 @@ exports["evmngr.on: ev_api_remove autolistening, explicit rcpts"] = function(tes
 	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[{uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793114, push_id:620793114,push_type:"web"}], uid:620793115};
 	var rcpts = [{push_id:620793119, push_type:"web"}, {push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api");
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
@@ -1290,7 +1360,8 @@ exports["evmngr.on: ev_api_remove autolistening, explicit rcpts"] = function(tes
 									ret_handler();
 																										
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 				
@@ -1313,6 +1384,9 @@ exports["evmngr.on: ev_api_set, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1323,7 +1397,8 @@ exports["evmngr.on: ev_api_set, subscribed in rcpts"] = function(test){
 									
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1380,6 +1455,9 @@ exports["evmngr.on: ev_api_set, subscribed not in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1389,7 +1467,8 @@ exports["evmngr.on: ev_api_set, subscribed not in rcpts"] = function(test){
 									test.deepEqual(msg.ev_data,{wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", value:5, catalog:"docs"});
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1432,6 +1511,9 @@ exports["evmngr.on: ev_api_set autolistening, explicit rcpts"] = function(test){
 	var doc = {_id:"50187f71556efcbb25000001",a:1, rcpts:[620793115, 620793114], uid:620793115};
 	var rcpts = [{push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api");
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 		
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
@@ -1444,7 +1526,8 @@ exports["evmngr.on: ev_api_set autolistening, explicit rcpts"] = function(test){
 									ret_handler();
 																										
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 				
@@ -1469,6 +1552,9 @@ exports["evmngr.on: ev_api_push, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1479,7 +1565,8 @@ exports["evmngr.on: ev_api_push, subscribed in rcpts"] = function(test){
 									
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1537,6 +1624,9 @@ exports["evmngr.on: ev_api_push, subscribed not in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1547,7 +1637,8 @@ exports["evmngr.on: ev_api_push, subscribed not in rcpts"] = function(test){
 									
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1591,6 +1682,9 @@ exports["evmngr.on: ev_api_push autolistening, explicit rcpts"] = function(test)
 	var api = sandbox.require("../lib/api");
 	var doc = {_id:"50187f71556efcbb25000001",a:[1], rcpts:[620793115, 620793114], uid:620793115};
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
 					"./evqueue":{	
@@ -1601,7 +1695,8 @@ exports["evmngr.on: ev_api_push autolistening, explicit rcpts"] = function(test)
 									ret_handler();
 																										
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 				
@@ -1624,6 +1719,10 @@ exports["evmngr.on: ev_api_pop, subscribed in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1634,7 +1733,8 @@ exports["evmngr.on: ev_api_pop, subscribed in rcpts"] = function(test){
 									
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1690,6 +1790,10 @@ exports["evmngr.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1700,7 +1804,8 @@ exports["evmngr.on: ev_api_pop, subscribed not in rcpts"] = function(test){
 									
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1744,6 +1849,8 @@ exports["evmngr.on: ev_api_pop autolistening, explicit rcpts"] = function(test){
 	var rcpts = [{uid:620793119, push_id:620793119,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
@@ -1755,7 +1862,8 @@ exports["evmngr.on: ev_api_pop autolistening, explicit rcpts"] = function(test){
 									
 									ret_handler();																	
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 				
@@ -1778,6 +1886,9 @@ exports["evmngr.on: ev_api_shift, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1788,7 +1899,8 @@ exports["evmngr.on: ev_api_shift, subscribed in rcpts"] = function(test){
 																	
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1843,6 +1955,9 @@ exports["evmngr.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 		dbdocs["5678"] = {_id:"5678",a:2,b:"test5678", rcpts:[620793115], uid:620793115};
 	
 	var api = sandbox.require("../lib/api");
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1852,7 +1967,8 @@ exports["evmngr.on: ev_api_shift, subscribed not in rcpts"] = function(test){
 									test.deepEqual(msg.ev_data,{wid:"50187f71556efcbb25000001", uid:620793114, fname:"a", catalog:"docs"});
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1898,6 +2014,8 @@ exports["evmngr.on: ev_api_shift autolistening, explicit rcpts"] = function(test
 		requires:{"./db":{}}
 	});
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
 	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
@@ -1909,7 +2027,8 @@ exports["evmngr.on: ev_api_shift autolistening, explicit rcpts"] = function(test
 									ret_handler();									
 																									
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 				
@@ -1931,6 +2050,9 @@ exports["evmngr.on: ev_api_search, subscribed in rcpts"] = function(test){
 	
 	var api = sandbox.require("../lib/api");
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,
 					"./evqueue":{
@@ -1941,7 +2063,8 @@ exports["evmngr.on: ev_api_search, subscribed in rcpts"] = function(test){
 																	
 									ret_handler();
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});			
 	
@@ -1998,6 +2121,9 @@ exports["evmngr.on: ev_api_search autolistening, explicit rcpts"] = function(tes
 		requires:{"./db":{}}
 	});
 	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	
 	
 	var em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
@@ -2009,7 +2135,8 @@ exports["evmngr.on: ev_api_search autolistening, explicit rcpts"] = function(tes
 									ret_handler();									
 																									
 								}	
-					}
+					},
+					"./server":srv
 		}
 	});
 				
@@ -2018,6 +2145,43 @@ exports["evmngr.on: ev_api_search autolistening, explicit rcpts"] = function(tes
 	api.emit("ev_api_search", ctx, rcpts);				
 	
 	test.expect(2);
+	test.done();
+	
+}
+
+exports["evmngr.on: ev_api_search autolistening, explicit rcpts, ev_journal false"] = function(test){
+
+	var rpc_params = {uid:620793114, keyword:"foo", catalog:"docs"};
+	var doc = {_id:"50187f71556efcbb25000001",keywords:["foo","test"], uid:620793115};
+	var rcpts = [{uid:620793119, push_id:620793119, push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+	
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:0};
+	
+	var flag = 1;
+	var em = sandbox.require("../lib/evmngr",{
+		requires:{	"./api":api,
+					"./evqueue":{	
+								save: function(msg, ret_handler){
+																		
+									flag = 0;
+									ret_handler();									
+																									
+								}	
+					},
+					"./server":srv
+		}
+	});
+				
+	var ctx = {params:rpc_params, doc:{}, config:{}, user:{_id:620793115, push_id:620793115,push_type:"web"}};	
+	ctx.payload = ctx.params;	
+	api.emit("ev_api_search", ctx, rcpts);				
+	
+	test.ok(flag);
+	test.expect(1);
 	test.done();
 	
 }
