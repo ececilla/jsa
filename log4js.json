@@ -1,16 +1,21 @@
 {
   "appenders": [
     { "type": "console",
-      "category":"server"   
-    }, 
+      "category":"server"
+    },
     {
       "type":"console",
-      "category":"endpoint"		
+      "category":"endpoint"
+    },
+    {
+       "type":"console",
+       "category":"api"
     }
   ],
   "replaceConsole": false,
-  "levels": {
+  "levels":{
     "server": "DEBUG",
-    "endpoint":"DEBUG"
+    "endpoint":"DEBUG",
+    "api":"DEBUG"
   }
 }
