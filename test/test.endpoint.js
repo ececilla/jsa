@@ -284,7 +284,8 @@ exports["endpoint.rpc + add_plugin:custom plugin, error"] = function(test){
 	
 	var endpoint = sandbox.require("../lib/endpoint",{
 		requires:{	
-					"./sandbox":sb,											 
+					"./sandbox":sb,
+					"./server":{config:{app:{status:1,debug:0}}}											 
 				}
 	});
 				
