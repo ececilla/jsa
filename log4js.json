@@ -1,0 +1,16 @@
+{
+  "appenders": [
+    { "type": "console",
+      "category":"server"   
+    }, 
+    {
+      "type":"console",
+      "category":"endpoint"		
+    }
+  ],
+  "replaceConsole": false,
+  "levels": {
+    "server": "DEBUG",
+    "endpoint":"DEBUG"
+  }
+}
