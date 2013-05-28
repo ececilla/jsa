@@ -149,7 +149,8 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 								ret_handler(null);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});	
 				
@@ -226,7 +227,8 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 								ret_handler(null);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});	
 				
@@ -309,7 +311,8 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 								ret_handler(null);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});		
 				

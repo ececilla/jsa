@@ -197,8 +197,10 @@ exports["server.api.register: internal api events"] = function(test){
 								user._id = "50187f71556efcbb25000001";
 								ret_handler(null,user);
 									
-							}							
-		}}
+							}																				
+						},
+						"./server":{config:{app:{debug:0}}}					
+		}
 	});	
 	
 	var flag = 1;
@@ -221,7 +223,7 @@ exports["server.api.register: internal api events"] = function(test){
 		
 	});
 	
-	server.config.app = {status:1};
+	server.config.app = {status:1,debug:0};
 	
 	//two ev_api_register handlers.				
 	server.api.events

@@ -63,7 +63,8 @@ exports["api.remote.signal: valid params, 1 rcpt"] = function(test){
 								
 								ret_handler(null,[{push_id:"gcm-456", push_type:"gcm"}]);
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 	var sb = sandbox.require("../lib/sandbox",{
@@ -116,7 +117,8 @@ exports["api.remote.signal: valid params, +1 rcpt"] = function(test){
 								ret_handler(null,[{push_id:"gcm-111", push_type:"gcm"},{push_id:"gcm-456", push_type:"gcm"}]);
 								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 	var sb = sandbox.require("../lib/sandbox",{

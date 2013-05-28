@@ -147,7 +147,8 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 	
@@ -241,7 +242,8 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 	
@@ -324,7 +326,8 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 	
@@ -403,7 +406,8 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 		
@@ -488,7 +492,8 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 		
@@ -570,7 +575,8 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});	
 		
@@ -653,7 +659,8 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
 								ret_handler();
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});			
 	

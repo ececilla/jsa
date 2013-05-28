@@ -101,7 +101,8 @@ exports["api.remote.get: valid params, existing doc, explicit catalog, db async"
 								ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});	
 				
@@ -172,7 +173,8 @@ exports["api.remote.get: valid params, existing doc, user catalog, db async"] = 
 								ret_handler(null,dbdocs["users"][id_str]);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});	
 				
@@ -239,7 +241,8 @@ exports["api.remote.get: valid params, existing inner field, explicit catalog, d
 								ret_handler(null,dbdocs["50187f71556efcbb25000001"].b);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});	
 				
@@ -305,7 +308,8 @@ exports["api.remote.get: valid params, existing inner fields as array, explicit 
 								ret_handler(null,{a:"test",c:{d:1}});
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});	
 				

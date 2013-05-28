@@ -159,7 +159,8 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 								ret_handler(null,1);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 				

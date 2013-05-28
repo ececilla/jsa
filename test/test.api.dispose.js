@@ -145,7 +145,8 @@ exports["api.remote.dispose: valid params, default catalog"] = function(test){
 								ret_handler(null,1);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 	

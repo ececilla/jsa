@@ -633,8 +633,8 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 	var rpc_params = {uid:620793114, doc:{test:"test"}, catalog:"dummy", rcpts:[{uid:620793114, push_id:620793114,push_type:"web"}, {uid:620793115, push_id:620793115,push_type:"web"}, {uid:620793119, push_id:620793119,push_type:"web"}]},
 	    ircpts = [620793115, 620793119];
 	
-	var srv = 	sandbox.require("../lib/server");	
-	srv.config.app = {ev_journal:1};
+	var srv = 	sandbox.require("../lib/server");		
+	srv.config.app = {ev_journal:1, debug:0};
 	    
 	var api = sandbox.require("../lib/api",{
 		requires:{"./db":{	
@@ -657,7 +657,10 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
-		}}
+							
+						},
+				 "./server":srv	
+		}
 	}),
 	em = sandbox.require("../lib/evmngr",{
 		requires:{	"./api":api,
@@ -748,7 +751,9 @@ exports["evmngr.on: ev_api_create, unreportable document, subscribed"] = functio
 								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
 								ret_handler();
 							}
-		}}
+						},
+					"./server":{config:{app:{debug:0}}}
+		}
 	}), 
 	em = sandbox.require("../lib/evmngr",{
 		requires:{"./api":api,"./server":srv}

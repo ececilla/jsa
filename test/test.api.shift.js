@@ -162,7 +162,8 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 								ret_handler(null,1);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 				

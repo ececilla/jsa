@@ -122,7 +122,8 @@ exports["api.remote.register: valid params"] = function(test){
 								user._id = "50187f71556efcbb25000002";
 								ret_handler(null,user);	
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 	

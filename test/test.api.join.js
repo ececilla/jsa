@@ -72,9 +72,9 @@ exports["api.remote.join: valid params, default catalog, no rcpts"] = function(t
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{
+					"./server":{config:{app:{debug:0}}}
+		}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -118,7 +118,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts"] = function(t
 							}
 						 },
 				 "./api" : api,
-				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+				 "./server":{config:{app:{status:1,debug:0},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
 		}
 	});
 	sb.init();
@@ -174,9 +174,10 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types:[]"]
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
+		requires:{
+					"./server":{config:{app:{debug:0}}}							
 							
-		}}
+		}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -219,7 +220,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types:[]"]
 							}
 						 },
 				 "./api" : api,
-				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+				 "./server":{config:{app:{status:1,debug:0},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
 		}
 	});
 	sb.init();
@@ -258,9 +259,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$pus
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -303,7 +302,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$pus
 							}
 						 },
 				 "./api" : api,
-				 "./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
+				 "./server":{config:{app:{status:1,debug:0},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{join:1}}}}		  
 		}
 	});
 	sb.init();
@@ -341,9 +340,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$set
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -423,9 +420,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, no ev_types"] = 
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -525,9 +520,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types:[]"] = 
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -626,9 +619,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$push:[
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -727,9 +718,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$pop:i"
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -857,9 +846,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$set:[]
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -960,9 +947,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$remove
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793114:{_id:620793114, name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{_id:620793117, name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;
@@ -1064,9 +1049,7 @@ exports["api.remote.join: valid params, default catalog, already joined, ev_type
 		
 	
 	var api = sandbox.require("../lib/api",{
-		requires:{"./db":{	//db mock module for join procedure							
-							
-		}}
+		requires:{"./server":{config:{app:{debug:0}}}}
 	});
 	var dbusers = {620793115:{name:"loser", push_id:"gcm-115", push_type:"gcm", wids:["50187f71556efcbb25000001"]},620793114:{name:"enric", push_id:"gcm-114", push_type:"gcm", wids:[]}, 620793117:{name:"foo", push_id:"gcm-117", push_type:"gcm", wids:["50187f71556efcbb25000001"]}};
 	var flag = 1;

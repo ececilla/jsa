@@ -153,7 +153,8 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 								ret_handler(null,1);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 				
@@ -232,7 +233,8 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 								ret_handler(null,1);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 				
@@ -310,7 +312,8 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 								ret_handler(null,1);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 				

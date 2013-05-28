@@ -171,7 +171,8 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 								ret_handler(null,1);
 																								
 							}
-						 }					 
+						 },
+					"./server":{config:{app:{debug:0}}}	 					 
 		}
 	});
 				

@@ -93,6 +93,11 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 	var dbdocs = {};//documents at db
 		dbdocs["50187f71556efcbb25000001"] = {_id:"50187f71556efcbb25000001", uid:620793115, a:1, b:"test1234", rcpts:[{push_id:"gcm-115",push_type:"gcm"},{push_id:"gcm-117",push_type:"gcm"}], catalog:"docs"};
 				
+	var api = sandbox.require("../lib/api",{
+		requires:{
+					"./server":{config:{app:{debug:0}}}
+		}
+	});
 	
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
@@ -138,7 +143,8 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 									
 							}
 						 },
-					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}}				 		  
+					"./api":api,	 
+					"./server":{config:{app:{status:1,debug:0},db:{default_catalog:"docs", system_catalogs:["timers","events"]}},api:{config:{procedures:{unjoin:1}}}}				 		  
 		}
 	});
 	sb.init();
