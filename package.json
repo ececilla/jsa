@@ -25,5 +25,8 @@
  	"nodeunit":"0.7.x",	
 	"sandboxed-module":"0.1.x"
   },  
+  "scripts":{
+  	"test":"nodeunit test"
+  },
   "main": "lib/server.js"
 }
