@@ -34,7 +34,7 @@ exports["module exported functions"] = function(test){
 			requires:{"./api":api, "./sandbox":sb}
 		});
 	server.config.app = {status:1};
-	
+	test.notEqual( server.add_http_header_plugin, undefined );
 	test.notEqual( server.init, undefined );	
 	test.notEqual( server.init.add, undefined );
 	test.notEqual( server.settings, undefined );
@@ -88,7 +88,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(52);	
+	test.expect(53);	
 	test.done();
 }
 
@@ -177,6 +177,21 @@ exports["server.api.events.on: custom api events"] = function(test){
 	});
 	
 	server.api.events.emit("ev_api_dummyop", ctx, rcpts );	
+	
+}
+
+exports["server.add_http_header_plugin: custom plugin"] = function(test){
+	
+	var server = require("../lib/server");
+	
+	server.add_http_header_plugin("authentication",function(http_payload){
+		
+		console.log(http_payload);
+	});
+	
+		
+	
+	test.done();	
 	
 }
 
