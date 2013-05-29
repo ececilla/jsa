@@ -1,8 +1,8 @@
 {
-  "name": "jsa",
-  "version": "0.0.24",
-  "description": "json synchronization service", 
-  "keywords":["synchronization","rpc"],	 
+  "name":"jsa",
+  "version": "0.0.25",
+  "description": "json synchronization service",
+  "keywords":["synchronization","rpc"],
   "author": {
     "name": "Enric Cecilla",
     "email": "ececilla@gmail.com"
@@ -13,21 +13,21 @@
     "npm": ">= 1.0.0"
   },
   "dependencies": {
-  	"async":"0.1.x",
-  	"mongodb":"1.2.x",
-	"moment":"1.6.x",
-	"redis":"0.8.x",
-	"colors":"0.6.x",
-	"prettyjson":"0.7.x",
-	"underscore":"1.4.x",
-	"log4js":"0.6.x"
+    "async":"0.1.x",
+    "mongodb":"1.2.x",
+    "moment":"1.6.x",
+    "redis":"0.8.x",
+    "colors":"0.6.x",
+    "prettyjson":"0.7.x",
+    "underscore":"1.4.x",
+    "log4js":"0.6.x"
   },
   "devDependencies":{
- 	"nodeunit":"0.7.x",	
-	"sandboxed-module":"0.1.x"
-  },  
+    "nodeunit":"0.7.x",
+    "sandboxed-module":"0.1.x"
+  },
   "scripts":{
-  	"test":"nodeunit test"
+     "test":"nodeunit test"
   },
   "main": "lib/server.js"
 }
