@@ -66,58 +66,6 @@ exports["endpoint.rpc: incorrect protocol version"] = function(test){
 }
 
 
-exports["endpoint.rpc: missing server version"] = function(test){
-	
-	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{"./server":{config:{app:{version:"0.0.12"}}}					 
-		}
-	});
-	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
-	var req_str = querystring.stringify({request:jsonreq_str});	
-	
-	endpoint.rpc( {writeHead: function(status, header_data){
-							
-							test.equal(status, 400);
-							test.deepEqual(header_data,{"Content-Type":"application/json"});
-			 		},
-			 		end: function( out_str ){
-			 	
-					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32605,message:"Missing agent version."}, id:null},out_obj);
-					 		
-					}		
-			} , req_str );
-			
-	test.done();
-}
-
-exports["endpoint.rpc: incorrect server version"] = function(test){
-	
-	var endpoint = sandbox.require("../lib/endpoint",{
-		requires:{"./server":{config:{app:{version:"0.0.12"}}}					 
-		}
-	});
-	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
-	var req_str = querystring.stringify({request:jsonreq_str,version:"0.0.10"});	
-	
-	endpoint.rpc( {writeHead: function(status, header_data){
-							
-							test.equal(status, 400);
-							test.deepEqual(header_data,{"Content-Type":"application/json"});
-			 		},
-			 		end: function( out_str ){
-			 	
-					 		var out_obj = JSON.parse(out_str);
-					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32606,message:"Agent version not supported."}, id:null},out_obj);
-					 		
-					}		
-			} , req_str );
-			
-	test.done();
-}
-
-
-
 exports["endpoint.rpc: method not available"] = function(test){
 	
 	var api = {remote:{
@@ -314,6 +262,59 @@ exports["endpoint.rpc + add_plugin:custom plugin, error"] = function(test){
 			
 }
 
+
+exports["endpoint.rpc + add_plugin:agent version not supported, error"] = function(test){
+	
+	var api = {	remote:{
+						test: function(ctx, ret_handler){
+							
+							ctx.config.save = 0;								
+							ret_handler(null,{test:1});
+							
+						}}
+			 };
+	
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{
+					"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{test:1}}}}
+		
+			}
+	});		
+	
+	var endpoint = sandbox.require("../lib/endpoint",{
+		requires:{	
+					"./sandbox":sb,
+					"./server":{config:{app:{status:1,debug:0}}}											 
+				}
+	});
+				
+	endpoint.add_plugin(function(qdata){//Some test logic related with apikey
+						
+		var agent_versions = qdata.version.split(".");						
+		if( agent_versions[0] !== "3" || agent_versions[1] !== "9" )
+			return {code:-32606, message:"Agent version not supported."};						    				    				    				    
+		
+		
+	});
+	
+	var jsonreq_str = '{"jsonrpc":"2.0","method":"test","id":123}';
+	var req_str = querystring.stringify({request:jsonreq_str, version:"3.4.5"});	
+	
+	endpoint.rpc( {writeHead: function(status, header_data){
+							
+							test.equal(status, 400);
+							test.deepEqual(header_data,{"Content-Type":"application/json"});
+			 		},
+			 		end: function( out_str ){
+			 	
+					 		var out_obj = JSON.parse(out_str);
+					 		test.deepEqual({jsonrpc:"2.0",error:{code:-32606, message:"Agent version not supported."}, id:null},out_obj);								
+							test.done();				 							 	
+					}		
+			} , req_str );
+			
+}
 
 exports["endpoint.rpc: method invocation: with result, no params"] = function(test){
 	
