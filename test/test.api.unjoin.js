@@ -134,13 +134,16 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 										
 										ret_handler(null,doc);
 									},20);	
-								}else if(col_str == "users"){ //autosaving user.
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114,push_id:"gcm-117",push_type:"gcm", name:"enric",wids:[]});
-									ret_handler(null,doc);
 								}
 									
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:[]}});
+								ret_handler();
+								
 							}
 						 },
 					"./api":api,	 
@@ -163,7 +166,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);
 		
-		test.expect(9);
+		test.expect(10);
 		test.done();		
 		
 	});				

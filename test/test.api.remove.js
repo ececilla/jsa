@@ -22,9 +22,9 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 									
 									test.equal(col_str,"users");
 									if(id_str == 620793114)																		
-										ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-114"});
 									else if(id_str == 620793999)
-										ret_handler(null,{_id:id_str, push_id:"gcm-999", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-999"});
 								}else
 									ret_handler(null,null);																														
 																
@@ -34,6 +34,7 @@ exports["api.remote.remove: missing & wrong params, anonymous constraints"] = fu
 		}
 	});
 	sb.init();
+	sb.add_user_load_fields("remove",{push_id:1});
 	sb.add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("remove","not_catalog",sb.constraints.not_catalog,"events") 
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"))
@@ -171,11 +172,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 										ret_handler(null,dbdocs[id_str]);//return doc
 									},50);									
 									
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");																		
-									ret_handler(null,{_id:id_str, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-								}																																																						
+								}																																																					
 																
 							}
 						 },
@@ -190,8 +187,8 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
 	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("remove","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined,"dummy");
+	  .add_constraint_post("remove","exists",sb.constraints.field_exists,"dummy");
+	  
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};
@@ -202,7 +199,7 @@ exports["api.remote.remove: valid params, existing field, explicit catalog, db a
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(9);	
+		test.expect(8);	
 		test.done();		
 		
 	});
@@ -248,12 +245,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 										
 										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-								}
-																
+								}															
 							}
 						 },
 					"./api":api,
@@ -267,8 +259,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 	  .add_constraint_post("remove","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("remove","param_fname",sb.constraints.is_required("fname"),"dummy")	  
 	  .add_constraint_post("remove","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("remove","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("remove","has_joined",sb.constraints.has_joined,"dummy");
+	  .add_constraint_post("remove","exists",sb.constraints.field_exists,"dummy");	  
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b", catalog:"dummy"};
@@ -279,7 +270,7 @@ exports["api.remote.remove: valid params, existing inner field, explicit catalog
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(9);	
+		test.expect(8);	
 		test.done();		
 		
 	});	
@@ -334,7 +325,8 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 									},50);
 								}else if( col_str == "users"){
 									
-									test.equal(col_str,"users");									
+									test.equal(col_str,"users");					
+									test.deepEqual(projection,{_id:1,push_id:1,push_type:1,name:1,wids:1});			
 									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
 								}
 																
@@ -345,6 +337,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 		}
 	});
 	sb.init();
+	sb.add_user_load_fields("remove",{_id:1,push_id:1,push_type:1,name:1,wids:1});
 	sb.add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("remove","not_catalog",sb.constraints.not_catalog,"events") 
 	  .add_constraint_post("remove","param_wid",sb.constraints.is_required("wid"),"dummy")
@@ -363,7 +356,7 @@ exports["api.remote.remove: valid params, existing inner array field, explicit c
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(12);	
+		test.expect(13);	
 		test.done();		
 		
 	});	

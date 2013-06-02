@@ -208,10 +208,6 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 									test.equal(col_str,"docs");
 									test.deepEqual(doc,{_id:"5074b135d03a0ac443000001", test:"test", uid:620793114, rcpts:[620793114, 620793116] })
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]});
-									ret_handler(null);
 								}
 							}
 		},
@@ -262,7 +258,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints"] = function(tes
 	sb.execute("join", params, function(err,ctx){
 		
 		test.deepEqual(ctx.retval.rcpts, [620793114,620793116]);
-		test.expect(15);
+		test.expect(13);
 		test.done();
 	});
 		
@@ -319,6 +315,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save not execut
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	sb.init();
+	sb.add_user_load_fields("dummy",{_id:1,name:1,wids:1});
 	sb.add_constraint_post("dummy","wid.length",function(ctx){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
@@ -372,7 +369,8 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save user not e
 									
 									ret_handler(null,dbdocs[id_str]);
 								}else if( col_str == "users"){
-																											
+									
+									test.deepEqual(projection,{_id:1,name:1,wids:1});																		
 									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 								}		
 							},
@@ -388,8 +386,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save user not e
 							 test.deepEqual(ctx.doc, dbdocs["5074b135d03a0ac443000001"]);
 							 test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001", catalog:"docs"});
 							 							 
-							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.
-							 ctx.config.save = {user:0,doc:1};
+							 ctx.doc.rcpts.push(ctx.params.uid);//add uid to rcpts list.							 
 							 ctx.config.emit = 0;
 							 ret_handler( null, 1 );
 						  }
@@ -402,6 +399,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save user not e
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	sb.init();
+	sb.add_user_load_fields("dummy",{_id:1,name:1,wids:1});
 	sb.add_constraint_post("dummy","wid.length",function(ctx){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
@@ -427,7 +425,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save user not e
 	sb.execute("dummy", params, function(err,ctx){
 				
 		test.equal(ctx.retval,1);
-		test.expect(12);
+		test.expect(13);
 		test.done();
 	});
 		
@@ -454,15 +452,10 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save doc not ex
 									
 									ret_handler(null,dbdocs[id_str]);
 								}else if( col_str == "users"){
-																											
+									
+									test.deepEqual(projection,{_id:1,name:1,wids:1});																		
 									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 								}		
-							},
-							save: function(col_str, doc,ret_handler){
-								
-								test.equal(col_str,"users");								
-								test.deepEqual(doc,{_id:620793116, name:"enric",wids:["50187f71556efcbb25000001"]})							
-								ret_handler(null,doc);
 							}
 		},
 		"./api":{remote:{ dummy:function( ctx, ret_handler){
@@ -484,6 +477,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save doc not ex
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	sb.init();
+	sb.add_user_load_fields("dummy",{_id:1,name:1,wids:1});
 	sb.add_constraint_post("dummy","wid.length",function(ctx){
 		
 		test.deepEqual(ctx.params, {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"docs"} );		
@@ -509,7 +503,7 @@ exports["sandbox.add_constraint_post: 2/2 satisfied constraints, save doc not ex
 	sb.execute("dummy", params, function(err,ctx){
 				
 		test.equal(ctx.retval,1);
-		test.expect(12);
+		test.expect(11);
 		test.done();
 	});
 		
@@ -840,7 +834,8 @@ exports["sandbox.copy_constraints: constraints.is_owner"] = function(test){
 								if(col_str == "dummy"){	
 									ret_handler(null,dbdocs[id_str]);
 								}else if( col_str == "users"){
-																											
+									
+									test.deepEqual(projection,{_id:1,name:1,wids:1});																		
 									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 								}		
 							}
@@ -857,6 +852,7 @@ exports["sandbox.copy_constraints: constraints.is_owner"] = function(test){
 	
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"dummy"};
 	sb.init();
+	sb.add_user_load_fields("test",{_id:1,name:1,wids:1});
 	sb.add_constraint_post("test","is_owner",sb.constraints.is_owner)
 	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"events");
@@ -890,7 +886,8 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 									
 									ret_handler(null,dbdocs[id_str]);
 								}else if( col_str == "users"){
-																											
+									
+									test.deepEqual(projection,{_id:1,name:1,wids:1});																		
 									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 								}		
 							}
@@ -909,6 +906,7 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001"};
 	
 	sb.init();
+	sb.add_user_load_fields("test",{_id:1,name:1,wids:1});
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("test","not_catalog",sb.constraints.not_catalog,"events");
@@ -917,7 +915,7 @@ exports["sandbox.add_constraint_post: anonymous constraints.is_owner"] = functio
 		
 		test.ok(flag);
 		test.deepEqual(err,{code:-2, message:"No access permission: not owner"});										
-		test.expect(2);
+		test.expect(3);
 		test.done();
 	});
 		
@@ -1074,7 +1072,8 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 								if(col_str == "dummy"){	
 									ret_handler(null,dbdocs[id_str]);
 								}else if( col_str == "users"){
-																											
+									
+									test.deepEqual(projection,{_id:1,name:1,wids:1});																		
 									ret_handler(null,{_id:id_str, name:"enric",wids:["50187f71556efcbb25000001"]});
 								}		
 							}
@@ -1097,7 +1096,8 @@ exports["sandbox.add_constraint_post: constraints.user_catalog"] = function(test
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",catalog:"dummy"};//non-valid user catalog
 	
 	sb.init();
-	sb .add_constraint_post("test","user_catalog",sb.constraints.user_catalog,"dummy");
+	sb.add_user_load_fields("test",{_id:1,name:1,wids:1});
+	sb.add_constraint_post("test","user_catalog",sb.constraints.user_catalog,"dummy");
 	
 	sb.execute("test", params, function(err,result){
 		
@@ -1590,7 +1590,7 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 									test.equal(id_str,"5074b135d03a0ac443000001");									
 									ret_handler(null,dbdocs[id_str]);
 								}else if( col_str == "users"){
-																											
+									test.deepEqual(projection,{_id:1,name:1,wids:1});																		
 									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});
 								}		
 							},
@@ -1599,10 +1599,6 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 								if(col_str == "docs"){
 									test.equal(col_str,"docs");								
 									ret_handler(null,{doc:doc});
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793116, name:"enric",wids:["5074b135d03a0ac443000001"]});
-									ret_handler(null);
 								}
 							}
 		},
@@ -1621,13 +1617,14 @@ exports["sandbox.add_constraint_post: ctx.config.emit:1"] = function(test){
 	var params = {uid:620793116,wid:"5074b135d03a0ac443000001",fname:"test", value:{a:"new object"}};
 	
 	sb.init();	
+	sb.add_user_load_fields("set",{_id:1,name:1,wids:1});
 	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers");
 	
 	sb.execute("set", params, function(err,result){
 		
 		test.ok(flag);
 		test.equal(err,undefined);
-		test.expect(7);									
+		test.expect(6);									
 		test.done();
 	});
 		
@@ -1841,8 +1838,11 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.doc interception"] = functi
 								if(col_str == "docs"){
 									test.equal(dbdocs["5074b135d03a0ac443000001"].test, "test");
 									ret_handler(null,dbdocs[id_str]);
-								}else if( col_str == "users")
-									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});	
+								}else if( col_str == "users"){
+									
+									test.deepEqual(projection,{_id:1,name:1,wids:1});
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});
+								}	
 																										
 							},
 							save: function(col_str, doc, ret_handler){
@@ -1852,10 +1852,6 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.doc interception"] = functi
 									test.equal(col_str,"docs");
 									test.equal(doc.test,"foobar");
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["5074b135d03a0ac443000001"]});
-									ret_handler(null);
 								}
 							}
 		},
@@ -1874,6 +1870,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.doc interception"] = functi
 	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
 	
 	sb.init();
+	sb.add_user_load_fields("test",{_id:1,name:1,wids:1});
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
@@ -1892,7 +1889,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.doc interception"] = functi
 		test.ok(flag);
 		test.equal(err,null);
 		test.equal(ctx.retval,1)										
-		test.expect(8);
+		test.expect(7);
 		test.done();
 	});
 		
@@ -1915,7 +1912,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.payload interception"] = fu
 	};
 	api.on("ev_api_test",function(data){
 				
-		test.deepEqual(data.ev_ctx.payload,{emit:1, save:1, test:"foobar"});
+		test.deepEqual(data.ev_ctx.payload,{emit:1, save:1, test:"foobar", user:{mod_fields:[]}});
 	})
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
@@ -1929,8 +1926,11 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.payload interception"] = fu
 								if(col_str == "docs"){
 									test.equal(dbdocs["5074b135d03a0ac443000001"].test, "test");
 									ret_handler(null,dbdocs[id_str]);
-								}else if( col_str == "users")
-									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});		
+								}else if( col_str == "users"){
+									
+									test.deepEqual(projection,{_id:1,name:1,wids:1});
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});
+								}		
 							},
 							save: function(col_str, doc, ret_handler){
 								
@@ -1939,10 +1939,6 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.payload interception"] = fu
 									test.equal(col_str,"docs");
 									test.equal(doc.test,"test");
 									ret_handler(null,doc);
-								}else if(col_str == "users"){
-									test.equal(col_str,"users");
-									test.deepEqual(doc,{_id:620793114, name:"enric",wids:["5074b135d03a0ac443000001"]});
-									ret_handler(null);
 								}
 							}
 		},
@@ -1954,6 +1950,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.payload interception"] = fu
 	var params = {uid:620793114,wid:"5074b135d03a0ac443000001"};
 	
 	sb.init();
+	sb.add_user_load_fields("test",{_id:1,name:1,wids:1});
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_plugin_out("test",function(ctx, end_handler){
@@ -1971,7 +1968,7 @@ exports["sandbox.add_plugin_out: custom plugout, ctx.payload interception"] = fu
 		test.ok(flag);
 		test.equal(err,null);
 		test.equal(ctx.retval,1)										
-		test.expect(9);
+		test.expect(8);
 		test.done();
 	});
 		
@@ -1993,8 +1990,11 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 								
 								if(col_str == "docs"){
 									ret_handler(null,dbdocs[id_str]);
-								}else if( col_str == "users")
-									ret_handler(null,{_id:id_str, push_id:"gcm-115", push_type:"gcm", name:"enric",wids:["5074b135d03a0ac443000001"]});		
+								}else if( col_str == "users"){
+									
+									test.deepEqual(projection,{_id:1,push_id:1,push_type:1,name:1,wids:1});
+									ret_handler(null,{_id:id_str, push_id:"gcm-115", push_type:"gcm", name:"enric",wids:["5074b135d03a0ac443000001"]});
+								}		
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
@@ -2015,6 +2015,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 	var params = {uid:620793115,wid:"5074b135d03a0ac443000001",notifiable:1};
 	
 	sb.init();
+	sb.add_user_load_fields("test",{_id:1,push_id:1,push_type:1,name:1,wids:1});
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_plugin_mid("test",sb.plugins.notifying_doc);
@@ -2024,7 +2025,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 		test.ok(flag);
 		test.equal(err,null);
 		test.equal(ctx.retval,1)										
-		test.expect(5);
+		test.expect(6);
 		test.done();
 	});
 		
@@ -2054,7 +2055,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 							 
 							 ctx.config.save = 0;	
 							 ctx.config.emit = 0;						 
-							 test.deepEqual(ctx.config,{save:0, emit:0, test:1, tag:"tag1"});							 
+							 test.deepEqual(ctx.config,{save:0, emit:0, test:1, tag:"tag1",user:{mod_fields:[]}});							 
 							 test.equal(ctx.params.config, undefined);					 							 
 							 ret_handler( null, 1 );
 						  }
@@ -2067,6 +2068,58 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", config:{test:1,tag:"tag1"} };
 	
 	sb.init();
+	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
+	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
+	  .add_plugin_in("test","external_config",sb.plugins.external_config,"dummy");
+	
+	sb.execute("test", params, function(err,ctx){
+				
+		test.equal(err,null);
+		test.equal(ctx.retval,1)										
+		test.expect(4);
+		test.done();
+	});		
+		
+}
+
+exports["sandbox.add_plugin_in: sandbox.plugins.external_config + user fields loaded"] = function(test){
+	
+	var  dbdocs = {};
+		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", catalog:"dummy", uid:620793115, rcpts:[620793115] };
+	
+	var sb = sandbox.require("../lib/sandbox",{requires:{
+		"./db":{
+							select: function(col_str, id_str, projection, ret_handler){
+								
+								if( typeof projection == "function")
+									ret_handler = projection;																																		
+								
+								if( col_str == "dummy")
+									ret_handler(null,dbdocs[id_str]);
+								else if( col_str == "users"){
+									test.deepEqual(projection,{_id:1,name:1,wids:1,test1:1,test2:1});
+									ret_handler(null,{_id:id_str, name:"enric",wids:["5074b135d03a0ac443000001"]});
+								}			
+							}
+		},
+		"./api":{remote:{ test:function( ctx, ret_handler){
+							 														 							
+							 
+							 ctx.config.save = 0;	
+							 ctx.config.emit = 0;						 							 							 
+							 test.equal(ctx.params.config, undefined);					 							 
+							 ret_handler( null, 1 );
+						  }
+				}
+		},
+		"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers", "events"]}},api:{config:{procedures:{test:1}}}}
+	}
+	});
+	
+	var params = {uid:620793115, catalog:"dummy", wid:"5074b135d03a0ac443000001", config:{user:{load_fields:{test1:1,test2:1}}} };
+	
+	sb.init();
+	sb.add_user_load_fields("test",{_id:1,name:1,wids:1});
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
 	  .add_plugin_in("test","external_config",sb.plugins.external_config,"dummy");

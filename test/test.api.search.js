@@ -77,18 +77,7 @@ exports["api.remote.search: valid params with results"] = function(test){
 	});
 	
 	var sb = sandbox.require("../lib/sandbox",{
-		requires:{"./db":{
-							select: function(col_str, id_str, projection, ret_handler){
-																																						
-								if (col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.equal(id_str,"50187f71556efcbb25aaaa");
-									ret_handler(null,dbusers[id_str]);
-								}
-																	
-							}
-						 },
+		requires:{
 					"./api":api,	 
 					"./server":{config:{app:{status:1},db:{default_catalog:"docs", system_catalogs:["timers","events"], user_catalogs:["docs","dummy"]}},api:{config:{procedures:{search:1}}}} 
 		}
@@ -107,7 +96,7 @@ exports["api.remote.search: valid params with results"] = function(test){
 					
 		test.equal(err, undefined);
 		test.deepEqual(ctx.retval,[{wid:"50187f71556efcbb25000003",uid:620793114, ctime:1350094951092, name:"enric", z:{y:1}, rcpts:[620793114,620793115]},{wid:"50187f71556efcbb25000002",uid:620793114, ctime:1350094951092, name:"enric", z:{y:1}, rcpts:[620793114,620793115]}])		
-		test.expect(6);		
+		test.expect(4);		
 		test.done();
 		
 				

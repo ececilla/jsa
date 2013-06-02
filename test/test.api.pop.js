@@ -7,18 +7,18 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 		
 	var sb = sandbox.require("../lib/sandbox",{
 		requires:{"./db":{
-							select: function(col_str, id_str,projection, ret_handler){
+							select: function(col_str, id_str, projection, ret_handler){
 								
 								if( typeof projection == "function")
 									ret_handler = projection;
 																																						
 								if(col_str == "docs")								
 									ret_handler(null,dbdocs[id_str]);
-								else if( col_str == "users"){
+								else if( col_str == "users"){									
 									if( id_str == 620793114)																		
-										ret_handler(null,{_id:id_str,push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-114"});
 									else
-										ret_handler(null,{_id:id_str,push_id:"gcm-999",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-999"});
 								}	
 								else
 									ret_handler(null,null);								
@@ -28,6 +28,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 		}
 	});
 	sb.init();
+	sb.add_user_load_fields("pop",{push_id:1});
 	sb.add_constraint_post("pop","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("pop","param_wid",sb.constraints.is_required("wid"))
 	  .add_constraint_post("pop","param_uid",sb.constraints.is_required("uid"))
@@ -40,7 +41,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 			
 	//uid missing
 	var params = {miss_uid:620793114, wid:"50187f71556efcbb25000002", fname:"test"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-12, message: "uid parameter required"});		
 		
@@ -49,7 +50,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//wid missing
 	params = {uid:620793114, miss_wid:"50187f71556efcbb25000002", fname:"test"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-12, message: "wid parameter required"});
 				
@@ -58,7 +59,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//fname missing
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", miss_fname:"test"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-12, message: "fname parameter required"});
 		
@@ -66,7 +67,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//reserved _id as field name
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"_id"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: _id"});
 			
@@ -74,7 +75,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//reserved uid as field name
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"uid"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: uid"});
 			
@@ -82,7 +83,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//reserved rcpts as field name
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"rcpts"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-8, message: "Reserved word not allowed as field name: rcpts"});		
 			
@@ -90,7 +91,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//field exists
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"notexists"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:notexists"});		
 			
@@ -98,7 +99,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//inner field exists
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.notexists"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-9, message: "Not exists: #docs/50187f71556efcbb25000002:z.notexists"});		
 		
@@ -107,7 +108,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//uid must belong to rcpts
 	params = {uid:620793999, wid:"50187f71556efcbb25000002", fname:"test"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-3, message: "No access permission: not joined"});		
 		
@@ -115,7 +116,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//document exists
 	params = {uid:620793114, wid:"50187f71556efcbb25000005", fname:"test"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-1, message: "Document not found: #docs/50187f71556efcbb25000005"});				
 		
@@ -123,7 +124,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//field is array
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-10, message: "Wrong type: #docs/50187f71556efcbb25000002:z not array"});				
 		
@@ -131,7 +132,7 @@ exports["api.remote.pop: missing & wrong params"] = function(test){
 	
 	//inner field is array
 	params = {uid:620793114, wid:"50187f71556efcbb25000002", fname:"z.y"};
-	sb.execute("pop", params, function(err,result){
+	sb.execute("pop", params, function(err,ctx){
 					
 		test.deepEqual(err, {code:-10, message: "Wrong type: #docs/50187f71556efcbb25000002:z.y not array"});		
 		test.done();
@@ -181,9 +182,6 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 										
 										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 									},50);
-								}else if( col_str == "users"){
-																											
-									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}
 																
 							}
@@ -199,15 +197,15 @@ exports["api.remote.pop: valid params, existing field as array, explicit catalog
 	  .add_constraint_post("pop","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("pop","param_fname",sb.constraints.is_required("fname"),"dummy")	  
 	  .add_constraint_post("pop","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("pop","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("pop","has_joined",sb.constraints.has_joined,"dummy");
+	  .add_constraint_post("pop","exists",sb.constraints.field_exists,"dummy");
+	  
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};
 
 						
 	sb.execute("pop", params, function(err,ctx){
-												
+													
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
 		test.expect(8);	

@@ -109,12 +109,15 @@ exports["api.remote.join: valid params, default catalog, no rcpts"] = function(t
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -156,7 +159,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts"] = function(t
 				test.equal(err,null);		
 				test.equal(ctx.retval,1);
 				
-				test.expect(21);
+				test.expect(22);
 				test.done();
 				next();
 				
@@ -211,12 +214,15 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types:[]"]
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -242,7 +248,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types:[]"]
 		test.equal(ctx.retval.catalog, "docs");		
 		test.equal(ctx.retval.a,1);
 		test.equal(ctx.retval.b,"test1234");
-		test.expect(15);
+		test.expect(16);
 		test.done();					
 		
 	});
@@ -293,12 +299,15 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$pus
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -324,7 +333,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$pus
 		test.equal(ctx.retval.catalog, "docs");		
 		test.equal(ctx.retval.a,1);
 		test.equal(ctx.retval.b,"test1234");
-		test.expect(15);
+		test.expect(16);
 		test.done();					
 		
 	});
@@ -374,12 +383,15 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$set
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -405,7 +417,7 @@ exports["api.remote.join: valid params, default catalog, no rcpts, ev_types.$set
 		test.equal(ctx.retval.catalog, "docs");		
 		test.equal(ctx.retval.a,1);
 		test.equal(ctx.retval.b,"test1234");
-		test.expect(15);
+		test.expect(16);
 		test.done();					
 		
 	});
@@ -455,12 +467,15 @@ exports["api.remote.join: valid params, default catalog, rcpts, no ev_types"] = 
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"]);																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -502,7 +517,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, no ev_types"] = 
 				test.equal(err,null);		
 				test.equal(ctx.retval,1);
 				
-				test.expect(21);
+				test.expect(22);
 				test.done();
 				next();
 				
@@ -554,12 +569,15 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types:[]"] = 
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -601,7 +619,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types:[]"] = 
 				test.equal(err,null);		
 				test.equal(ctx.retval,1);
 				
-				test.expect(21);
+				test.expect(22);
 				test.done();
 				next();
 				
@@ -652,12 +670,15 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$push:[
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -700,7 +721,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$push:[
 				test.equal(ctx.retval,1);	
 				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_set","ev_api_create","ev_api_dispose"]}]);
 				
-				test.expect(24);
+				test.expect(23);
 				test.done();
 				next();
 				
@@ -751,12 +772,15 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$pop:i"
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -827,7 +851,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$pop:i"
 				test.equal(ctx.retval,1);	
 				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:[]}]);
 				
-				test.expect(42);
+				test.expect(37);
 				test.done();
 				next();
 				
@@ -880,12 +904,15 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$set:[]
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -928,7 +955,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$set:[]
 				test.equal(ctx.retval,1);	
 				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_dispose"]}]);
 				
-				test.expect(24);
+				test.expect(23);
 				test.done();
 				next();
 				
@@ -981,12 +1008,15 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$remove
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -1029,7 +1059,7 @@ exports["api.remote.join: valid params, default catalog, rcpts, ev_types.$remove
 				test.equal(ctx.retval,1);	
 				test.deepEqual(ctx.doc.rcpts, [{uid:"620793115", push_id:"gcm-115", push_type:"gcm"},{uid:"620793117", push_id:"gcm-117", push_type:"gcm"},{uid:"620793114", push_id:"gcm-114",push_type:"gcm",ev_types:["ev_api_create"]}]);
 				
-				test.expect(24);
+				test.expect(23);
 				test.done();
 				next();
 				
@@ -1084,12 +1114,15 @@ exports["api.remote.join: valid params, default catalog, already joined, ev_type
 										
 										ret_handler(null,doc);
 									},100);	
-								}else if(col_str == "users"){
-									
-									test.equal(col_str,"users");
-									test.deepEqual(doc.wids,["50187f71556efcbb25000001"])																												
-									ret_handler(null);
 								}
+							},
+							update:function(col_str, id_str, opmodifier, ret_handler){
+								
+								test.equal(col_str,"users");
+								test.equal(id_str,"620793114");								
+								test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+								ret_handler();
+								
 							}
 						 },
 				 "./api" : api,
@@ -1127,7 +1160,7 @@ exports["api.remote.join: valid params, default catalog, already joined, ev_type
 				test.equal(err,null);		
 				test.equal(ctx.retval,1);
 				
-				test.expect(16);
+				test.expect(14);
 				test.done();
 				next();
 				

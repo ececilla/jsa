@@ -17,9 +17,9 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 								else if( col_str == "users"){
 									
 									if(id_str == 620793114)																		
-										ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-114"});
 									else if(id_str == 620793999)
-										ret_handler(null,{_id:id_str, push_id:"gcm-999", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-999"});
 								}	
 								else
 									ret_handler(null,null);								
@@ -29,6 +29,7 @@ exports["api.remote.shift: missing & wrong params"] = function(test){
 		}
 	});
 	sb.init();
+	sb.add_user_load_fields("shift",{push_id:1});
 	sb.add_constraint_post("shift","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("shift","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("shift","param_wid",sb.constraints.is_required("wid"))
@@ -183,9 +184,6 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 										
 										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 									},50);
-								}else if( col_str == "users"){
-																											
-									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}
 																
 							}
@@ -200,8 +198,8 @@ exports["api.remote.shift: valid params, existing field as array, explicit catal
 	  .add_constraint_post("shift","param_uid",sb.constraints.is_required("uid"),"dummy")
 	  .add_constraint_post("shift","param_fname",sb.constraints.is_required("fname"),"dummy")	  
 	  .add_constraint_post("shift","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("shift","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("shift","has_joined",sb.constraints.has_joined,"dummy");
+	  .add_constraint_post("shift","exists",sb.constraints.field_exists,"dummy");
+	  
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b", catalog:"dummy"};

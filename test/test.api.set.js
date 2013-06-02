@@ -18,9 +18,9 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 									
 									test.equal(col_str,"users");
 									if(id_str == 620793114)									
-										ret_handler(null,{_id:id_str, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-114"});
 									else if( id_str == 620793999)
-										ret_handler(null,{_id:id_str, push_id:"gcm-999",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-999"});
 								}else
 									ret_handler(null,null);								
 							}
@@ -29,6 +29,7 @@ exports["api.remote.set: missing & wrong params"] = function(test){
 		}
 	});
 	sb.init();
+	sb.add_user_load_fields("set",{push_id:1});
 	sb.add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("set","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("set","param_wid",sb.constraints.is_required("wid"))
@@ -175,10 +176,6 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 										
 										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str,push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}
 																
 							}
@@ -195,8 +192,8 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 	  .add_constraint_post("set","param_fname",sb.constraints.is_required("fname"),"dummy")	
 	  .add_constraint_post("set","param_value",sb.constraints.is_required("value"),"dummy")  
 	  .add_constraint_post("set","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("set","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("set","has_joined",sb.constraints.has_joined,"dummy");
+	  .add_constraint_post("set","exists",sb.constraints.field_exists,"dummy");
+	  
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b",value:5, catalog:"dummy"};
@@ -207,7 +204,7 @@ exports["api.remote.set: valid params, existing field, explicit catalog, db asyn
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(9);	
+		test.expect(8);	
 		test.done();		
 		
 	});
@@ -254,10 +251,6 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 										
 										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}
 																
 							}
@@ -274,8 +267,8 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 	  .add_constraint_post("set","param_fname",sb.constraints.is_required("fname"),"dummy")	
 	  .add_constraint_post("set","param_value",sb.constraints.is_required("value"),"dummy")  
 	  .add_constraint_post("set","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("set","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("set","has_joined",sb.constraints.has_joined,"dummy");
+	  .add_constraint_post("set","exists",sb.constraints.field_exists,"dummy");
+	  
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b",value:5, catalog:"dummy"};
@@ -286,7 +279,7 @@ exports["api.remote.set: valid params, existing inner field, explicit catalog, d
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(9);	
+		test.expect(8);	
 		test.done();		
 		
 	});
@@ -333,10 +326,6 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 										
 										ret_handler(null,dbdocs["50187f71556efcbb25000001"]);
 									},50);
-								}else if( col_str == "users"){
-									
-									test.equal(col_str,"users");									
-									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
 								}
 								
 																
@@ -354,8 +343,8 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 	  .add_constraint_post("set","param_fname",sb.constraints.is_required("fname"),"dummy")	
 	  .add_constraint_post("set","param_value",sb.constraints.is_required("value"),"dummy")  
 	  .add_constraint_post("set","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("set","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("set","has_joined",sb.constraints.has_joined,"dummy");
+	  .add_constraint_post("set","exists",sb.constraints.field_exists,"dummy");
+	  
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"a.b.1",value:5, catalog:"dummy"};
@@ -366,7 +355,7 @@ exports["api.remote.set: valid params, existing inner array field, explicit cata
 						
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);	
-		test.expect(9);	
+		test.expect(8);	
 		test.done();		
 		
 	});		

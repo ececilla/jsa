@@ -17,9 +17,9 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 								else if( col_str == "users"){
 									
 									if(id_str == 620793114)																		
-										ret_handler(null,{_id:id_str, push_id:"gcm-114",push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-114"});
 									else if(id_str == 620793999)
-										ret_handler(null,{_id:id_str, push_id:"gcm-999", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000002"]});
+										ret_handler(null,{push_id:"gcm-999"});
 								}	
 								else
 									ret_handler(null,null);								
@@ -29,6 +29,7 @@ exports["api.remote.push: missing & wrong params"] = function(test){
 		}
 	});
 	sb.init();
+	sb.add_user_load_fields("push",{push_id:1});
 	sb.add_constraint_post("push","not_catalog",sb.constraints.not_catalog,"timers")
 	  .add_constraint_post("push","not_catalog",sb.constraints.not_catalog,"events")
 	  .add_constraint_post("push","param_wid",sb.constraints.is_required("wid"))
@@ -212,8 +213,8 @@ exports["api.remote.push: valid params, existing field as array, explicit catalo
 	  .add_constraint_post("push","param_fname",sb.constraints.is_required("fname"),"dummy")
 	  .add_constraint_post("push","param_value",sb.constraints.is_required("value"),"dummy")	  
 	  .add_constraint_post("push","is_reserved",sb.constraints.is_reserved,"dummy")
-	  .add_constraint_post("push","exists",sb.constraints.field_exists,"dummy")
-	  .add_constraint_post("push","has_joined",sb.constraints.has_joined,"dummy");
+	  .add_constraint_post("push","exists",sb.constraints.field_exists,"dummy");
+	  
 		
 	
 	var params = {uid:620793114, wid:"50187f71556efcbb25000001",fname:"b",value:9, catalog:"dummy"};

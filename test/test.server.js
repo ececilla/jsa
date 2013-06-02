@@ -304,8 +304,8 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 																													
 								if(col_str == "users"){
 									
-									test.deepEqual(projection,{_id:1,wids:1,push_id:1,push_type:1});																									
-									ret_handler(null,{_id:id_str,push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});	
+									test.deepEqual(projection,{_id:1,push_id:1, push_type:1, wids:1});																									
+									ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm",wids:[]});	
 								}							
 							}
 					},
@@ -861,10 +861,6 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 							
 							ret_handler(null,doc);
 						},50);	
-					}else if(col_str == "users"){
-						test.equal(col_str,"users");
-						test.deepEqual(doc,{_id:620793114, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001"]});
-						ret_handler(null);						
 					}
 				},
 				
@@ -885,6 +881,14 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 						
 						ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});
 					}
+				},
+				update:function(col_str, id_str, opmodifier, ret_handler){
+					
+					test.equal(col_str,"users");
+					test.equal(id_str,"620793114");								
+					test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
+					ret_handler();
+					
 				}
 	};
 	   
@@ -920,7 +924,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(14);		
+		test.expect(15);		
 		test.done();
 	});
 						
@@ -946,11 +950,6 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 							
 							ret_handler(null,doc);
 						},50);	
-					}else if( col_str == "users"){
-						
-						test.equal(col_str,"users");
-						test.deepEqual(doc,{_id:620793116, push_id:"gcm-116", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000555"]});
-						ret_handler(null);	
 					}
 				},
 				
@@ -972,6 +971,14 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 						
 						ret_handler(null,{_id:id_str, push_id:"gcm-116", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001","50187f71556efcbb25000555"]});
 					}
+				},
+				update:function(col_str, id_str, opmodifier, ret_handler){
+					
+					test.equal(col_str,"users");
+					test.equal(id_str,"620793116");								
+					test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000555"]}});
+					ret_handler();
+					
 				}
 	};
 	   
@@ -1007,7 +1014,7 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(14);		
+		test.expect(15);		
 		test.done();
 	});
 						
@@ -1880,11 +1887,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 									if( typeof projection == "function")
 										ret_handler = projection;
 									
-									if( col_str == "users"){
-										
-										test.equal(col_str,"users");
-										ret_handler(null,{_id:id_str, name:"enric",wids:["66667f71556efcbb25000008"]});
-									}else if(col_str == "dummy"){
+									if(col_str == "dummy"){
 										
 										test.equal(col_str,"dummy");
 										ret_handler(null,dbdocs[id_str]);
@@ -1941,7 +1944,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 		test.ok(not_get_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, [{c:1},{c:1},{c:1},{c:3}]);
-		test.expect(13);
+		test.expect(12);
 		test.done();	
 	});
 					
@@ -1996,7 +1999,7 @@ exports["server.api.config.newop: reply"] = function(test){
 										ret_handler = projection;
 									
 									if( col_str == "users"){
-										
+																			
 										test.equal(col_str,"users");
 										ret_handler(null,dbusers[id_str]);
 									}else if(col_str == "dummy"){
@@ -2007,10 +2010,7 @@ exports["server.api.config.newop: reply"] = function(test){
 								},
 								save:function(col_str, doc, ret_handler){
 									
-									if(col_str == "dummy")
-										
-										test.equal(col_str,"dummy");
-									else if (col_str == "users"){
+									if (col_str == "users"){
 										
 										test.equal(col_str,"users");
 										test.equal(doc.karma,10);
@@ -2033,13 +2033,13 @@ exports["server.api.config.newop: reply"] = function(test){
 		test.deepEqual(ctx.params, myparams);
 		test.deepEqual(ctx.doc, dbdocs["50187f71556efcbb25000001"]);															
 		ctx.config.emit = CONST.DISABLE(); 					
-		//ctx.child = {parent:ctx, params:{wid:ctx.params.wid, fname:"replies", value:ctx.params.txt}, config:ctx.config};			
+					
 		async.parallel([
 			function(next){//push reply
 					
 				ctx.params.fname = "replies";
 				ctx.params.value = {txt:ctx.params.txt, uid:ctx.params.uid,t:time.now()};		
-				ctx.user = null;		
+				//ctx.user = null;		
 				server.api.push( ctx, function(err,ctx){
 																																																					
 					next(err);				
@@ -2086,7 +2086,7 @@ exports["server.api.config.newop: reply"] = function(test){
 		test.ok(not_push_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, 1);
-		test.expect(21);
+		test.expect(20);
 		test.done();	
 	});
 					
