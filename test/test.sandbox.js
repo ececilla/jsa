@@ -29,8 +29,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual(sb.plugins.notifying_doc, undefined);
 	test.notEqual(sb.plugins.notifying_catalog, undefined);
 	test.notEqual(sb.plugins.rewrite_id, undefined);
-	test.notEqual(sb.plugins.external_config, undefined);
-	test.expect(25);
+	test.expect(24);
 	test.done();
 	
 }
@@ -1714,21 +1713,20 @@ exports["sandbox.add_plugin_in: custom plugin, ctx.err returned"] = function(tes
 	
 	var  dbdocs = {};
 		 dbdocs["5074b135d03a0ac443000001"] = {_id:"5074b135d03a0ac443000001", test:"test", uid:620793114 };
-	var flags = [1,1,1];
+	var flag = 1;
 	var sb = sandbox.require("../lib/sandbox",{requires:{
 		"./db":{
 							select: function(col_str, id_str, projection, ret_handler){
 								
 								if( typeof projection == "function")
 									ret_handler = projection;																																		
-								
-								flags[0] = 0;	//No loadobject is called because plugin returns error.							
-								ret_handler(null,null);	
+																							
+								ret_handler(null,dbdocs["5074b135d03a0ac443000001"]);	
 							}
 		},
 		"./api":{remote:{ test:function( ctx, ret_handler){
 							 														 							
-							 flags[1] = 0;		//No api function is called because plugin returns error.					 
+							 flag = 0;		//No api function is called because plugin returns error.					 
 							 ret_handler( null, 1 );
 						  }
 				}
@@ -1754,11 +1752,10 @@ exports["sandbox.add_plugin_in: custom plugin, ctx.err returned"] = function(tes
 	
 	sb.execute("test", params, function(err,ctx){
 				
-		test.ok(flags[0]);
-		test.ok(flags[1]);
+		test.ok(flag);
 		test.equal(ctx,null);
 		test.deepEqual(err,{code:-555,message:"custom error"});											
-		test.expect(4);
+		test.expect(3);
 		test.done();
 	});
 		
@@ -2018,7 +2015,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.notifying_doc"] = function(test)
 	sb.add_user_load_fields("test",{_id:1,push_id:1,push_type:1,name:1,wids:1});
 	sb.add_constraint_post("test",sb.constraints.is_owner)
 	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")
-	  .add_plugin_mid("test",sb.plugins.notifying_doc);
+	  .add_plugin_in("test",sb.plugins.notifying_doc);
 	
 	sb.execute("test", params, function(err,ctx){
 		
@@ -2069,8 +2066,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config"] = function(tes
 	
 	sb.init();
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
-	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin_in("test","external_config",sb.plugins.external_config,"dummy");
+	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events");	  	  	  	  
 	
 	sb.execute("test", params, function(err,ctx){
 				
@@ -2121,8 +2117,7 @@ exports["sandbox.add_plugin_in: sandbox.plugins.external_config + user fields lo
 	sb.init();
 	sb.add_user_load_fields("test",{_id:1,name:1,wids:1});
 	sb.add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"timers")
-	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events")	  	  	  
-	  .add_plugin_in("test","external_config",sb.plugins.external_config,"dummy");
+	  .add_constraint_pre("test","not_catalog",sb.constraints.not_catalog,"events");	  	  	  	  
 	
 	sb.execute("test", params, function(err,ctx){
 				
