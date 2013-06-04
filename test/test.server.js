@@ -88,7 +88,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(53);	
+	test.expect(52);	
 	test.done();
 }
 
@@ -314,7 +314,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 	});
 	
 	sb.init();
-	sb.add_plugin_mid("create","notif_catalog",sb.plugins.notifying_catalog,"docs");
+	sb.add_plugin_in("create","notif_catalog",sb.plugins.notifying_catalog,"docs");
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./sandbox":sb,"./api":api}
@@ -396,8 +396,8 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 		
 	});
 	sb.init();
-	sb.add_plugin_mid("create",sb.plugins.notifying_doc);
-	sb.add_plugin_mid("create",function(ctx,next){
+	sb.add_plugin_in("create",sb.plugins.notifying_doc);
+	sb.add_plugin_in("create",function(ctx,next){
 		
 		ctx.config.rcpts = [{push_id:"gcm-999", push_type:"gcm"}];
 		next();
@@ -475,7 +475,7 @@ exports["server.api.create: throw error when no ret_handler handles the error"] 
 		
 	});
 	sb.init();
-	sb.add_plugin_mid("create","notif_plugins",sb.plugins.notifying_catalog,"docs");
+	sb.add_plugin_in("create","notif_plugins",sb.plugins.notifying_catalog,"docs");
 				
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
@@ -620,8 +620,8 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 	});
 	
 	sb.init();
-	sb.add_plugin_mid("create","notif_catalog",sb.plugins.notifying_catalog,"dummy")
-	  .add_plugin_mid("create","custom_plugin", function(ctx,end_handler){
+	sb.add_plugin_in("create","notif_catalog",sb.plugins.notifying_catalog,"dummy")
+	  .add_plugin_in("create","custom_plugin", function(ctx,end_handler){
 	  		
 	  		ctx.params.rcpts.push({uid:"620793115", push_id:"gcm-115", push_type:"gcm"});
 	  		end_handler();
@@ -722,8 +722,8 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 	});	
 	
 	sb.init();
-	sb.add_plugin_mid("create","notif_plugin",sb.plugins.notifying_catalog,"dummy")
-	  .add_plugin_mid("create","custom_plugin", function(ctx,end_handler){
+	sb.add_plugin_in("create","notif_plugin",sb.plugins.notifying_catalog,"dummy")
+	  .add_plugin_in("create","custom_plugin", function(ctx,end_handler){
 	  			  		
 	  		server.db.select("dummy","50187f71556efcbb25000002",function(err,val){
 			
@@ -1792,6 +1792,9 @@ exports["server.api.config.newop: create based op"] = function(test){
 					
 									if( col_str == "users"){
 										
+										test.equal(col_str,"users");
+										test.equal(id_str,"620793114");										
+										test.deepEqual(projection,{_id:1,push_id:1,push_type:1,name:1,wids:1});
 										ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:["66667f71556efcbb25000008"]});
 									}
 								}
@@ -1799,7 +1802,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 				 }
 	});
 	sb.init();
-	sb.add_plugin_mid("create","notif_plugin", sb.plugins.notifying_catalog,"docs");
+	sb.add_plugin_in("create","notif_plugin", sb.plugins.notifying_catalog,"docs");
 	
 	var server = sandbox.require("../lib/server",{
 		requires:{"./api":api,"./sandbox":sb}
@@ -1824,7 +1827,8 @@ exports["server.api.config.newop: create based op"] = function(test){
 			ret_handler(err,val);				
 		});	
 						
-	});
+	}).add_user_load_fields({_id:1,push_id:1,push_type:1,name:1,wids:1});
+	
 	test.notEqual( api.remote["newop1"], undefined );
 	test.notEqual( server.api.newop1, undefined );		
 	
@@ -1851,7 +1855,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 		test.ok(flag);
 		test.equal(err,undefined);
 		test.notEqual(val, undefined)
-		test.expect(15);
+		test.expect(18);
 		test.done();	
 	});
 					
