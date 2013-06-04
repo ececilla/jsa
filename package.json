@@ -7,6 +7,11 @@
     "name": "Enric Cecilla",
     "email": "ececilla@gmail.com"
   },
+  "license":"MIT",
+  "repository":{
+    "type":"git",
+    "url":"http://github.com/ececilla/jsa.git"
+  },
   "homepage": "https://github.com/ececilla/jsa",
   "engines": {
     "node": ">= 0.6.0",
