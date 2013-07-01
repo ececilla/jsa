@@ -1,6 +1,7 @@
 {
   "appenders": [
-    { "type": "console",
+    { 
+      "type": "console",
       "category":"server"
     },
     {
@@ -10,12 +11,22 @@
     {
        "type":"console",
        "category":"api"
+    },
+    {
+	"type":"console",
+	"category":"gcmpush"
+    },
+    {
+	"type":"console",
+	"category":"evmngr"
     }
   ],
   "replaceConsole": false,
   "levels":{
-    "server": "DEBUG",
-    "endpoint":"DEBUG",
-    "api":"DEBUG"
+    "server": "OFF",
+    "endpoint":"OFF",
+    "api":"OFF",
+    "gcmpush":"DEBUG",
+    "evmngr":"DEBUG"
   }
 }
