@@ -115,8 +115,7 @@ exports["api.remote.register: valid params"] = function(test){
 							save:function(col_str, user, ret_handler){
 																
 								//Not executed
-								test.equal(col_str,"users");
-								test.deepEqual(user.wids,[]);
+								test.equal(col_str,"users");								
 								test.equal( typeof user.ctime, "number" );
 																
 								user._id = "50187f71556efcbb25000002";
@@ -170,7 +169,7 @@ exports["api.remote.register: valid params"] = function(test){
 		test.equal(ctx.retval._id, undefined);
 		test.equal(ctx.retval.wids, undefined);
 		test.equal(ctx.retval.uid,"50187f71556efcbb25000002");
-		test.expect(13);		
+		test.expect(12);		
 		test.done();
 		
 	});

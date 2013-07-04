@@ -140,13 +140,8 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 								}							
 										
 								ret_handler(null,doc);	
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
-								ret_handler();
 							}
+							
 						 },
 					"./server":{config:{app:{debug:0}}}	 					 
 		}
@@ -198,7 +193,7 @@ exports["api.remote.create: invalid params: doc!=object"] = function(test){
 			
 		test.ok(flag);		
 		test.equal(err, null);
-		test.expect(7);
+		test.expect(5);
 		test.done();
 		
 	});
@@ -235,12 +230,6 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 									ret_handler(null,doc);
 								}
 																								
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
-								ret_handler();
 							}
 						 },
 					"./server":{config:{app:{debug:0}}}	 					 
@@ -284,7 +273,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog"] = fu
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(14);
+		test.expect(12);
 		test.done();			
 	});
 		
@@ -319,12 +308,6 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 								ret_handler(null,doc);
 								}
 																								
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
-								ret_handler();
 							}
 						 },
 					"./server":{config:{app:{debug:0}}}	 					 
@@ -365,7 +348,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog"] = f
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(14);
+		test.expect(12);
 		test.done();			
 	});	    
 	
@@ -399,12 +382,6 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 									ret_handler(null,doc);
 								}
 																								
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
-								ret_handler();
 							}
 						 },
 					"./server":{config:{app:{debug:0}}}	 					 
@@ -451,7 +428,7 @@ exports["api.remote.create: valid params, non init rcpts, explicit catalog, noti
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(14);
+		test.expect(12);
 		test.done();			
 	});
 	
@@ -485,12 +462,6 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 									ret_handler(null,doc);
 								}
 																								
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
-								ret_handler();
 							}
 						 },
 					"./server":{config:{app:{debug:0}}}	 					 
@@ -533,7 +504,7 @@ exports["api.remote.create: valid params, non init rcpts, default catalog, notif
 		test.ok(flag);		
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(14);
+		test.expect(12);
 		test.done();			
 	});
 				
@@ -568,12 +539,6 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 									ret_handler(null,doc);
 								}
 																								
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
-								ret_handler();
 							}
 						 },
 					"./server":{config:{app:{debug:0}}}	 					 
@@ -616,7 +581,7 @@ exports["api.remote.create: valid params, non init rcpts, added catalog"] = func
 		test.ok(flag);				
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(14);
+		test.expect(12);
 		test.done();			
 	});	
 	
@@ -652,12 +617,6 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 									ret_handler(null,doc);
 								}
 																								
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000002"}});								
-								ret_handler();
 							}
 						 },
 					"./server":{config:{app:{debug:0}}}	 					 
@@ -712,7 +671,7 @@ exports["api.remote.create: valid params, init rcpts async, added catalog, ev_ap
 		test.ok(flag);				
 		test.equal(err,null);
 		test.notEqual(val,null);
-		test.expect(17);		
+		test.expect(15);		
 		test.done();			
 	});
 		

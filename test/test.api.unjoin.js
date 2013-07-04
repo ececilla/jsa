@@ -136,14 +136,6 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 									},20);	
 								}
 									
-							},
-							update:function(col_str, id_str, opmodifier, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.equal(id_str,"620793114");								
-								test.deepEqual(opmodifier,{$set:{wids:[]}});
-								ret_handler();
-								
 							}
 						 },
 					"./api":api,	 
@@ -166,7 +158,7 @@ exports["api.remote.unjoin: valid params, uid in rcpts, default catalog, db asyn
 		test.equal(err,null);		
 		test.equal(ctx.retval,1);
 		
-		test.expect(10);
+		test.expect(7);
 		test.done();		
 		
 	});				

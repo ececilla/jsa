@@ -650,12 +650,6 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 									doc._id = "50187f71556efcbb25000001";						
 									ret_handler(null,doc);
 								}	
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
-								ret_handler();
 							}
 							
 						},
@@ -715,7 +709,7 @@ exports["evmngr.on: ev_api_create, reportable document, subscribed in init.rcpts
 		
 		test.equal(err,null);
 		test.notEqual(val,undefined);	
-		test.expect(21);
+		test.expect(19);
 		test.done();				
 		
 	});
@@ -744,12 +738,6 @@ exports["evmngr.on: ev_api_create, unreportable document, subscribed"] = functio
 									doc._id = "50187f71556efcbb25000001";						
 									ret_handler(null,doc);	
 								}
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
-								ret_handler();
 							}
 						},
 					"./server":{config:{app:{debug:0}}}
@@ -788,7 +776,7 @@ exports["evmngr.on: ev_api_create, unreportable document, subscribed"] = functio
 		test.ok(subs_flags[2]);		
 		test.equal(err,null);
 		test.notEqual(val,undefined);			
-		test.expect(11);
+		test.expect(9);
 		test.done();
 	});
 		

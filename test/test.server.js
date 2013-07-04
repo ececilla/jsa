@@ -203,8 +203,7 @@ exports["server.api.register: internal api events"] = function(test){
 																							
 								test.equal(col_str,"users");
 								test.equal(user.name,"test");
-								test.equal(user.email,"test@test.com");
-								test.deepEqual(user.wids,[]);
+								test.equal(user.email,"test@test.com");								
 								test.equal(typeof user.ctime, "number");
 								//test.deepEqual(user,{_id:620793114, name:"enric",wids:["50187f71556efcbb25000001"]});
 								user._id = "50187f71556efcbb25000001";
@@ -258,7 +257,7 @@ exports["server.api.register: internal api events"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(11);		
+		test.expect(10);		
 		test.done();
 	});
 					
@@ -285,12 +284,6 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 									doc._id = "50187f71556efcbb25000001";
 									ret_handler(null,doc);
 								}	
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
-								ret_handler();
 							}
 							
 		}}
@@ -343,7 +336,7 @@ exports["server.api.create: internal api events, default catalog"] = function(te
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(14);		
+		test.expect(12);		
 		test.done();
 	});
 						
@@ -369,12 +362,6 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 									doc._id = "50187f71556efcbb25000001";
 									ret_handler(null,doc);
 								}	
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
-								ret_handler();
 							}
 							
 		}}
@@ -431,7 +418,7 @@ exports["server.api.create: internal api events, custom rcpts plugin, default ca
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(14);		
+		test.expect(12);		
 		test.done();
 	});
 						
@@ -511,12 +498,6 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 									doc._id = "50187f71556efcbb25000001";
 									ret_handler(null,doc);
 								}	
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
-								ret_handler();
 							}
 		}}
 	});	
@@ -565,7 +546,7 @@ exports["server.api.create: internal events, explicit catalog"] = function(test)
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(13);		
+		test.expect(11);		
 		test.done();
 	});
 						
@@ -592,12 +573,6 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 									doc._id = "50187f71556efcbb25000001";
 									ret_handler(null,doc);
 								}	
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
-								ret_handler();
 							}
 		}}
 	});	
@@ -654,7 +629,7 @@ exports["server.api.create: internal events, added catalog"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val, undefined);								
 				
-		test.expect(13);		
+		test.expect(11);		
 		test.done();
 	});								
 	
@@ -682,13 +657,6 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 									dbdocs["50187f71556efcbb25000666"] = doc;
 									ret_handler(null,doc);	
 								}
-							},
-							
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000666"}});								
-								ret_handler();
 							},
 							
 							select:function(col_str, id_str, ret_handler){
@@ -752,7 +720,7 @@ exports["server.api.create: internal events, added catalog, ro db"] = function(t
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(12);		
+		test.expect(10);		
 		test.done();
 	});
 					
@@ -881,14 +849,6 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 						
 						ret_handler(null,{_id:id_str, push_id:"gcm-114", push_type:"gcm", name:"enric",wids:[]});
 					}
-				},
-				update:function(col_str, id_str, opmodifier, ret_handler){
-					
-					test.equal(col_str,"users");
-					test.equal(id_str,"620793114");								
-					test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000001"]}});
-					ret_handler();
-					
 				}
 	};
 	   
@@ -924,7 +884,7 @@ exports["server.api.join: internal events, default catalog"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(15);		
+		test.expect(12);		
 		test.done();
 	});
 						
@@ -971,14 +931,6 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 						
 						ret_handler(null,{_id:id_str, push_id:"gcm-116", push_type:"gcm", name:"enric",wids:["50187f71556efcbb25000001","50187f71556efcbb25000555"]});
 					}
-				},
-				update:function(col_str, id_str, opmodifier, ret_handler){
-					
-					test.equal(col_str,"users");
-					test.equal(id_str,"620793116");								
-					test.deepEqual(opmodifier,{$set:{wids:["50187f71556efcbb25000555"]}});
-					ret_handler();
-					
 				}
 	};
 	   
@@ -1014,7 +966,7 @@ exports["server.api.unjoin: internal events, default catalog"] = function(test){
 		test.equal(err,undefined);
 		test.notEqual(val,undefined);						
 				
-		test.expect(15);		
+		test.expect(12);		
 		test.done();
 	});
 						
@@ -1774,12 +1726,6 @@ exports["server.api.config.newop: create based op"] = function(test){
 									doc._id="50187f71556efcbb25000001"
 									ret_handler(null,doc);
 								}
-							},
-							update: function(col_str, id_str, criteria, ret_handler){
-								
-								test.equal(col_str,"users");
-								test.deepEqual(criteria,{$push:{wids:"50187f71556efcbb25000001"}});								
-								ret_handler();
 							}
 		}}
 	});
@@ -1855,7 +1801,7 @@ exports["server.api.config.newop: create based op"] = function(test){
 		test.ok(flag);
 		test.equal(err,undefined);
 		test.notEqual(val, undefined)
-		test.expect(18);
+		test.expect(16);
 		test.done();	
 	});
 					
