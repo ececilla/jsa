@@ -1901,7 +1901,7 @@ exports["server.api.config.newop: get based op"] = function(test){
 }
 
 
-exports["server.api.config.newop: reply"] = function(test){
+exports["server.api.config.newop:public reply"] = function(test){
 	
 	var ObjectID = require('mongodb').ObjectID;
 	var myparams = {wid:"50187f71556efcbb25000001", txt:"This is a reply", uid:"50187f71556efcbb25004444", catalog:"dummy"};
@@ -2024,8 +2024,9 @@ exports["server.api.config.newop: reply"] = function(test){
 		
 		not_push_event_flag = 0;
 	});
-	server.api.events.reply.on(function(msg){
+	server.api.events.reply.on(function(msg,rcpts){
 		
+		test.equal(rcpts, undefined);
 		test.equal(msg.ev_type,"ev_api_reply");		
 			
 	});		
@@ -2036,7 +2037,150 @@ exports["server.api.config.newop: reply"] = function(test){
 		test.ok(not_push_event_flag);
 		test.equal(err,undefined);
 		test.deepEqual(ctx.retval, 1);
-		test.expect(20);
+		test.expect(21);
+		test.done();	
+	});
+					
+}
+
+exports["server.api.config.newop:private reply, explicit rcpts"] = function(test){
+	
+	var ObjectID = require('mongodb').ObjectID;
+	var myparams = {wid:"50187f71556efcbb25000001", txt:"This is a reply", uid:"50187f71556efcbb25004444", catalog:"dummy", config:{ev_private:1}};
+	var dbdocs = {};//documents at db	
+		dbdocs["50187f71556efcbb25000001"] = {_id:new ObjectID("50187f71556efcbb25000001"),replies:[], uid:"50187f71556efcbb25005555", catalog:"dummy", rcpts:[{uid:"50187f71556efcbb25005555", push_id:"gcm-5555",push_type:"gcm"}, {uid:"50197f71556efcbb25004444", push_id:"gcm-4444",push_type:"gcm"}]};
+	var dbusers = {};
+		dbusers["50187f71556efcbb25005555"] = {_id:new ObjectID("50187f71556efcbb25005555"), name:"enric", push_type:"gcm", push_id:"5018-gcm", karma:5};	
+		dbusers["50187f71556efcbb25004444"] = {_id:new ObjectID("50187f71556efcbb25004444"), name:"peter", karma:60};
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{
+			
+			select: function(col_str, id_str, projection, ret_handler){
+			
+							test.equal(col_str,"users");
+							test.equal(id_str,"50187f71556efcbb25005555");
+							test.deepEqual(projection,{_id:0, karma:1});
+							ret_handler(null,dbusers["50187f71556efcbb25005555"].karma);
+			},
+			
+			update: function(col_str,id_str,criteria,ret_handler){
+				
+				if(col_str == "dummy"){
+					test.equal(col_str,"dummy");
+					test.equal(id_str,"50187f71556efcbb25000001");
+					test.equal(criteria.$push.replies.txt,"This is a reply");
+					test.equal(criteria.$push.replies.uid,"50187f71556efcbb25004444");
+				}else if(col_str == "users"){
+					
+					test.equal(col_str,"users");
+					test.equal(id_str,"50187f71556efcbb25005555");
+					test.deepEqual(criteria,{$set:{karma:10}});
+					
+				}
+				ret_handler(null,1);
+			}
+		}}
+	});	    		
+	var sb = sandbox.require("../lib/sandbox",{
+		requires:{	"./api":api,
+					"./server":{config:{app:{status:1},db:{default_catalog:"docs"}},api:{config:{procedures:{set:1,get:1, push:1, reply:1}}}},
+				 	"./db":{				
+								select:function(col_str, id_str, projection, ret_handler){
+									
+									if( typeof projection == "function")
+										ret_handler = projection;
+									
+									if( col_str == "users"){
+																			
+										test.equal(col_str,"users");
+										ret_handler(null,dbusers[id_str]);
+									}else if(col_str == "dummy"){
+										
+										test.equal(col_str,"dummy");
+										ret_handler(null,dbdocs[id_str]);
+									}
+								},
+								save:function(col_str, doc, ret_handler){
+									
+									if (col_str == "users"){
+										
+										test.equal(col_str,"users");
+										test.equal(doc.karma,10);
+									}	
+																		
+									ret_handler(null);
+								}
+							}
+				 }
+	});	
+	sb.init();	
+	
+	var server = sandbox.require("../lib/server",{
+		requires:{"./sandbox":sb,"./api":api}
+	});	
+	
+	
+	server.api.config.newop("reply", function(ctx, ret_handler){
+						
+		test.deepEqual(ctx.params, myparams);
+		test.deepEqual(ctx.doc, dbdocs["50187f71556efcbb25000001"]);															
+		ctx.config.emit = CONST.DISABLE(); 					
+					
+		async.parallel([
+			function(next){//push reply
+					
+				ctx.params.fname = "replies";
+				ctx.params.value = {txt:ctx.params.txt, uid:ctx.params.uid,t:time.now()};		
+				//ctx.user = null;		
+				server.api.push( ctx, function(err,ctx){
+																																																					
+					next(err);				
+				})	
+			},
+			function(next){//get and set karma
+				
+				var params = {wid:ctx.doc.uid, catalog:"users", fname:"karma"};				
+				server.api.get(params,function(err,ctx){
+					
+					ctx.params.value = ctx.retval + 5;
+					ctx.config.save = CONST.ENABLE();
+					server.api.set(ctx,function(err,ctx){
+						
+						next(err,1);
+					});															
+				});				
+			}
+		],function(err,retval){
+			
+			ctx.config.save = CONST.DISABLE();				
+			server.api.events.emit("ev_api_reply",ctx,[{uid:"111", push_id:"111", push_type:"gcm"}]);
+			ret_handler(err,retval[1]);
+		});
+						
+	});	
+	test.notEqual(api.remote.reply, undefined);
+	test.notEqual( server.api.reply, undefined );
+	
+	var not_push_event_flag = 1;
+	server.api.events.push.on(function(msg){
+		
+		not_push_event_flag = 0;
+	});	
+	server.api.events.reply.on(function(msg,rcpts){
+		
+		test.equal(msg.ev_type,"ev_api_reply");
+		test.equal(msg.ev_ctx.proc_name,"reply");
+		test.deepEqual(rcpts,[{uid:"111",push_id:"111",push_type:"gcm"}]);						
+			
+	});		
+	
+	
+	server.api.reply(myparams, function(err,ctx){
+					
+		test.ok(not_push_event_flag);
+		test.equal(err,undefined);
+		test.deepEqual(ctx.retval, 1);
+		test.expect(22);
 		test.done();	
 	});
 					

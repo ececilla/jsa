@@ -89,6 +89,71 @@ exports["evmngr.api.listen: custom event, explicit rcpts, different non-batch pu
 	
 }
 
+exports["evmngr.api.listen: custom event, explicit rcpts, config.ev_private:1"] = function(test){
+
+	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
+	var rcpts = [{uid:620793119, push_id:620793119,push_type:"gcm"}, {uid:620793115, push_id:620793115,push_type:"gcm"},{uid:620793117, push_id:620793117,push_type:"gcm",ev_types:["ev_foo"]}];
+	var api = sandbox.require("../lib/api",{
+		requires:{"./db":{}}
+	});
+		
+	
+	var eq = sandbox.require("../lib/evqueue",{
+		requires:{	
+					"./db":{	
+								save: function(col_str, msg, ret_handler){
+																																																			
+									test.equal(col_str,"events");
+									test.equal(msg.ev_type,"ev_dummy");
+									test.deepEqual(msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+									setTimeout(
+										function(){
+										ret_handler();
+									},500);
+																										
+								}	
+					}
+		}
+	});
+	var srv = 	sandbox.require("../lib/server");	
+	srv.config.app = {ev_journal:1};
+	var em = sandbox.require("../lib/evmngr",{
+		requires:{	"./api":api,"./evqueue":eq,"./server":srv }
+	});
+		
+	
+	var flag = 1;
+	em.add_push_provider("batch",{
+		
+		push:function(ids, push_msg){
+			
+			flag = 0;
+		}
+	},true);
+	
+	em.add_push_provider("gcm",{
+		
+		push:function(push_id,push_msg){//Only rcpts[0] is notified
+			
+			test.equal(push_id,620793119);
+			test.equal(push_msg.ev_type,"ev_dummy");
+			test.deepEqual(push_msg.ev_data,{foo:"50187f71556efcbb25000001", bar:620793114});
+			test.ok(flag);		
+			test.expect(7);
+			test.done();			
+		}
+	});
+						
+	em.api.listen("ev_dummy");//default_ev_handler attached to "ev_dummy"					
+	
+	var ctx = {doc:undefined,params:rpc_params, user:{_id:620793114, push_id:620793114, push_type:"web"}, config:{ev_private:1}};//payload a emitir
+	ctx.payload = ctx.params;
+	api.emit("ev_dummy", ctx, rcpts);
+	
+	
+	
+}
+
 exports["evmngr.api.listen: custom event, explicit rcpts, tag, different non-batch push_providers"] = function(test){
 
 	var rpc_params = {foo:"50187f71556efcbb25000001", bar:620793114};
