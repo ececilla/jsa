@@ -2,7 +2,7 @@
   "name":"jsa",
   "version": "0.0.32",
   "description": "json synchronization service",
-  "keywords":["synchronization","rpc"],
+  "keywords":["synchronization","rpc","jsonrpc","sync","mongodb"],
   "author": {
     "name": "Enric Cecilla",
     "email": "ececilla@gmail.com"
