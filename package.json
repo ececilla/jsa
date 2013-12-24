@@ -25,7 +25,8 @@
     "colors":"0.6.x",
     "prettyjson":"0.7.x",
     "underscore":"1.4.x",
-    "log4js":"0.6.x"
+    "log4js":"0.6.x",
+    "connect":"latest"
   },
   "devDependencies":{
     "nodeunit":"0.7.x",
