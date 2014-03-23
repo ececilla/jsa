@@ -1,0 +1,60 @@
+travis-ci.org
+[ci skip]
+
+var jsa = require("./lib/server")
+jsa.start();
+
+//db.users.find({subscriptions:{$elemMatch:{nw_lat:{$gt:41.3883},se_lat:{$lt:41.3883},nw_lng:{$lt:2.1131},se_lng:{$gt:2.1131}}}})
+
+Para conectar al repl:
+rlwrap socat READLINE UNIX-CONNECT:/tmp/repl-socket
+
+Permet afegir logica de negoci despres d'haver fet start!
+jsa.api.config.add_plugin("create","aux",function(ctx,next){ctx.params.rcpts.push(620793117);next();});
+
+Register delay for 5 seconds:
+jsa.api.config.add_plugin("register","delay",function(ctx,next){setTimeout(function(){next();},5000)});
+
+jsa.api.create({uid:620793114,doc:{test:1},ttl:5});
+jsa.api.register({user:{email:"ececilla@gmail.com",name:"ececilla",password:"wowwow"}});
+jsa.api.get({url:"#users/50de3b6705e9ae0252000001"});
+jsa.api.search({uid:"50e44a96a5651f5625000001",keyword:"test1"});
+jsa.api.list({uid:"50e44a96a5651f5625000001",criteria:{utime:{$gt:1357568003528}}});
+
+-El usuario 17 se conecta y borra sus eventos desde now.
+jsa.api.ack({uid:620793117,tstamp:new Date().getTime()});
+
+Pasos para crear una nueva version de la libreria/servicio:
+-Hacer todos los cambios al codigo
+-Cambiar la version de package.json
+editar package.json y aumentar la version 
+
+-Hacer commit de todo
+git commit -a
+
+-Hacer tag y push del tag
+git tag -a v0.0.6
+git push github v0.0.6
+
+-Publicar la nueva version en npm
+npm publish
+
+-Ir al cliente del servicio y cambiar la version de uso del modulo.
+npm update
+
+-Crear una aplicacion diy en openshift: Ya nos crea la carpeta para la app con el repositorio git dentro.
+
+$ rhc-create-app -a redis -t diy-0.1
+Application redis is available at: http://redis-worizon.rhcloud.com/
+  Git URL: ssh://8c7b2570072f46ac84b6f10c95fc3bf4@redis-worizon.rhcloud.com/~/git/redis.git/
+  
+-Crear un alias para la app.
+$rhc app add-alias -a app --alias api.worizon.com
+
+-Crear un nueva rama en git
+git branch sandbox
+git checkout sandbox
+git push github sandbox
+git branch
+
+
