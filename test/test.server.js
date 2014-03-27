@@ -1,3 +1,4 @@
+
 var sandbox = require("sandboxed-module");
 var async = require("async");
 
@@ -33,8 +34,7 @@ exports["module exported functions"] = function(test){
 		
 			requires:{"./api":api, "./sandbox":sb}
 		});
-	server.config.app = {status:1};
-	test.notEqual( server.add_http_plugin, undefined );
+	server.config.app = {status:1};	
 	test.notEqual( server.init, undefined );	
 	test.notEqual( server.init.add, undefined );
 	test.notEqual( server.settings, undefined );
@@ -64,8 +64,7 @@ exports["module exported functions"] = function(test){
 	test.notEqual( server.db.driver, undefined);
 	
 	test.notEqual( server.rpc, undefined);
-	test.notEqual( server.rpc.config, undefined);
-	test.notEqual( server.rpc.config.add_plugin, undefined);
+	test.notEqual( server.rpc.config, undefined);	
 	
 	test.notEqual( server.config.system, undefined);	
 	
@@ -88,7 +87,7 @@ exports["module exported functions"] = function(test){
 		test.equal(server.api.config.plugins[key], sb.plugins[key]);
 	}
 	
-	test.expect(52);	
+	test.expect(50);	
 	test.done();
 }
 
@@ -180,18 +179,6 @@ exports["server.api.events.on: custom api events"] = function(test){
 	
 }
 
-exports["server.add_http_plugin: custom plugin"] = function(test){
-	
-	var server = require("../lib/server");
-	
-	server.add_http_plugin("authentication",function(request, data){
-				
-	});
-			
-	
-	test.done();	
-	
-}
 
 exports["server.api.register: internal api events"] = function(test){
 	

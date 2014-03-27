@@ -1,3 +1,4 @@
+
 var sandbox = require("sandboxed-module");
 var time = require("../lib/time");
 
@@ -82,7 +83,7 @@ exports["timers.pick_timer"] = function(test){
 	var timers = sandbox.require("../lib/timers",{
 		requires:{"./db":{
 							criteria:function( col_str, criteria, order_field, ret_handler ){
-								
+																	
 									num++;						
 									test.equal(col_str,"timers");
 									test.notEqual(criteria["etime"],undefined);
@@ -92,7 +93,7 @@ exports["timers.pick_timer"] = function(test){
 										ret_handler(null,[]);								
 							},
 							removeById:function(col_str, id_str, ret_handler){
-								
+																
 								test.equal(col_str,"timers");
 								test.equal(id_str,"jhjd");								
 								ret_handler(null);
@@ -102,7 +103,7 @@ exports["timers.pick_timer"] = function(test){
 	});
 	var flag = 0;
 	timers.add_timer_type("foo",function( data ){
-		
+
 		test.deepEqual(data,{test:2});		
 		flag = 1;		
 	});	
