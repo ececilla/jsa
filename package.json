@@ -20,7 +20,7 @@
   "dependencies": {
     "async":"0.1.x",
     "mongodb":"1.2.x",
-    "moment":"1.6.x",
+    "moment":"2.24.x",
     "redis":"0.8.x",
     "colors":"0.6.x",
     "prettyjson":"0.7.x",
